@@ -1,0 +1,18 @@
+{
+  "name": "webgpu-experiments",
+  "version": "0.1.0",
+  "dependencies": {
+    "@webgpu/glslang": "^0.0.15",
+    "gl-matrix": "^3.2.1"
+  },
+  "devDependencies": {
+    "@webgpu/types": "^0.1.6",
+    "copyfiles": "^2.4.1",
+    "esbuild": "^0.12.25",
+    "typescript": "^4.4.2"
+  },
+  "scripts": {
+    "prestart": "copyfiles  src/**/*.html src/sidebar.js src/**/*.comp src/**/*.vert src/**/*.frag src/**/*.wgsl src/**/*.png build",
+    "compile": "npx esbuild src/scripts/ui.ts --bundle --outfile=build/src/ui.js"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "module": "esNext",
+    "target": "es6",
+    "sourceMap": true,
+    "outDir": "build/src/scripts",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+
+    // more strict tests for the typescript code
+    "strict": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "typeRoots": [ "./node_modules/@webgpu/types", "./node_modules/@types"],
+    "lib": [
+      "es2017",
+      "esnext.bigint",
+      "dom"
+    ]
+  },
+  "include": [
+    "src/scripts/**/*"
+  ],
+  "exclude": ["node_modules"]
+}

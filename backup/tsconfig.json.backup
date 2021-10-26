@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "module": "esNext",
+    "target": "es6",
+    "sourceMap": true,
+    "outDir": "build/src/scripts",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+
+    // more strict tests for the typescript code
+    "strict": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+
+    "typeRoots": [ "./node_modules/@webgpu/types", "./node_modules/@types"],
+    //"types": ["@webgpu/types"], // type declaration files to be included in compilation
+    "lib": [
+      "es2017",
+      "esnext.bigint",
+      "dom"
+    ]
+  },
+  "include": [
+    "src/scripts/**/*",
+    //"node_modules/@webgpu/glslang/",
+    //"node_modules/@webgpu/glslang/dist/web-devel/glslang.d.ts"
+  ],
+  "exclude": ["node_modules"]
+}

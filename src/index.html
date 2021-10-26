@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>WebGPU experiments</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="WebGPU examples. Focus on compute shaders.">
+    <meta name="author" content="Sebastian Macke">
+
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+
+    <style>
+        main {
+            display: flex;
+            flex-wrap: nowrap;
+            height: 100vh;
+            /*height: -webkit-fill-available;*/
+            max-height: 100vh;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+    </style>
+
+</head>
+
+<main>
+<div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">
+    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+        <svg class="bi me-2" width="40" height="32"><use xlink:href="#"/></svg>
+        <span class="fs-4">WebGPU Experiments</span>
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li>
+            <a href="#" class="nav-link text-white active" id="button_features">
+                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
+                WebGPU Features
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link text-white" id="button_texture">
+                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
+                Simple Render of Texture
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link text-white" id="button_gi">
+                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
+                Global Illumination
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link text-white" id="button_clouds">
+                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
+                Protean Clouds
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link text-white" id="button_collatz">
+                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
+                Collatz Conjecture
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link text-white" id="button_fbm">
+                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
+                FBM
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link text-white" id="button_sdf">
+                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
+                Signed Distance Field
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link text-white" id="button_fluid">
+                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
+                Fluid
+            </a>
+        </li>
+    </ul>
+    <hr>
+</div>
+
+<!-- flex-shrink-0 -->
+
+<div class="d-flex flex-column p-3 text-white bg-dark" style="width: 100%;">
+    <p id="info"></p>
+    <canvas width="512" height="512" id="screen" style="width: auto; height: auto; max-height: 100%;"></canvas>
+</div>
+
+</main>
+
+<script src="assets/js/bootstrap.bundle.min.js"></script>
+<script src="sidebar.js"></script>
+<script src="ui.js" type="module"></script>
+
+</body>
+
+</html>
+
