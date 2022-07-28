@@ -6,7 +6,7 @@ export class TextureFactory {
 
     static async CreateTextureFromArrayBuffer(width, height: number, format: GPUTextureFormat, data: ArrayBuffer): Promise<Texture> {
         console.log("Create Texture from Buffer: " + format);
-        let buffer: Buffer = GPU.CreateBufferFromArrayBuffer(data);
+        let buffer: Buffer = GPU.CreateStorageBufferFromArrayBuffer(data);
         let texture: Texture = GPU.CreateTexture(width, height, format);
         if (data.byteLength < texture.width * texture.height * texture.bytesPerPixel) {
             throw new Error("Create Texture from Buffer: Buffer too short");

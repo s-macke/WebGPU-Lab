@@ -1,17 +1,17 @@
-[[group(0), binding(0)]] var pressuresrc: texture_2d<f32>;
-[[group(0), binding(1)]] var pressuredest: texture_storage_2d<r32float, write>;
-[[group(0), binding(2)]] var rhs: texture_2d<f32>;
-[[group(0), binding(3)]] var flags: texture_2d<i32>;
+@group(0) @binding(0) var pressuresrc: texture_2d<f32>;
+@group(0) @binding(1) var pressuredest: texture_storage_2d<r32float, write>;
+@group(0) @binding(2) var rhs: texture_2d<f32>;
+@group(0) @binding(3) var flags: texture_2d<i32>;
 
-[[stage(compute), workgroup_size(1)]]
-fn main([[builtin(global_invocation_id)]] global_id: vec3<u32>) {
+@compute @workgroup_size(8, 8)
+fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let pixel_coords = vec2<i32>(global_id.xy) + 1;
 
     let f = textureLoad(flags, pixel_coords, 0).r;
-/*
+
     // is not fluid?
     if  ((f&1) == 0) { return; }
-*/
+
     let div = textureLoad(rhs, pixel_coords, 0).r;
     var l = textureLoad(pressuresrc, pixel_coords + vec2<i32>(-1,  0), 0).r;
     var r = textureLoad(pressuresrc, pixel_coords + vec2<i32>( 1,  0), 0).r;

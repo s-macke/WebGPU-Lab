@@ -1,15 +1,24 @@
-[[group(0), binding(0)]] var img_output: texture_storage_2d<rgba32float, write>;
+//@block
+struct StagingBuffer {
+    iMouse: vec2<f32>,
+    iTime: f32
+};
+
+@group(0) @binding(0) var img_output: texture_storage_2d<rgba32float, write>;
+@group(0) @binding(1) var<uniform> staging: StagingBuffer;
 
 // Play with the two following values to change quality.
 // You want as many samples as your GPU can bear. :)
-let SAMPLES = 50;
-let MAXDEPTH = 4;
+const SAMPLES = 100;
+const MAXDEPTH = 4;
 
-let PI = 3.14159265359;
-let DIFF = 0;
-let SPEC = 1;
-let REFR = 2;
-let NUM_SPHERES = 9;
+const PI = 3.14159265359;
+const DIFF = 0;
+const SPEC = 1;
+const REFR = 2;
+const NUM_SPHERES = 9;
+
+
 
 var<private> seed: f32 = 0.;
 fn rand() -> f32 {
@@ -18,19 +27,19 @@ fn rand() -> f32 {
     return tmp;
 }
 
-[[block]]
+//@block
 struct Ray {
-    o: vec3<f32>;
-    d: vec3<f32>;
+    o: vec3<f32>,
+    d: vec3<f32>
 };
 
 //[[block]]
 struct Sphere {
-    r: f32;
-    p: vec3<f32>;
-    e: vec3<f32>;
-    c: vec3<f32>;
-    refl: i32;
+    r: f32,
+    p: vec3<f32>,
+    e: vec3<f32>,
+    c: vec3<f32>,
+    refl: i32
 };
 
 var<private> lightSourceVolume: Sphere;
@@ -38,15 +47,15 @@ var<private> spheres: array<Sphere, NUM_SPHERES>;
 
 fn initSpheres() {
     lightSourceVolume = Sphere(20., vec3<f32>(50., 81.6, 81.6), vec3<f32>(12.), vec3<f32>(0.), DIFF);
-    spheres[0] = Sphere(1.e5, vec3<f32>(-1.e5 + 1., 40.8, 81.6),      vec3<f32>(0.), vec3<f32>(.75, .25, .25), DIFF);
-    spheres[1] = Sphere(1.e5, vec3<f32>( 1.e5+99., 40.8, 81.6),       vec3<f32>(0.), vec3<f32>(.25, .25, .75), DIFF);
-    spheres[2] = Sphere(1.e5, vec3<f32>(50.,       40.8, -1.e5),      vec3<f32>(0.), vec3<f32>(.75), DIFF);
-    spheres[3] = Sphere(1.e5, vec3<f32>(50.,       40.8,  1.e5+170.), vec3<f32>(0.), vec3<f32>(0.), DIFF);
-    spheres[4] = Sphere(1.e5, vec3<f32>(50.,      -1.e5, 81.6),		  vec3<f32>(0.), vec3<f32>(.75), DIFF);
-    spheres[5] = Sphere(1.e5, vec3<f32>(50.,  1.e5+81.6, 81.6),       vec3<f32>(0.), vec3<f32>(.75), DIFF);
+    spheres[0] = Sphere(1.e5, vec3<f32>(-1.e5 + 1., 40.8, 81.6),      vec3<f32>(0.), vec3<f32>(.75, .25, .25), DIFF); // left wall
+    spheres[1] = Sphere(1.e5, vec3<f32>( 1.e5+99., 40.8, 81.6),       vec3<f32>(0.), vec3<f32>(.25, .25, .75), DIFF); // right wall
+    spheres[2] = Sphere(1.e5, vec3<f32>(50.,       40.8, -1.e5),      vec3<f32>(0.), vec3<f32>(.75), DIFF); // back wall
+    spheres[3] = Sphere(1.e5, vec3<f32>(50.,       40.8,  1.e5+170.), vec3<f32>(0.), vec3<f32>(0.), DIFF); // front wall
+    spheres[4] = Sphere(1.e5, vec3<f32>(50.,      -1.e5, 81.6),		  vec3<f32>(0.), vec3<f32>(.75), DIFF); // bottom wall
+    spheres[5] = Sphere(1.e5, vec3<f32>(50.,  1.e5+81.6, 81.6),       vec3<f32>(0.0), vec3<f32>(.75), DIFF); // top wall
     spheres[6] = Sphere(16.5, vec3<f32>(27.,       16.5, 47.), 	      vec3<f32>(0.), vec3<f32>(1.), SPEC);
     spheres[7] = Sphere(16.5, vec3<f32>(73.,       16.5, 78.), 	      vec3<f32>(0.), vec3<f32>(.7, 1., .9), REFR);
-    spheres[8] = Sphere(600., vec3<f32>(50.,     681.33, 81.6),	      vec3<f32>(12.), vec3<f32>(0.), DIFF);
+    spheres[8] = Sphere(600., vec3<f32>(50.,     681.33, 81.6),	      vec3<f32>(12.), vec3<f32>(0.), DIFF); // another light source?
 }
 
 fn intersectSphere(s: Sphere, r: Ray) -> f32 {
@@ -136,6 +145,7 @@ fn radiance(r_par: Ray) -> vec3<f32> {
                 // cast rays toward them, but since there is only one
                 // light source, that is mostly occluded, here goes
                 // the ad hoc optimization:
+
                 var s: Sphere = lightSourceVolume;
                 i = 8;
 
@@ -148,6 +158,7 @@ fn radiance(r_par: Ray) -> vec3<f32> {
                     let omega = 2. * PI * (1. - cos_a_max);
                     e = e + ((s.e * clamp( dot(l, n), 0., 1.) * omega) / PI);
                 }
+
             }
 
 //#endif
@@ -189,20 +200,18 @@ fn radiance(r_par: Ray) -> vec3<f32> {
     return acc;
 }
 
-[[stage(compute), workgroup_size(1)]]
-fn main([[builtin(global_invocation_id)]] global_id: vec3<u32>) {
+@compute @workgroup_size(8, 8)
+fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     initSpheres();
     var iResolution = vec2<f32>(textureDimensions(img_output));
     var fragCoord = vec2<f32>(global_id.xy) + 0.5;
 
-    var iTime = 0.;
-    seed = iTime + iResolution.y * fragCoord.x / iResolution.x + fragCoord.y / iResolution.y;
-
-    var iMouse = vec2<f32>(0.);
+    seed = staging.iTime + iResolution.y * fragCoord.x / iResolution.x + fragCoord.y / iResolution.y;
 
     var uv: vec2<f32> = 2. * fragCoord.xy / iResolution.xy - 1.;
-    //var camPos = vec3<f32>((2. * (iMouse.xy==vec2(0.)?.5*iResolution.xy:iMouse.xy) / iResolution.xy - 1.) * vec2<f32>(48., 40.) + vec2<f32>(50., 40.8), 169.);
-    var camPos = vec3<f32>((2. * (.5 * iResolution.xy) / iResolution.xy - 1.) * vec2<f32>(48., 40.) + vec2<f32>(50., 40.8), 169.);
+    //var camPos = vec3<f32>((2. * (staging.iMouse.xy==vec2(0.)?.5*iResolution.xy:staging.iMouse.xy) / iResolution.xy - 1.) * vec2<f32>(48., 40.) + vec2<f32>(50., 40.8), 169.);
+    var camPos = vec3<f32>((2. * staging.iMouse.xy / iResolution.xy - 1.) * vec2<f32>(48., 40.) + vec2<f32>(50., 40.8), 169.);
+    //var camPos = vec3<f32>((2. * (.5 * iResolution.xy) / iResolution.xy - 1.) * vec2<f32>(48., 40.) + vec2<f32>(50., 40.8), 169.);
     var cz = normalize(vec3<f32>(50., 40., 81.6) - camPos);
     var cx = vec3<f32>(1., 0., 0.);
     var cy = normalize(cross(cx, cz)); cx = cross(cz, cy);

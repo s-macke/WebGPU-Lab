@@ -4,33 +4,38 @@ import {Buffer} from "./buffer";
 import {BufferFactory} from "./bufferFactory";
 import {TextureFactory} from "./textureFactory";
 
+type Rect = {width: number, height: number};
+type Coordinate = {x: number, y: number};
+
 export class GPU {
     private static adapter: GPUAdapter;
     static device: GPUDevice;
     private static glslang: any;
     private static gpuContext: GPUCanvasContext;
-    public static width: number;
-    public static height: number;
+    public static viewport: Rect = {width: 0, height: 0};
+    public static mouseCoordinate: Coordinate = {x: 0, y: 0};
     public static isInitialized: boolean
+
 
     static async Init() {
         this.isInitialized = false;
-        console.log("Initialize WegGPU");
+        console.log("Initialize WebGPU");
         console.log("Request Adapter");
         if (navigator.gpu == null) {
             throw new Error("WebGPU not supported");
         }
         this.adapter = await navigator.gpu.requestAdapter({
             //powerPreference: "high-performance"
+            //powerPreference: "low-power"
         });
         if (this.adapter == null) {
-            throw new Error("Cannot get gpu adapter");
+            throw new Error("Cannot get GPU adapter");
         }
 
         console.log("Request Device");
         this.device = await this.adapter.requestDevice();
         if (this.device == null) {
-            throw new Error("Cannot get gpu device");
+            throw new Error("Cannot get GPU device");
         }
 
         console.log("Initialized");
@@ -43,29 +48,32 @@ export class GPU {
         if (this.gpuContext == null) {
             throw new Error("WebGPU context null");
         }
-        //this.width = canvas.clientWidth;
-        //this.height = canvas.clientHeight;
-        this.width = canvas.width;
-        this.height = canvas.height;
-        console.log("canvas width: " + this.width)
-        console.log("canvas height: " + this.height)
+        canvas.onmousemove = (e) => {
+            this.mouseCoordinate.x = e.offsetX / canvas.clientWidth * canvas.width;
+            this.mouseCoordinate.y = canvas.height - e.offsetY / canvas.clientHeight * canvas.height;
+        }
+
+        this.viewport.width = canvas.width;
+        this.viewport.height = canvas.height;
+        console.log("canvas width: " + this.viewport.width)
+        console.log("canvas height: " + this.viewport.height)
         console.log("canvas clientWidth: " + canvas.clientWidth)
         console.log("canvas clientHeight: " + canvas.clientHeight)
         const devicePixelRatio = window.devicePixelRatio || 1;
         console.log("devicePixelRatio: " + devicePixelRatio)
+        /*
         const presentationSize = [
-            /*
-            canvas.clientWidth * devicePixelRatio,
-            canvas.clientHeight * devicePixelRatio,
-             */
+            //canvas.clientWidth * devicePixelRatio,
+            //canvas.clientHeight * devicePixelRatio,
             canvas.width,
             canvas.height
         ];
-
+*/
         this.gpuContext.configure({
             device: this.device,
-            format: this.gpuContext.getPreferredFormat(this.adapter),
-            size: presentationSize,
+            format: navigator.gpu.getPreferredCanvasFormat(),
+            alphaMode: "opaque"
+            //size: presentationSize,
         });
         console.log("Set Canvas Done")
         this.isInitialized = true;
@@ -87,14 +95,19 @@ export class GPU {
         return {
             colorAttachments: [{
                 view: GPU.gpuContext.getCurrentTexture().createView(),
-                loadValue: {r: 0.0, g: 0.0, b: 0.0, a: 1.0},
+                clearValue: {r: 0.0, g: 0.0, b: 0.0, a: 1.0},
+                loadOp: "clear",
                 storeOp: "store"
             }],
         };
     }
 
     static getPreferredFormat(): GPUTextureFormat {
-        return this.gpuContext.getPreferredFormat(this.adapter);
+        return navigator.gpu.getPreferredCanvasFormat()
+    }
+
+    static getMouseCoordinate(): Coordinate {
+        return this.mouseCoordinate;
     }
 
     static CreateTexture(width, height: number, format: GPUTextureFormat): Texture {
@@ -130,19 +143,23 @@ export class GPU {
         });
     }
 
-    static CreateBufferFromArrayBuffer(data: ArrayBuffer): Buffer {
+    static CreateStorageBufferFromArrayBuffer(data: ArrayBuffer): Buffer {
         return BufferFactory.createFromArrayBuffer(data)
     }
 
-    static CreateBufferEmpty(size: number): Buffer {
-        return BufferFactory.createEmpty(size);
+    static CreateUniformBuffer(size: number): Buffer {
+        return BufferFactory.createUniformBuffer(size);
+    }
+
+    static CreateBufferCopy(size: number): Buffer {
+        return BufferFactory.createCopyBuffer(size);
     }
 
     static async CreateShader(url: string): Promise<GPUProgrammableStage> {
         return new Promise<GPUProgrammableStage>((resolve, reject) => {
             LoadTextResource(url).then(
                 code => {
-                    let spirv: Uint32Array;
+                    let spirv: string;
 
                     if (url.endsWith(".comp")) {
                         spirv = this.glslang.compileGLSL(code, "compute");
@@ -251,7 +268,7 @@ export class GPU {
                 module: fragShader.module,
                 constants: fragShader.constants,
                 targets: [{
-                    format: GPU.getPreferredFormat()
+                    format: navigator.gpu.getPreferredCanvasFormat()
                 }]
             },
             primitive: {
@@ -266,7 +283,8 @@ export class GPU {
                         const renderPassDescriptor: GPURenderPassDescriptor = {
                             colorAttachments: [{
                                 view: this.gpuContext.getCurrentTexture().createView(),
-                                loadValue: {r: 0.0, g: 0.0, b: 0.0, a: 1.0},
+                                clearValue: {r: 0.0, g: 0.0, b: 0.0, a: 1.0},
+                                loadOp: "clear",
                                 storeOp: "store"
                             }],
                         };
@@ -276,7 +294,7 @@ export class GPU {
                         passEncoder.setPipeline(pipeline);
                         passEncoder.setBindGroup(0, bind_group);
                         passEncoder.draw(4, 1, 0, 0);
-                        passEncoder.endPass();
+                        passEncoder.end();
 
                         this.device.queue.submit([commandEncoder.finish()]);
         }

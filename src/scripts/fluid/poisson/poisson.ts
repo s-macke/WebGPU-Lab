@@ -26,12 +26,12 @@ export class Poisson {
     }
 
     async Init() {
-        let shader = await GPU.CreateWGSLShader("scripts/fluid/poisson/jacobi2.wgsl")
+        let shader = await GPU.CreateWGSLShader("scripts/fluid/poisson/jacobi.wgsl")
 
         await this.InitScaler();
         this.pressurea = GPU.CreateTexture(this.width, this.height, "r32float");
         this.pressureb = GPU.CreateTexture(this.width, this.height, "r32float");
-/*
+
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{
                 binding: 0,
@@ -58,7 +58,7 @@ export class Poisson {
                 visibility: GPUShaderStage.COMPUTE
             }]
         });
-*/
+        /*
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{
                 binding: 0,
@@ -89,7 +89,8 @@ export class Poisson {
                 visibility: GPUShaderStage.COMPUTE
             }]
         });
-
+*/
+        /*
         this.bind_groupa = GPU.device.createBindGroup({
             layout: this.bind_group_layout,
             entries: [{
@@ -109,7 +110,25 @@ export class Poisson {
                 resource: this.scalecenter.textureView
             }]
         });
-/*
+         */
+
+        this.bind_groupa = GPU.device.createBindGroup({
+            layout: this.bind_group_layout,
+            entries: [{
+                binding: 0,
+                resource: this.pressurea.textureView
+            }, {
+                binding: 1,
+                resource: this.pressureb.textureView
+            }, {
+                binding: 2,
+                resource: this.rhs.textureView
+            }, {
+                binding: 3,
+                resource: this.flags.textureView
+            }]
+        });
+
         this.bind_groupb = GPU.device.createBindGroup({
             layout: this.bind_group_layout,
             entries: [{
@@ -126,8 +145,8 @@ export class Poisson {
                 resource: this.flags.textureView
             }]
         });
-*/
 
+        /*
         this.bind_groupb = GPU.device.createBindGroup({
             layout: this.bind_group_layout,
             entries: [{
@@ -147,7 +166,7 @@ export class Poisson {
                 resource: this.scalecenter.textureView
             }]
         });
-
+*/
         this.pipeline_layout = GPU.device.createPipelineLayout({
             bindGroupLayouts: [this.bind_group_layout]
         });
@@ -167,15 +186,17 @@ export class Poisson {
             pass = encoder.beginComputePass();
             pass.setBindGroup(0, this.bind_groupa);
             pass.setPipeline(this.compute_pipeline);
-            pass.dispatch((this.width-2)/4, (this.height-2)/4);
-            pass.endPass();
+            pass.dispatchWorkgroups((this.width-2)/8, (this.height-2)/8);
+            pass.end();
             //encoder.copyTextureToTexture({texture: this.pressureb.texture}, {texture: this.pressurea.texture}, [this.width, this.height, 1]);
 
             pass = encoder.beginComputePass();
             pass.setBindGroup(0, this.bind_groupb);
             pass.setPipeline(this.compute_pipeline);
-            pass.dispatch((this.width-2)/4, (this.height-2)/4);
-            pass.endPass();
+            pass.dispatchWorkgroups((this.width-2)/8, (this.height-2)/8);
+            pass.end();
+
+
         }
         let command_buffer: GPUCommandBuffer = encoder.finish();
         return command_buffer;

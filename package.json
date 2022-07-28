@@ -6,10 +6,10 @@
     "gl-matrix": "^3.2.1"
   },
   "devDependencies": {
-    "@webgpu/types": "^0.1.6",
+    "@webgpu/types": "^0.1.21",
     "copyfiles": "^2.4.1",
-    "esbuild": "^0.12.25",
-    "typescript": "^4.4.2"
+    "esbuild": "^0.14",
+    "typescript": "^4.4"
   },
   "scripts": {
     "prestart": "copyfiles  src/**/*.html src/sidebar.js src/**/*.comp src/**/*.vert src/**/*.frag src/**/*.wgsl src/**/*.png build",

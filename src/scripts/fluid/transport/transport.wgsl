@@ -1,13 +1,13 @@
-[[group(0), binding(0)]] var t_old: texture_2d<f32>;
-[[group(0), binding(1)]] var t_sampler: sampler;
-[[group(0), binding(2)]] var new: texture_storage_2d<rgba16float, write>;
-[[group(0), binding(3)]] var velocity: texture_2d<f32>;
-[[group(0), binding(4)]] var flags: texture_2d<i32>;
+@group(0) @binding(0) var t_old: texture_2d<f32>;
+@group(0) @binding(1) var t_sampler: sampler;
+@group(0) @binding(2) var new: texture_storage_2d<rgba16float, write>;
+@group(0) @binding(3) var velocity: texture_2d<f32>;
+@group(0) @binding(4) var flags: texture_2d<i32>;
 
-[[override]] let dt: f32 = 1.;
+const dt: f32 = 1.;
 
-[[stage(compute), workgroup_size(2, 2)]]
-fn main([[builtin(global_invocation_id)]] global_id: vec3<u32>) {
+@compute @workgroup_size(8, 8)
+fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let dims = vec2<f32>(textureDimensions(new));
     let scale = 1. / dims;
     let pixel_coords = vec2<i32>(global_id.xy) + 1;

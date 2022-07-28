@@ -1,4 +1,11 @@
-[[group(0), binding(0)]] var img_output: texture_storage_2d<rgba32float, write>;
+struct StagingBuffer
+{
+    iMouse: vec2<f32>,
+    iTime: f32
+};
+
+@group(0) @binding(0) var img_output: texture_storage_2d<rgba32float, write>;
+@group(0) @binding(1) var<uniform> staging: StagingBuffer;
 
 fn noise(p_par: vec3<f32>) -> f32 {
     var p = p_par;
@@ -30,8 +37,8 @@ fn vignette(color: vec3<f32>, q: vec2<f32>, v: f32) -> vec3<f32> {
     return color * mix(1., pow(16.0 * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), v), 0.02);
 }
 
-[[stage(compute), workgroup_size(2, 2)]]
-fn main([[builtin(global_invocation_id)]] global_id: vec3<u32>) {
+@compute @workgroup_size(8, 8)
+fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let pixel_coords = vec2<i32>(global_id.xy);
-    textureStore(img_output, pixel_coords, vec4<f32>(fbm(vec3<f32>(f32(global_id.x), f32(global_id.y), 0.)*0.02,5).x));
+    textureStore(img_output, pixel_coords, vec4<f32>(fbm(vec3<f32>(f32(global_id.x), f32(global_id.y), staging.iTime*20.)*0.02, 5).x));
 }

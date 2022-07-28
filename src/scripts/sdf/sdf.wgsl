@@ -18,10 +18,10 @@
 // such as WENO (https://en.wikipedia.org/wiki/WENO_methods) and
 // upwind schemes (https://en.wikipedia.org/wiki/Upwind_scheme)
 
-[[group(0), binding(0)]] var boundary_src: texture_2d<f32>;
-[[group(0), binding(1)]] var sdf_src: texture_2d<f32>;
-[[group(0), binding(2)]] var sdf_dest: texture_storage_2d<rg32float, write>;
-[[group(0), binding(3)]] var render_output: texture_storage_2d<rgba32float, write>;
+@group(0) @binding(0) var boundary_src: texture_2d<f32>;
+@group(0) @binding(1) var sdf_src: texture_2d<f32>;
+@group(0) @binding(2) var sdf_dest: texture_storage_2d<rg32float, write>;
+@group(0) @binding(3) var render_output: texture_storage_2d<rgba32float, write>;
 
 let timestep = 0.2;
 /*
@@ -167,8 +167,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 }
 */
 
-[[stage(compute), workgroup_size(1)]]
-fn main([[builtin(global_invocation_id)]] global_id: vec3<u32>) {
+@compute @workgroup_size(8, 8)
+fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let uv = vec2<i32>(global_id.xy);
     let sign0 = getSign(uv);
     let L = length(gradient(uv, sign0)) - 1.;

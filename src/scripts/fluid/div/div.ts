@@ -76,8 +76,8 @@ export class Div {
             let pass: GPUComputePassEncoder = encoder.beginComputePass();
             pass.setBindGroup(0, this.bind_group);
             pass.setPipeline(this.compute_pipeline);
-            pass.dispatch((this.width-2)/2, (this.height-2)/2);
-            pass.endPass();
+            pass.dispatchWorkgroups((this.width-2)/8, (this.height-2)/8);
+            pass.end();
         }
         let command_buffer: GPUCommandBuffer = encoder.finish();
         return command_buffer;

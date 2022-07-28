@@ -91,8 +91,9 @@ async function Init() {
 
 function ShowFeatures() {
     if (!GPU.isInitialized) return;
-    let infoElement = document.getElementById("info");
     stopAll();
+    let infoElement = document.getElementById("info");
+
     document.getElementById("screen").style.visibility = "hidden";
 
     infoElement.innerHTML = "<h4>Adapter Features</h4>"
@@ -103,7 +104,7 @@ function ShowFeatures() {
     for(let item of features.values()) {
         infoElement.innerHTML += item + "<br>";
     }
-    infoElement.innerHTML += "<h4>Device Features</h4>"
+    infoElement.innerHTML += "<br><h4>Device Features</h4>"
     features = GPU.GetDeviceFeatures();
     if (features.size == 0) {
         infoElement.innerHTML += "-- none --";
@@ -111,9 +112,9 @@ function ShowFeatures() {
     for(let item of features.values()) {
         infoElement.innerHTML += item + "<br>";
     }
-    infoElement.innerHTML += "<h4>Preferred Output Format</h4>" + GPU.getPreferredFormat();
+    infoElement.innerHTML += "<br><br><h4>Preferred Output Format</h4>" + navigator.gpu.getPreferredCanvasFormat();
 
-    infoElement.innerHTML += "<h4>Device Limits</h4>"
+    infoElement.innerHTML += "<br><br><h4>Device Limits</h4>"
 
     let s = ""
     let limits = GPU.GetDeviceLimits()
@@ -135,7 +136,7 @@ function ShowFeatures() {
 async function ShowTexture() {
     if (!GPU.isInitialized) return;
     stopAll();
-    document.getElementById("info").innerHTML="";
+    document.getElementById("info").innerHTML="Hello world";
     document.getElementById("screen").style.visibility = "visible";
 
     let texture = await GPU.createTextureFromImage("scripts/render/Lenna.png");
@@ -143,10 +144,12 @@ async function ShowTexture() {
     let render = new Render(texture);
     await render.Init();
 
-    requestAnimationFrame(async () => {
+    frame = async () => {
         await render.Render();
         texture.destroy()
-    } );
+    }
+
+    requestAnimationFrame(frame);
 }
 
 async function ShowFluid() {
@@ -162,7 +165,6 @@ async function ShowFluid() {
     frame = async () => {
         await fluid.Step();
         if (stop_raytrace) {
-            //.destroy()
             return;
         }
         requestAnimationFrame(frame)
@@ -265,6 +267,9 @@ document.getElementById("button_collatz").addEventListener("click", ShowCollatz)
 document.getElementById("button_clouds").addEventListener("click", () => ShowRaytrace("cloud.wgsl"))
 document.getElementById("button_gi").addEventListener("click", () => ShowRaytrace("smallpt.wgsl"))
 document.getElementById("button_fbm").addEventListener("click", () => ShowRaytrace("fbm.wgsl"))
+document.getElementById("button_voronoise").addEventListener("click", () => ShowRaytrace("voronoise.wgsl"))
+document.getElementById("button_2dlight").addEventListener("click", () => ShowRaytrace("light.wgsl"))
+
 document.getElementById("button_sdf").addEventListener("click", () => ShowSDF())
 document.getElementById("button_fluid").addEventListener("click", () => ShowFluid())
 

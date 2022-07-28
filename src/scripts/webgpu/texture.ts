@@ -104,7 +104,7 @@ export class Texture {
         const imageData: ImageData = imageCanvasContext.createImageData(this.width, this.height);
 
         let size: number = this.width * this.height * this.bytesPerPixel;
-        let buffer: Buffer = GPU.CreateBufferEmpty(size);
+        let buffer: Buffer = GPU.CreateBufferCopy(size);
 
         let encoder: GPUCommandEncoder = GPU.device.createCommandEncoder({
             label: "command_encoder"

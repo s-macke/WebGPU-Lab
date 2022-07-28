@@ -2,7 +2,22 @@ import {GPU} from "./gpu";
 import {Buffer} from "./buffer";
 
 export class BufferFactory {
-    static createEmpty(size: number) : Buffer {
+    static createUniformBuffer(size: number) : Buffer {
+        let buffer = new Buffer()
+        buffer.size = size;
+        buffer.buffer =
+            GPU.device.createBuffer({
+                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+                size: size,
+                mappedAtCreation: false
+            });
+        buffer.resource = {
+            buffer: buffer.buffer
+        }
+        return buffer;
+    }
+
+    static createCopyBuffer(size: number) : Buffer {
         let buffer = new Buffer()
         buffer.size = size;
         buffer.buffer =
@@ -16,6 +31,7 @@ export class BufferFactory {
         }
         return buffer;
     }
+
 
     static createFromArrayBuffer(data: ArrayBuffer) : Buffer {
         console.log("create Buffer from array buffer");

@@ -1,5 +1,6 @@
 import {GPU} from "../webgpu/gpu";
 import {Texture} from "../webgpu/texture";
+import {Buffer} from "../webgpu/buffer";
 
 export class Raytrace {
     width: number;
@@ -12,13 +13,18 @@ export class Raytrace {
     pipeline_layout: GPUPipelineLayout;
     compute_pipeline: GPUComputePipeline;
     shader: GPUProgrammableStage;
+    stagingBuffer: Buffer
+    stagingData: Float32Array
 
     constructor() {
-        this.width = GPU.width;
-        this.height = GPU.height;
+        this.width = GPU.viewport.width;
+        this.height = GPU.viewport.height;
 
-        console.log("Create Texture")
+        console.log("Create Texture");
         this.texture = GPU.CreateStorageTexture(this.width, this.height, "rgba32float");
+
+        this.stagingBuffer = GPU.CreateUniformBuffer(4*3);
+        this.stagingData = new Float32Array(3);
     }
 
     destroy() {
@@ -27,9 +33,6 @@ export class Raytrace {
 
     async Init(filename: string) {
         this.shader = await GPU.CreateWGSLShader("scripts/raytrace/" + filename);
-        this.shader.constants = {
-            iTime: 1.,
-        }
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{
@@ -39,6 +42,12 @@ export class Raytrace {
                     access: "write-only",
                     format: "rgba32float"
                 }
+            }, {
+                binding: 1,
+                visibility: GPUShaderStage.COMPUTE,
+                buffer: {
+                    type: "uniform"
+                }
             }]
         });
 
@@ -47,6 +56,9 @@ export class Raytrace {
             entries: [{
                 binding: 0,
                 resource: this.texture.textureView
+            }, {
+                binding: 1,
+                resource: this.stagingBuffer.resource
             }]
         })
 
@@ -61,18 +73,21 @@ export class Raytrace {
     }
 
     GetCommandBuffer(): GPUCommandBuffer {
-        this.shader.constants.iTime++;
+        this.stagingData[0] = GPU.mouseCoordinate.x; // set iMouseX
+        this.stagingData[1] = GPU.mouseCoordinate.y; // set iMouseY
+        this.stagingData[2] += 0.01; // increase iTime
 
+        GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData)
         let encoder: GPUCommandEncoder = GPU.device.createCommandEncoder({});
+        //let uploadbuffer: GPUBuffer = this.stagingBuffer.updateBufferData(0, this.stagingData, encoder) // TODO: must be destoryed
         {
             let pass: GPUComputePassEncoder = encoder.beginComputePass();
             pass.setBindGroup(0, this.bind_group);
             pass.setPipeline(this.compute_pipeline);
-            pass.dispatch(this.width, this.height);
-            pass.endPass();
+            pass.dispatchWorkgroups(this.width/8, this.height/8);
+            pass.end();
         }
-        let command_buffer: GPUCommandBuffer = encoder.finish();
-        return command_buffer;
+        return encoder.finish();
     }
 
     async Run() {

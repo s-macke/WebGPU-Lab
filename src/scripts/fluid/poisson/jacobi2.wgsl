@@ -1,11 +1,11 @@
-[[group(0), binding(0)]] var pressuresrc: texture_2d<f32>;
-[[group(0), binding(1)]] var pressuredest: texture_storage_2d<r32float, write>;
-[[group(0), binding(2)]] var rhs: texture_2d<f32>;
-[[group(0), binding(3)]] var scaleedges: texture_2d<f32>;
-[[group(0), binding(4)]] var scalecenter: texture_2d<f32>;
+@group(0) @binding(0) var pressuresrc: texture_2d<f32>;
+@group(0) @binding(1) var pressuredest: texture_storage_2d<r32float, write>;
+@group(0) @binding(2) var rhs: texture_2d<f32>;
+@group(0) @binding(3) var scaleedges: texture_2d<f32>;
+@group(0) @binding(4) var scalecenter: texture_2d<f32>;
 
-[[stage(compute), workgroup_size(4, 4)]]
-fn main([[builtin(global_invocation_id)]] global_id: vec3<u32>) {
+@compute @workgroup_size(8, 8)
+fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let pixel_coords = vec2<i32>(global_id.xy) + 1;
 
     let se = textureLoad(scaleedges, pixel_coords, 0);

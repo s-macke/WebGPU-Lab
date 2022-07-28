@@ -1,6 +1,9 @@
 # WebGPU-Experiments
 First steps in WebGPU technology. Focus on compute shaders
 
+start chrome with
+/opt/google/chrome-unstable/google-chrome-unstable --enable-features=Vulkan,UseSkiaRenderer
+
 WebGPU Speed up Image Processing（by using in matrix compute)
 using buffer and structs somehow
 https://www.reddit.com/r/webgl/comments/f4ojhp/webgpu_speed_up_image_processingby_using_in/

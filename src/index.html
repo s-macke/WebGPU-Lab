@@ -6,6 +6,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="WebGPU examples. Focus on compute shaders.">
+    <meta http-equiv="origin-trial" content="AskBFhwWdwJJX7fGMNV72Pzx17Ie+rnFLgcF3UiQpX+j+eb7P23/I84lXdRPBPE5KOkTnyil7Rstt1Ucd0EmhAgAAABJeyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwMDAiLCJmZWF0dXJlIjoiV2ViR1BVIiwiZXhwaXJ5IjoxNjYzNzE4Mzk5fQ==">
     <meta name="author" content="Sebastian Macke">
 
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
@@ -64,9 +65,21 @@
             </a>
         </li>
         <li>
+            <a href="#" class="nav-link text-white" id="button_voronoise">
+                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
+                Voronoise
+            </a>
+        </li>
+        <li>
             <a href="#" class="nav-link text-white" id="button_fbm">
                 <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
                 FBM
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link text-white" id="button_2dlight">
+                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
+                2D Light
             </a>
         </li>
         <li>
@@ -89,7 +102,10 @@
 
 <div class="d-flex flex-column p-3 text-white bg-dark" style="width: 100%;">
     <p id="info"></p>
-    <canvas width="512" height="512" id="screen" style="width: auto; height: auto; max-height: 100%;"></canvas>
+    <!--<canvas width="512" height="512" id="screen" style="width: 100%; height: auto; max-height: 100%; max-width: 100%; aspect-ratio: auto 1 / 1;"></canvas>-->
+    <canvas width="512" height="512" id="screen" style="width: 100%; height: 100%; object-fit: contain; overflow: hidden;"></canvas>
+
+    <!--<canvas width="512" height="512" id="screen" style="width: 100%; height: auto; aspect-ratio: auto 1 / 1;"></canvas>-->
 </div>
 
 </main>

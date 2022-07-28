@@ -91,8 +91,8 @@ export class SDF {
             let pass: GPUComputePassEncoder = encoder.beginComputePass();
             pass.setBindGroup(0, this.bind_group);
             pass.setPipeline(this.compute_pipeline);
-            pass.dispatch(this.width, this.height);
-            pass.endPass();
+            pass.dispatchWorkgroups(this.width/8, this.height/8);
+            pass.end();
         }
         encoder.copyTextureToTexture({ texture: this.textureb.texture }, { texture: this.texturea.texture }, [this.width, this.height, 1]);
         let command_buffer: GPUCommandBuffer = encoder.finish();

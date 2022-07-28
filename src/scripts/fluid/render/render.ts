@@ -17,6 +17,7 @@ export class Render {
         let fragShader = await GPU.CreateWGSLShader("scripts/fluid/render/render.frag.wgsl")
         let sampler = GPU.CreateSampler();
 
+
         let layout: GPUBindGroupLayout = GPU.device.createBindGroupLayout({
             entries: [{
                 binding: 0,
@@ -53,7 +54,7 @@ export class Render {
                 module: fragShader.module,
                 constants: fragShader.constants,
                 targets: [{
-                    format: GPU.getPreferredFormat()
+                    format: navigator.gpu.getPreferredCanvasFormat()
                 }]
             },
             primitive: {
@@ -69,7 +70,7 @@ export class Render {
         passEncoder.setPipeline(this.pipeline);
         passEncoder.setBindGroup(0, this.bind_group);
         passEncoder.draw(4, 1, 0, 0);
-        passEncoder.endPass();
+        passEncoder.end();
         return commandEncoder.finish()
     }
 

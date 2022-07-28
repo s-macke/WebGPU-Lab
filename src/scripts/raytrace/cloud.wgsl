@@ -20,10 +20,16 @@
     the fog is evaluated as the difference of the fog integral at each rendered step.
 
 */
-[[group(0), binding(0)]] var img_output: texture_storage_2d<rgba32float, write>;
 
-[[override]] let iTime = 10.;
-let iMouse = vec2<f32>(0.);
+//@block
+struct StagingBuffer {
+    iMouse: vec2<f32>,
+    iTime: f32
+};
+
+@group(0) @binding(0) var img_output: texture_storage_2d<rgba32float, write>;
+@group(0) @binding(1) var<uniform> staging: StagingBuffer;
+
 
 fn rot(a: f32) -> mat2x2<f32> {
     let c:f32 = cos(a);
@@ -32,7 +38,7 @@ fn rot(a: f32) -> mat2x2<f32> {
     //return mat2x2<f32>(vec2<f32>(c,-s),vec2<f32>(s, c));
 }
 
-let m3 = mat3x3<f32>(
+const m3 = mat3x3<f32>(
     vec3<f32>(0.33338, 0.56034, -0.71817),
     vec3<f32>(-0.87887, 0.32651, -0.15323),
     vec3<f32>(0.15162, 0.69596, 0.61339));
@@ -59,7 +65,7 @@ fn map(ppar: vec3<f32>) -> vec2<f32> {
     var p2: vec2<f32> = p.xy;
     p2 = p2 - disp(p.z);
 
-    let ptemp = p.xy * rot(sin(p.z+iTime)*(0.1 + prm1*0.05) + (iTime*0.09));
+    let ptemp = p.xy * rot(sin(p.z+staging.iTime)*(0.1 + prm1*0.05) + (staging.iTime*0.09));
     p = vec3<f32>(ptemp.x, ptemp.y, p.z);
 
     let cl = mag2(p2.xy);
@@ -70,7 +76,7 @@ fn map(ppar: vec3<f32>) -> vec2<f32> {
     let dspAmp = 0.1 + prm1*0.2;
 
     for(var i: i32 = 0; i<5; i = i + 1) {
-        p = p + sin(p.zxy*0.75*trk + iTime*trk*.8)*dspAmp;
+        p = p + sin(p.zxy*0.75*trk + staging.iTime*trk*.8)*dspAmp;
         d = d - abs(dot(cos(p), sin(p.yzx))*z);
         z = z * 0.57;
         trk = trk * 1.4;
@@ -138,20 +144,20 @@ fn iLerp(a: vec3<f32>, b: vec3<f32>, x: f32) -> vec3<f32> {
 }
 
 
-[[stage(compute), workgroup_size(1)]]
-fn main([[builtin(global_invocation_id)]] global_id: vec3<u32>) {
+@compute @workgroup_size(8, 8)
+fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     var iResolution = vec2<f32>(textureDimensions(img_output));
     var gl_FragCoord = vec2<f32>(global_id.xy) + 0.5;
     var fragCoord = gl_FragCoord;
 
     let q = fragCoord.xy / iResolution.xy;
     let p = (gl_FragCoord.xy - 0.5 * iResolution.xy) / iResolution.y;
-    bsMo = (iMouse.xy - 0.5*iResolution.xy)/iResolution.y;
+    bsMo = (staging.iMouse.xy - 0.5*iResolution.xy)/iResolution.y;
 
-    let time = iTime*3.;
+    let time = staging.iTime*3.;
     var ro = vec3<f32>(0., 0., time);
 
-    ro = ro + vec3<f32>(sin(iTime)*0.5, sin(iTime*1.)*0., 0.);
+    ro = ro + vec3<f32>(sin(staging.iTime)*0.5, sin(staging.iTime*1.)*0., 0.);
 
     let dspAmp = .85;
 
@@ -170,7 +176,7 @@ fn main([[builtin(global_invocation_id)]] global_id: vec3<u32>) {
     let rdtemp : vec2<f32> = rd.xy * rot(-disp(time + 3.5).x*0.2 + bsMo.x); // rd.xy left or right changes something
     rd = vec3<f32>(rdtemp, rd.z);
 
-    prm1 = smoothStep(-0.4, 0.4, sin(iTime*0.3));
+    prm1 = smoothstep(-0.4, 0.4, sin(staging.iTime*0.3));
     let scn = render(ro, rd, time);
     //let scn = vec4<f32>(rd, 0.);
 
@@ -178,16 +184,18 @@ fn main([[builtin(global_invocation_id)]] global_id: vec3<u32>) {
     col = iLerp(col.bgr, col.rgb, clamp(1. - prm1, 0.05, 1.));
     col = pow(col, vec3<f32>(.55, 0.65, 0.6)) * vec3<f32>(1., .97, .9);
     col = col * (pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.12) * 0.7 + 0.3); // Vign
-
-    //let uv = vec2<f32>(fragCoord / iResolution);
-    //col = vec3<f32>( uv, 0.0 );
-    //col = smoothStep(col, vec3<f32>(0.), vec3<f32>(0.5));
-    //col = smoothStep(vec3<f32>(0.), vec3<f32>(0.5), col);
-    //col = normalize(col);
-    //col = iLerp(vec3<f32>(0.), vec3<f32>(1.), col.x);
-    //col = vec3<f32>(1., 0., 0.);
-    //col = rd;
+/*
+    let uv = vec2<f32>(fragCoord / iResolution);
+    col = vec3<f32>( uv, 0.0 );
+    col = smoothstep(col, vec3<f32>(0.), vec3<f32>(0.5));
+    col = smoothstep(vec3<f32>(0.), vec3<f32>(0.5), col);
+    col = normalize(col);
+    col = iLerp(vec3<f32>(0.), vec3<f32>(1.), col.x);
+    col = vec3<f32>(1., 0., 0.);
+    col = rd;
+    */
     let fragColor = vec4<f32>( col, 1.0 );
+
     textureStore(img_output, vec2<i32>(global_id.xy), fragColor);
 
 }
