@@ -1,8 +1,11 @@
 # WebGPU-Experiments
 
-**[Demo][project demo]**
+Experiments in WebGPU technology. The focus is especially on compute shaders.
 
-My experiments in WebGPU technology. The focus is especially on compute shaders.
+# **[Demo][project demo]**
+
+
+# Available Demos
 
 ### WebGPU Features
 Shows the features and limits of the selected GPU. 
