@@ -40,10 +40,10 @@ function ShowError(message: string, e: Error) {
 
     errorObject.style.color = "#dc3545"
 
-    errorObject.innerHTML = message
-    errorObject.innerHTML += "\n"
+    errorObject.innerHTML = "\n" + message
+    errorObject.innerHTML += "\n\n"
     errorObject.innerHTML += e.message
-    errorObject.innerHTML += "\n"
+    errorObject.innerHTML += "\n\n"
     errorObject.innerHTML += e.stack
     errorObject.innerHTML += "<br><strong>As of September 2022, only the <a href=\"https://www.google.com/intl/en/chrome/dev/\">Chrome unstable browser </a>with enabled WebGPU is supported.</strong>"
 
