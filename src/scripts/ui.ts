@@ -32,7 +32,6 @@ function MeasureFrame() {
         nFrame = 0;
         document.getElementById("textFps").innerHTML = fps.toFixed(2) + " fps";
     }
-
 }
 
 
@@ -43,8 +42,10 @@ function ShowError(message: string, e: Error) {
 
     errorObject.innerHTML = message
     errorObject.innerHTML += "\n"
+    errorObject.innerHTML += e.message
+    errorObject.innerHTML += "\n"
     errorObject.innerHTML += e.stack
-    errorObject.innerHTML += "<br><strong>As of September 2022, only the Chrome unstable browser with enabled WebGPU is supported.</strong>"
+    errorObject.innerHTML += "<br><strong>As of September 2022, only the <a href=\"https://www.google.com/intl/en/chrome/dev/\">Chrome unstable browser </a>with enabled WebGPU is supported.</strong>"
 
     let infoElement = document.getElementById("info");
     infoElement.innerHTML = "";
@@ -60,7 +61,7 @@ async function Init(powerPreference: GPUPowerPreference) {
         GPU.SetCanvas("screen")
     } catch (e) {
         ShowError("WebGPU initialization failed", e as Error)
-        return;
+        throw e
     }
 }
 
