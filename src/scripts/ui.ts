@@ -44,6 +44,7 @@ function ShowError(message: string, e: Error) {
     errorObject.innerHTML = message
     errorObject.innerHTML += "\n"
     errorObject.innerHTML += e.stack
+    errorObject.innerHTML += "<br><strong>As of September 2022, only the Chrome unstable browser with enabled WebGPU is supported.</strong>"
 
     let infoElement = document.getElementById("info");
     infoElement.innerHTML = "";

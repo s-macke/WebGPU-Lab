@@ -1,3 +1,5 @@
+// Original Source: https://www.shadertoy.com/view/4dfXDn
+
 struct StagingBuffer
 {
     iMouse: vec2<f32>,
