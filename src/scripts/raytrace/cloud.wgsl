@@ -166,12 +166,12 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
 
     let tgtDst = 3.5;
 
-    let target = normalize(ro - vec3<f32>(disp(time + tgtDst)*dspAmp, time + tgtDst));
+    let target2 = normalize(ro - vec3<f32>(disp(time + tgtDst)*dspAmp, time + tgtDst));
     ro.x = ro.x - bsMo.x*2.;
-    var rightdir = normalize(cross(target, vec3<f32>(0. ,1. , 0.)));
-    let updir = normalize(cross(rightdir, target));
-    rightdir = normalize(cross(updir, target));
-    var rd = normalize((p.x*rightdir + p.y*updir)*1. - target);
+    var rightdir = normalize(cross(target2, vec3<f32>(0. ,1. , 0.)));
+    let updir = normalize(cross(rightdir, target2));
+    rightdir = normalize(cross(updir, target2));
+    var rd = normalize((p.x*rightdir + p.y*updir)*1. - target2);
 
     let rdtemp : vec2<f32> = rd.xy * rot(-disp(time + 3.5).x*0.2 + bsMo.x); // rd.xy left or right changes something
     rd = vec3<f32>(rdtemp, rd.z);

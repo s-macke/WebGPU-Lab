@@ -18,8 +18,6 @@ const SPEC = 1;
 const REFR = 2;
 const NUM_SPHERES = 9;
 
-
-
 var<private> seed: f32 = 0.;
 fn rand() -> f32 {
     let tmp = fract(sin(seed)*43758.5453123);
@@ -114,7 +112,7 @@ fn radiance(r_par: Ray) -> vec3<f32> {
     var id = -1;
     var r = r_par;
 
-    for(var i: i32 = 0; i<MAXDEPTH; i = i + 1) {
+    for(var depth: i32 = 0; depth<MAXDEPTH; depth = depth + 1) {
         var t = 0.;
         var obj: Sphere;
 
@@ -147,18 +145,17 @@ fn radiance(r_par: Ray) -> vec3<f32> {
                 // the ad hoc optimization:
 
                 var s: Sphere = lightSourceVolume;
-                i = 8;
+                let i = 8; // light source
 
                 let l0 = s.p - x;
                 let cos_a_max = sqrt(1. - clamp(s.r * s.r / dot(l0, l0), 0., 1.));
                 let cosa = mix(cos_a_max, 1., rand());
                 let l = jitter(l0, 2. * PI * rand(), sqrt(1. - cosa * cosa), cosa);
 
-                if (intersect(Ray(x, l), &t, &s, id) == i) {
+                if (intersect(Ray(x, l), &t, &s, id) == i) { // if light source is hit
                     let omega = 2. * PI * (1. - cos_a_max);
-                    e = e + ((s.e * clamp( dot(l, n), 0., 1.) * omega) / PI);
+                    e = e + ((s.e * clamp ( dot(l, n), 0., 1.) * omega) / PI);
                 }
-
             }
 
 //#endif

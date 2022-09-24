@@ -4,6 +4,7 @@ import {Render} from "./render/render";
 import {Raytrace} from "./raytrace/raytrace";
 import {SDF} from "./sdf/sdf";
 import {Fluid} from "./fluid/fluid";
+import {Texture} from "./webgpu/texture";
 
 let stop_raytrace = true;
 let stop_sdf = true;
@@ -13,87 +14,59 @@ function stopAll() {
     stop_sdf = true;
 }
 
-let frame = async () => {}
+let frame = async () => {
+}
 
-function ShowError(e: Error) {
+let lastframeTime = 0 as number;
+let nFrame = 0 as number;
+function MeasureFrame() {
+    if (lastframeTime == 0) {
+        lastframeTime = performance.now();
+        nFrame = 0;
+    }
+    nFrame++
+    if (nFrame >= 20) {
+        let currentFrameTime = performance.now();
+        let fps = 20 / (currentFrameTime - lastframeTime) * 1000;
+        lastframeTime = currentFrameTime;
+        nFrame = 0;
+        document.getElementById("textFps").innerHTML = fps.toFixed(2) + " fps";
+    }
+
+}
+
+
+function ShowError(message: string, e: Error) {
+    let errorObject = document.createElement("pre");
+
+    errorObject.style.color = "#dc3545"
+
+    errorObject.innerHTML = message
+    errorObject.innerHTML += "\n"
+    errorObject.innerHTML += e.stack
+
     let infoElement = document.getElementById("info");
-    infoElement.style.color = "#dc3545"
-
-    infoElement.innerHTML = "WebGPU initialization failed"
-    infoElement.innerHTML += "<br>"
-    infoElement.innerHTML += e.message
-
+    infoElement.innerHTML = "";
+    infoElement.appendChild(errorObject);
     document.getElementById("screen").style.visibility = "hidden";
 }
 
-async function Init() {
+async function Init(powerPreference: GPUPowerPreference) {
+    let infoElement = document.getElementById("info");
+    infoElement.innerHTML = "Initializing WebGPU..."
     try {
-        await GPU.Init()
+        await GPU.Init(powerPreference);
         GPU.SetCanvas("screen")
     } catch (e) {
-        ShowError(e as Error)
+        ShowError("WebGPU initialization failed", e as Error)
         return;
     }
-/*
-    let fluid = new Fluid()
-    await fluid.Init();
-
-    let count = 0;
-    let dtavg = 0.;
-
-    frame = async () => {
-        let start2 = Date.now();
-        await fluid.Step();
-        let now = Date.now();
-        let dt = now - start2;
-
-        dtavg += dt;
-
-        if ((count & 0xF) == 0) {
-            console.log(dtavg / 16);
-            dtavg = 0.;
-        }
-
-        count++;
-        if (count >= 5000) return;
-        requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
-*/
-    //await GPU.Render(fluid.flags)
-/*
-    let texture = await GPU.createTextureFromImage("scripts/webgpu/Lenna.png");
-    let c = await texture.Extract()
-    document.body.appendChild(c)
-*/
-    //let texture = await GPU.createTextureFromImage("scripts/render/Lenna.png");
-    //await GPU.Render(texture);
-    //let texture = await Raytrace();
-    //let texture: Texture = GPU.CreateTexture(100, 100, "rgba16float");
-    //await GPU.Render(texture);
-
-    //let simpleFluid: Simplefluid = new Simplefluid();
-    //await simpleFluid.Init();
-
-    //let twodgi: Twodgi = new Twodgi();
-    //await twodgi.Init();
-/*
-    let lightning: Lightning = new Lightning();
-    await lightning.Init();
-
-    //let render: Render = new Render(simpleFluid.texturea);
-    //let render: Render = new Render(lightning.t_level);
-    let render: Render = new Render(lightning.t_output);
-    //let render: Render = new Render(tex);
-    await render.Init();
-    */
 }
 
 function ShowFeatures() {
     if (!GPU.isInitialized) return;
     stopAll();
     let infoElement = document.getElementById("info");
-
     document.getElementById("screen").style.visibility = "hidden";
 
     infoElement.innerHTML = "<h4>Adapter Features</h4>"
@@ -101,7 +74,7 @@ function ShowFeatures() {
     if (features.size == 0) {
         infoElement.innerHTML += "-- none --";
     }
-    for(let item of features.values()) {
+    for (let item of features.values()) {
         infoElement.innerHTML += item + "<br>";
     }
     infoElement.innerHTML += "<br><h4>Device Features</h4>"
@@ -109,7 +82,7 @@ function ShowFeatures() {
     if (features.size == 0) {
         infoElement.innerHTML += "-- none --";
     }
-    for(let item of features.values()) {
+    for (let item of features.values()) {
         infoElement.innerHTML += item + "<br>";
     }
     infoElement.innerHTML += "<br><br><h4>Preferred Output Format</h4>" + navigator.gpu.getPreferredCanvasFormat();
@@ -136,16 +109,24 @@ function ShowFeatures() {
 async function ShowTexture() {
     if (!GPU.isInitialized) return;
     stopAll();
-    document.getElementById("info").innerHTML="Hello world";
+    document.getElementById("info").innerHTML = "";
+    //document.getElementById("info").innerHTML = "Hello world";
     document.getElementById("screen").style.visibility = "visible";
 
-    let texture = await GPU.createTextureFromImage("scripts/render/Lenna.png");
-
-    let render = new Render(texture);
-    await render.Init();
+    let render: Render
+    let texture: Texture
+    try {
+        texture = await GPU.createTextureFromImage("scripts/render/Lenna.png");
+        render = new Render(texture);
+        await render.Init();
+    } catch (e) {
+        ShowError("Creation of GPU objects failed", e as Error)
+        throw e
+    }
 
     frame = async () => {
         await render.Render();
+        await GPU.device.queue.onSubmittedWorkDone();
         texture.destroy()
     }
 
@@ -155,11 +136,16 @@ async function ShowTexture() {
 async function ShowFluid() {
     if (!GPU.isInitialized) return;
     stopAll();
-    document.getElementById("info").innerHTML="";
+    document.getElementById("info").innerHTML = "";
     document.getElementById("screen").style.visibility = "visible";
-
-    let fluid = new Fluid();
-    await fluid.Init();
+    let fluid: Fluid
+    try {
+        fluid = new Fluid();
+        await fluid.Init();
+    } catch (e) {
+        ShowError("GPU object creation failed", e as Error)
+        throw e
+    }
 
     stop_raytrace = false;
     frame = async () => {
@@ -167,6 +153,8 @@ async function ShowFluid() {
         if (stop_raytrace) {
             return;
         }
+        //await GPU.device.queue.onSubmittedWorkDone();
+        MeasureFrame()
         requestAnimationFrame(frame)
     }
     requestAnimationFrame(frame)
@@ -176,7 +164,7 @@ async function ShowFluid() {
 async function ShowRaytrace(filename: string) {
     if (!GPU.isInitialized) return;
     stopAll();
-    document.getElementById("info").innerHTML="";
+    document.getElementById("info").innerHTML = "";
     document.getElementById("screen").style.visibility = "visible";
 
     let raytrace = new Raytrace();
@@ -189,6 +177,7 @@ async function ShowRaytrace(filename: string) {
     frame = async () => {
         GPU.device.queue.submit([raytrace.GetCommandBuffer(), render.GetCommandBuffer()]);
         await GPU.device.queue.onSubmittedWorkDone();
+        MeasureFrame()
         if (stop_raytrace) {
             raytrace.destroy()
             return;
@@ -218,6 +207,7 @@ async function ShowSDF() {
     frame = async () => {
         GPU.device.queue.submit([sdf.GetCommandBuffer(), render.GetCommandBuffer()]);
         await GPU.device.queue.onSubmittedWorkDone();
+        MeasureFrame()
         count++;
         if (stop_sdf || count > 200) {
             raytrace.destroy()
@@ -232,7 +222,7 @@ async function ShowSDF() {
 async function ShowCollatz() {
     if (!GPU.isInitialized) return;
     stopAll();
-    document.getElementById("info").innerHTML="";
+    document.getElementById("info").innerHTML = "";
     document.getElementById("screen").style.visibility = "hidden";
 
     let infoElement = document.getElementById("info");
@@ -249,10 +239,10 @@ async function ShowCollatz() {
     table += "<table class=\"table text-white\">"
     table += "<thead></thead><tr><th scope=\"col\">Positive Integer</th><th scope=\"col\">Stopping Time</th></tr></thead>"
     table += "<tbody>"
-    for(let i = 0; i< integers.length; i++) {
+    for (let i = 0; i < integers.length; i++) {
         table += "<tr scope=\"row\">";
-        table += "<td>"+integers[i]+"</td>";
-        table += "<td>"+stopping_time[i]+"</td>";
+        table += "<td>" + integers[i] + "</td>";
+        table += "<td>" + stopping_time[i] + "</td>";
         table += "</tr>";
     }
     table += "</tbody>"
@@ -269,10 +259,42 @@ document.getElementById("button_gi").addEventListener("click", () => ShowRaytrac
 document.getElementById("button_fbm").addEventListener("click", () => ShowRaytrace("fbm.wgsl"))
 document.getElementById("button_voronoise").addEventListener("click", () => ShowRaytrace("voronoise.wgsl"))
 document.getElementById("button_2dlight").addEventListener("click", () => ShowRaytrace("light.wgsl"))
-
 document.getElementById("button_sdf").addEventListener("click", () => ShowSDF())
 document.getElementById("button_fluid").addEventListener("click", () => ShowFluid())
 
-window.addEventListener("DOMContentLoaded", () => {Init().then(() => {console.log("Init finished"); ShowFeatures();});});
+let gpuSelection1 = document.getElementById("gpuSelection1") as HTMLInputElement
+let gpuSelection2 = document.getElementById("gpuSelection2") as HTMLInputElement
+gpuSelection1.addEventListener("click", onGpuSelectionClick);
+gpuSelection2.addEventListener("click", onGpuSelectionClick);
+
+async function onGpuSelectionClick() {
+    //alert(gpuSelection1.checked)
+    window.location.href = window.location.href.split("#")[0] + (gpuSelection1.checked ? "#high-performance" : "#low-power")
+    location.reload();
+    /*
+    await Init(gpuSelection1.checked? "low-power" : "high-performance");
+    console.log("Init finished");
+    ShowFeatures();
+     */
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+    let preference: GPUPowerPreference = "high-performance"
+    if (window.location.hash) {
+        preference = window.location.hash.substring(1) as GPUPowerPreference; //Puts hash in variable, and removes the # character
+    }
+    switch (preference) {
+        case "high-performance":
+            gpuSelection1.checked = true;
+            break;
+        case "low-power":
+            gpuSelection2.checked = true;
+            break;
+    }
+
+    await Init(preference);
+    console.log("Init finished");
+    ShowFeatures();
+});
 
 

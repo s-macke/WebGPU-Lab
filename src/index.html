@@ -26,76 +26,83 @@
 
 </head>
 
+<body>
 <main>
+
 <div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">
     <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-        <svg class="bi me-2" width="40" height="32"><use xlink:href="#"/></svg>
         <span class="fs-4">WebGPU Experiments</span>
     </a>
+
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="flexRadioDefault" id="gpuSelection1" checked>
+        <label class="form-check-label" for="gpuSelection1">
+            High Performance GPU
+        </label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="flexRadioDefault" id="gpuSelection2">
+        <label class="form-check-label" for="gpuSelection2">
+            Low Power GPU
+        </label>
+    </div>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
         <li>
             <a href="#" class="nav-link text-white active" id="button_features">
-                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
                 WebGPU Features
             </a>
         </li>
         <li>
             <a href="#" class="nav-link text-white" id="button_texture">
-                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
                 Simple Render of Texture
             </a>
         </li>
         <li>
             <a href="#" class="nav-link text-white" id="button_gi">
-                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
                 Global Illumination
             </a>
         </li>
         <li>
             <a href="#" class="nav-link text-white" id="button_clouds">
-                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
                 Protean Clouds
             </a>
         </li>
         <li>
             <a href="#" class="nav-link text-white" id="button_collatz">
-                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
                 Collatz Conjecture
             </a>
         </li>
         <li>
             <a href="#" class="nav-link text-white" id="button_voronoise">
-                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
                 Voronoise
             </a>
         </li>
         <li>
             <a href="#" class="nav-link text-white" id="button_fbm">
-                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
                 FBM
             </a>
         </li>
         <li>
             <a href="#" class="nav-link text-white" id="button_2dlight">
-                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
                 2D Light
             </a>
         </li>
         <li>
             <a href="#" class="nav-link text-white" id="button_sdf">
-                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
                 Signed Distance Field
             </a>
         </li>
         <li>
             <a href="#" class="nav-link text-white" id="button_fluid">
-                <svg class="bi me-2" width="16" height="16"><use xlink:href="#"/></svg>
                 Fluid
             </a>
         </li>
     </ul>
+    <img src="assets/images/GitHub-Mark-64px.png" class="rounded float-left" alt="Link to Source">
+
     <hr>
+    <div id="textFps"></div>
 </div>
 
 <!-- flex-shrink-0 -->
@@ -104,7 +111,6 @@
     <p id="info"></p>
     <!--<canvas width="512" height="512" id="screen" style="width: 100%; height: auto; max-height: 100%; max-width: 100%; aspect-ratio: auto 1 / 1;"></canvas>-->
     <canvas width="512" height="512" id="screen" style="width: 100%; height: 100%; object-fit: contain; overflow: hidden;"></canvas>
-
     <!--<canvas width="512" height="512" id="screen" style="width: 100%; height: auto; aspect-ratio: auto 1 / 1;"></canvas>-->
 </div>
 

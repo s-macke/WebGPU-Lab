@@ -9,6 +9,23 @@ import {Div} from "./div/div";
 import {Project} from "./project/project";
 import {Source} from "./source/source";
 
+// Staggered Grid
+/*
+                       i,j+0.5
+               ┌─────────*─────────┐
+               │                   │
+               │                   │
+               │                   │
+               │                   │
+       i-0.5,j *         * i,j     * i+0.5, j
+               │                   │
+               │                   │
+               │                   │
+               │                   │
+               └─────────*─────────┘
+                       i,j-0.5
+ */
+
 export class Fluid {
     n: number;
     m: number;

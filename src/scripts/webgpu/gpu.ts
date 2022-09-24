@@ -16,20 +16,24 @@ export class GPU {
     public static mouseCoordinate: Coordinate = {x: 0, y: 0};
     public static isInitialized: boolean
 
-
-    static async Init() {
+    static async Init(powerPreference: GPUPowerPreference) {
         this.isInitialized = false;
         console.log("Initialize WebGPU");
         console.log("Request Adapter");
         if (navigator.gpu == null) {
             throw new Error("WebGPU not supported");
         }
+        await this.RequestAdapterAndDevice(powerPreference);
+    }
+
+    static async RequestAdapterAndDevice(powerPreference: GPUPowerPreference) {
         this.adapter = await navigator.gpu.requestAdapter({
             //powerPreference: "high-performance"
             //powerPreference: "low-power"
+            powerPreference: powerPreference
         });
         if (this.adapter == null) {
-            throw new Error("Cannot get GPU adapter");
+            throw new Error("Cannot request GPU adapter");
         }
 
         console.log("Request Device");
@@ -37,8 +41,6 @@ export class GPU {
         if (this.device == null) {
             throw new Error("Cannot get GPU device");
         }
-
-        console.log("Initialized");
     }
 
     static SetCanvas(id: string) {
