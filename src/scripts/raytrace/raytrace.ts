@@ -23,8 +23,8 @@ export class Raytrace {
         console.log("Create Texture");
         this.texture = GPU.CreateStorageTexture(this.width, this.height, "rgba32float");
 
-        this.stagingBuffer = GPU.CreateUniformBuffer(4*3);
-        this.stagingData = new Float32Array(3);
+        this.stagingBuffer = GPU.CreateUniformBuffer(4*3 + 4); // must be a multiple of 16 bytes
+        this.stagingData = new Float32Array(4);
     }
 
     destroy() {
@@ -76,6 +76,7 @@ export class Raytrace {
         this.stagingData[0] = GPU.mouseCoordinate.x; // set iMouseX
         this.stagingData[1] = GPU.mouseCoordinate.y; // set iMouseY
         this.stagingData[2] += 0.01; // increase iTime
+        this.stagingData[3] = 0.; // nothing
 
         GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData)
         let encoder: GPUCommandEncoder = GPU.device.createCommandEncoder({});
