@@ -23,7 +23,7 @@
 @group(0) @binding(2) var sdf_dest: texture_storage_2d<rg32float, write>;
 @group(0) @binding(3) var render_output: texture_storage_2d<rgba32float, write>;
 
-let timestep = 0.2;
+const timestep = 0.2;
 /*
 #define getSign(uv)  texture(iChannel1, uv).r
 #define fetchDistance(x) texture(iChannel0, uv + step * x).r

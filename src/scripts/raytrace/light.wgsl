@@ -179,7 +179,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     // gradient
     col = vec4(0.5, 0.5, 0.5, 1.0) * (1.0 - length(c - p)/iResolution.x);
     // grid
-    col *= clamp(min(mod(p.y, 10.0).fract, mod(p.x, 10.0).fract), 0.9, 1.0);
+    col *= clamp(min(modf(p.y, 10.0).fract, modf(p.x, 10.0).fract), 0.9, 1.0);
     // ambient occlusion
     col *= AO(p, sceneSmooth(p, 10.0), 40.0, 0.4);
 
