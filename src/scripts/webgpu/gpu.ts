@@ -85,6 +85,11 @@ export class GPU {
         return this.adapter.features
     }
 
+    static GetWGSLFeatures() : ReadonlySet<string> {
+        return navigator.gpu.wgslLanguageFeatures
+    }
+
+
     static GetDeviceFeatures() : ReadonlySet<string> {
         return this.device.features
     }

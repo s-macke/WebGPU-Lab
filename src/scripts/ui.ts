@@ -66,7 +66,10 @@ function ShowFeatures() {
     if (!GPU.isInitialized) return;
     stopAll();
     let infoElement = document.getElementById("info");
+    infoElement.style.overflowY = "scroll"
     document.getElementById("screen").style.visibility = "hidden";
+    document.getElementById("screen").style.width = "0%";
+    document.getElementById("screen").style.height = "0%";
 
     infoElement.innerHTML = "<h4>Adapter Features</h4>"
     let features = GPU.GetAdapterFeatures();
@@ -84,6 +87,18 @@ function ShowFeatures() {
     for (let item of features.values()) {
         infoElement.innerHTML += item + "<br>";
     }
+
+    features = GPU.GetWGSLFeatures();
+    if (features != null) {
+        infoElement.innerHTML += "<br><h4>WGSL Features</h4>"
+        if (features.size == 0) {
+            infoElement.innerHTML += "-- none --";
+        }
+        for (let item of features.values()) {
+            infoElement.innerHTML += item + "<br>";
+        }
+    }
+
     infoElement.innerHTML += "<br><br><h4>Preferred Output Format</h4>" + navigator.gpu.getPreferredCanvasFormat();
 
     infoElement.innerHTML += "<br><br><h4>Device Limits</h4>"
@@ -109,8 +124,12 @@ async function ShowTexture() {
     if (!GPU.isInitialized) return;
     stopAll();
     document.getElementById("info").innerHTML = "";
+    document.getElementById("info").style.overflowY = "";
     //document.getElementById("info").innerHTML = "Hello world";
     document.getElementById("screen").style.visibility = "visible";
+    document.getElementById("screen").style.width = "100%";
+    document.getElementById("screen").style.height = "100%";
+
 
     let render: Render
     let texture: Texture
@@ -136,7 +155,11 @@ async function ShowFluid() {
     if (!GPU.isInitialized) return;
     stopAll();
     document.getElementById("info").innerHTML = "";
+    document.getElementById("info").style.overflowY = "";
     document.getElementById("screen").style.visibility = "visible";
+    document.getElementById("screen").style.width = "100%";
+    document.getElementById("screen").style.height = "100%";
+
     let fluid: Fluid
     try {
         fluid = new Fluid();
@@ -164,7 +187,11 @@ async function ShowRaytrace(filename: string) {
     if (!GPU.isInitialized) return;
     stopAll();
     document.getElementById("info").innerHTML = "";
+    document.getElementById("info").style.overflowY = "";
     document.getElementById("screen").style.visibility = "visible";
+    document.getElementById("screen").style.width = "100%";
+    document.getElementById("screen").style.height = "100%";
+
 
     let raytrace = new Raytrace();
     await raytrace.Init(filename);
@@ -190,7 +217,11 @@ async function ShowSDF() {
     if (!GPU.isInitialized) return;
     stopAll();
     document.getElementById("info").innerHTML = "";
+    document.getElementById("info").style.overflowY = "";
     document.getElementById("screen").style.visibility = "visible";
+    document.getElementById("screen").style.width = "100%";
+    document.getElementById("screen").style.height = "100%";
+
 
     let raytrace = new Raytrace();
     await raytrace.Init("fbm.wgsl");
@@ -222,6 +253,7 @@ async function ShowCollatz() {
     if (!GPU.isInitialized) return;
     stopAll();
     document.getElementById("info").innerHTML = "";
+    document.getElementById("info").style.overflowY = "";
     document.getElementById("screen").style.visibility = "hidden";
 
     let infoElement = document.getElementById("info");
