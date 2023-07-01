@@ -10,4 +10,4 @@ npx esbuild src/scripts/ui.ts --bundle --outfile=build/ui.js
 #npm update
 # updated also package-lock.json
 #npm install
-#npm run prestart
+

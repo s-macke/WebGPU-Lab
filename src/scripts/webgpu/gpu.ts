@@ -9,6 +9,7 @@ type Coordinate = {x: number, y: number};
 
 export class GPU {
     private static adapter: GPUAdapter;
+    private static adapterInfo: GPUAdapterInfo;
     static device: GPUDevice;
     private static glslang: any;
     private static gpuContext: GPUCanvasContext;
@@ -35,7 +36,7 @@ export class GPU {
         if (this.adapter == null) {
             throw new Error("Cannot request GPU adapter");
         }
-
+        this.adapterInfo = await this.adapter.requestAdapterInfo()
         console.log("Request Device");
         this.device = await this.adapter.requestDevice();
         if (this.device == null) {
@@ -79,6 +80,11 @@ export class GPU {
         });
         console.log("Set Canvas Done")
         this.isInitialized = true;
+    }
+
+
+    static GetAdapterInfo() : GPUAdapterInfo {
+        return this.adapterInfo
     }
 
     static GetAdapterFeatures() : ReadonlySet<string> {

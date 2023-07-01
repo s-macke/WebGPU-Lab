@@ -19,6 +19,7 @@ let frame = async () => {
 
 let lastframeTime = 0 as number;
 let nFrame = 0 as number;
+
 function MeasureFrame() {
     if (lastframeTime == 0) {
         lastframeTime = performance.now();
@@ -71,10 +72,23 @@ function ShowFeatures() {
     document.getElementById("screen").style.width = "0%";
     document.getElementById("screen").style.height = "0%";
 
-    infoElement.innerHTML = "<h4>Adapter Features</h4>"
+    infoElement.innerHTML = "<h4>Adapter Information</h4>"
+    let adapterInfo: GPUAdapterInfo = GPU.GetAdapterInfo();
+
+    let table = ""
+    table += "<table>"
+    table += "<tr><td >Device  </td><td>" + adapterInfo.device + "</td></tr>"
+    table += "<tr><td style=\"padding-right: 10px\">Architecture  </td><td>" + adapterInfo.architecture + "</td></tr>"
+    table += "<tr><td>Vendor  </td><td>" + adapterInfo.vendor + "</td></tr>"
+    table += "<tr><td>Description  </td><td>" + adapterInfo.description + "</td></tr>"
+    table += "</table>"
+    infoElement.innerHTML += table
+
+
+    infoElement.innerHTML += "<br><h4>Adapter Features</h4>"
     let features = GPU.GetAdapterFeatures();
     if (features.size == 0) {
-        infoElement.innerHTML += "-- none --";
+        infoElement.innerHTML += "-- none --<br>";
     }
     for (let item of features.values()) {
         infoElement.innerHTML += item + "<br>";
@@ -82,7 +96,7 @@ function ShowFeatures() {
     infoElement.innerHTML += "<br><h4>Device Features</h4>"
     features = GPU.GetDeviceFeatures();
     if (features.size == 0) {
-        infoElement.innerHTML += "-- none --";
+        infoElement.innerHTML += "-- none --<br>";
     }
     for (let item of features.values()) {
         infoElement.innerHTML += item + "<br>";
@@ -108,7 +122,7 @@ function ShowFeatures() {
     s += "<table>"
     for (let limitsKey in limits) {
         s += "<tr>"
-        s += "<td>"
+        s += "<td style=\"padding-right: 10px\">"
         s += limitsKey
         s += "</td>"
         s += "<td>"
@@ -116,7 +130,7 @@ function ShowFeatures() {
         s += "</td>"
         s += "</tr>"
     }
-    s += "</table>"
+    s += "</table><br>"
     infoElement.innerHTML += s
 }
 
