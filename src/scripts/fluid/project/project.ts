@@ -26,7 +26,7 @@ export class Project {
 
     async Init() {
         console.log("Init project");
-        let shader = await GPU.CreateWGSLShader("scripts/fluid/project/project.wgsl")
+        let shader = await GPU.CreateShader("scripts/fluid/project/project.wgsl")
         this.velocitydest = GPU.CreateStorageTexture(this.velocity.width, this.velocity.height, this.velocity.format);
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({

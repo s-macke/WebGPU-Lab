@@ -4,7 +4,7 @@ import {Buffer} from "../webgpu/buffer";
 export async function Collatz(data: Uint32Array) : Promise<Uint32Array> {
     console.log("Collatz");
 
-    let shader: GPUProgrammableStage = await GPU.CreateWGSLShader("scripts/collatz/collatz.wgsl");
+    let shader: GPUProgrammableStage = await GPU.CreateShader("scripts/collatz/collatz.wgsl");
 
     let stagingBuffer: Buffer = GPU.CreateBufferCopy(data.buffer.byteLength);
     let storageBuffer: Buffer = GPU.CreateStorageBufferFromArrayBuffer(data.buffer);

@@ -13,8 +13,8 @@ export class Render {
     }
 
     async Init() {
-        let vertShader = await GPU.CreateWGSLShader("scripts/render/render.vert.wgsl")
-        let fragShader = await GPU.CreateWGSLShader("scripts/render/render.frag.wgsl")
+        let vertShader = await GPU.CreateShader("scripts/render/render.vert.wgsl")
+        let fragShader = await GPU.CreateShader("scripts/render/render.frag.wgsl")
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{

@@ -30,7 +30,7 @@ export class SDF {
     }
 
     async Init() {
-        let shader: GPUProgrammableStage = await GPU.CreateWGSLShader("scripts/sdf/sdf.wgsl");
+        let shader: GPUProgrammableStage = await GPU.CreateShader("scripts/sdf/sdf.wgsl");
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{

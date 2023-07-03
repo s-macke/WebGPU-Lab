@@ -32,7 +32,7 @@ export class Raytrace {
     }
 
     async Init(filename: string) {
-        this.shader = await GPU.CreateWGSLShader("scripts/raytrace/" + filename);
+        this.shader = await GPU.CreateShader("scripts/raytrace/" + filename);
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{

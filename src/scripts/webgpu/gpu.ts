@@ -11,7 +11,6 @@ export class GPU {
     private static adapter: GPUAdapter;
     private static adapterInfo: GPUAdapterInfo;
     static device: GPUDevice;
-    private static glslang: any;
     private static gpuContext: GPUCanvasContext;
     public static viewport: Rect = {width: 0, height: 0};
     public static mouseCoordinate: Coordinate = {x: 0, y: 0};
@@ -81,7 +80,6 @@ export class GPU {
         console.log("Set Canvas Done")
         this.isInitialized = true;
     }
-
 
     static GetAdapterInfo() : GPUAdapterInfo {
         return this.adapterInfo
@@ -169,35 +167,6 @@ export class GPU {
     }
 
     static async CreateShader(url: string): Promise<GPUProgrammableStage> {
-        return new Promise<GPUProgrammableStage>((resolve, reject) => {
-            LoadTextResource(url).then(
-                code => {
-                    let spirv: string;
-
-                    if (url.endsWith(".comp")) {
-                        spirv = this.glslang.compileGLSL(code, "compute");
-                    } else if (url.endsWith(".vert")) {
-                        spirv = this.glslang.compileGLSL(code, "vertex");
-                    } else if (url.endsWith(".frag")) {
-                        spirv = this.glslang.compileGLSL(code, "fragment");
-                    } else {
-                        throw new Error("Cannot identify shader " + url);
-                        //reject(null);
-                    }
-                    let module: GPUShaderModule = this.device.createShaderModule({
-                        label: "shader",
-                        code: spirv
-                    });
-                    resolve({
-                        entryPoint: "main",
-                        module: module
-                    })
-                }
-            )
-        })
-    }
-
-    static async CreateWGSLShader(url: string): Promise<GPUProgrammableStage> {
         console.log("Load Shader from '" + url + "'")
         return new Promise<GPUProgrammableStage>((resolve, reject) => {
             LoadTextResource(url).then(
@@ -225,10 +194,10 @@ export class GPU {
 
     static async Render(texture: Texture) {
 
-        let vertShader = await this.CreateWGSLShader("scripts/webgpu/shader/render.vert.wgsl")
-        let fragShader = await this.CreateWGSLShader("scripts/webgpu/shader/render.frag.wgsl")
+        let vertShader = await this.CreateShader("scripts/webgpu/shader/render.vert.wgsl")
+        let fragShader = await this.CreateShader("scripts/webgpu/shader/render.frag.wgsl")
         if (texture.isFloat == false) {
-            fragShader = await this.CreateWGSLShader("scripts/webgpu/shader/render_int.frag.wgsl")
+            fragShader = await this.CreateShader("scripts/webgpu/shader/render_int.frag.wgsl")
         }
         let sampler = this.CreateSampler();
 

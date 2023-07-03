@@ -23,7 +23,7 @@ export class Transport {
     }
 
     async Init() {
-        let shader = await GPU.CreateWGSLShader("scripts/fluid/transport/transport.wgsl");
+        let shader = await GPU.CreateShader("scripts/fluid/transport/transport.wgsl");
 
         this.textureb = GPU.CreateTexture(this.texturea.width, this.texturea.height, this.texturea.format);
 
