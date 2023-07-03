@@ -16,7 +16,7 @@ export class Texture {
     textureView: GPUTextureView;
 
     constructor(width: number, height: number, format: GPUTextureFormat, type: TextureType = TextureType.Readonly) {
-        console.log("Create Texture: width: " + width + " height: " + height + " format: " + format);
+        console.log("Create Texture: width: " + width + " height: " + height + " format: " + format + " type:" + type);
         this.width = width;
         this.height = height;
         this.format = format;
