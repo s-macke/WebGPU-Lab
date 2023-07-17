@@ -1,6 +1,6 @@
 # WebGPU-Experiments
 
-Experiments in WebGPU technology. The focus is especially on compute shaders.
+Demos and experiments in WebGPU technology. The focus is especially on compute shaders.
 
 # **[Demo][project demo]**
 
