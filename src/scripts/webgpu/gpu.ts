@@ -168,6 +168,16 @@ export class GPU {
         let module: GPUShaderModule = this.device.createShaderModule({
             code: code
         });
+
+        // check for errors during compilation
+        let info = await module.getCompilationInfo()
+        const containsErrors: boolean = info.messages.filter((message) => {
+            return message.type === "error"
+        }).length > 0
+
+        if (containsErrors) {
+            throw new Error("Shader '" + url + "' compiled with errors")
+        }
         return {
             entryPoint: "main",
             module: module
@@ -184,9 +194,12 @@ export class GPU {
     }
 
     static async Render(texture: Texture) {
+        let result = await Promise.all([
+            GPU.CreateShader("scripts/webgpu/shader/render.vert.wgsl"),
+            GPU.CreateShader("scripts/webgpu/shader/render.frag.wgsl")])
+        let vertShader = result[0];
+        let fragShader = result[1];
 
-        let vertShader = await this.CreateShader("scripts/webgpu/shader/render.vert.wgsl")
-        let fragShader = await this.CreateShader("scripts/webgpu/shader/render.frag.wgsl")
         if (texture.isFloat == false) {
             fragShader = await this.CreateShader("scripts/webgpu/shader/render_int.frag.wgsl")
         }

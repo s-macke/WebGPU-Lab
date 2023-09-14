@@ -23,8 +23,12 @@ export class Render extends GPUAbstractRunner {
     }
 
     override async Init() {
-        let vertShader = await GPU.CreateShader("scripts/render/render.vert.wgsl")
-        let fragShader = await GPU.CreateShader("scripts/render/render.frag.wgsl")
+
+        let result = await Promise.all([
+            GPU.CreateShader("scripts/render/render.vert.wgsl"),
+            GPU.CreateShader("scripts/render/render.frag.wgsl")])
+        let vertShader = result[0];
+        let fragShader = result[1];
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{
