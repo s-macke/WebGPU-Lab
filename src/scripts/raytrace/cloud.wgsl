@@ -27,8 +27,8 @@ struct StagingBuffer {
     iTime: f32
 };
 
-@group(0) @binding(0) var img_output: texture_storage_2d<rgba32float, write>;
-@group(0) @binding(1) var<uniform> staging: StagingBuffer;
+@group(0) @binding(1) var img_output: texture_storage_2d<rgba32float, write>;
+@group(0) @binding(2) var<uniform> staging: StagingBuffer;
 
 
 fn rot(a: f32) -> mat2x2<f32> {

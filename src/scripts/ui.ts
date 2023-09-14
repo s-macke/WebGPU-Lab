@@ -70,8 +70,8 @@ async function ShowTexture() {
     texture.destroy();
 }
 
-async function ShowRaytrace(filename: string) {
-    await HandleRunner(new Raytrace(filename, true));
+async function ShowRaytrace(filename: string, fragmentShaderFilename: string = null) {
+    await HandleRunner(new Raytrace(filename, true, fragmentShaderFilename));
 }
 
 
@@ -119,7 +119,7 @@ async function ShowSDF() {
         ShowError("GPU object creation failed", e as Error)
         throw e
     }
-    await HandleRunner(new SDF(raytrace.texture));
+    await HandleRunner(new SDF(raytrace.texturedest));
     await raytrace.Destroy();
 }
 
@@ -127,7 +127,7 @@ document.getElementById("button_features").addEventListener("click", ShowFeature
 document.getElementById("button_texture").addEventListener("click", ShowTexture)
 document.getElementById("button_collatz").addEventListener("click", ShowCollatz)
 document.getElementById("button_clouds").addEventListener("click", () => ShowRaytrace("cloud.wgsl"))
-document.getElementById("button_gi").addEventListener("click", () => ShowRaytrace("smallpt.wgsl"))
+document.getElementById("button_gi").addEventListener("click", () => ShowRaytrace("smallpt.wgsl", "smallpt-tone-mapping.wgsl"))
 document.getElementById("button_fbm").addEventListener("click", () => ShowRaytrace("voronoise_fbm.wgsl"))
 document.getElementById("button_voronoise").addEventListener("click", () => ShowRaytrace("voronoise.wgsl"))
 document.getElementById("button_2dlight").addEventListener("click", () => ShowRaytrace("light.wgsl"))

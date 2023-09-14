@@ -1,15 +1,17 @@
 //@block
 struct StagingBuffer {
     iMouse: vec2<f32>,
-    iTime: f32
+    iTime: f32,
+    iFrame: f32
 };
 
-@group(0) @binding(0) var img_output: texture_storage_2d<rgba32float, write>;
-@group(0) @binding(1) var<uniform> staging: StagingBuffer;
+@group(0) @binding(0) var img_input: texture_2d<f32>;
+@group(0) @binding(1) var img_output: texture_storage_2d<rgba32float, write>;
+@group(0) @binding(2) var<uniform> staging: StagingBuffer;
 
 // Play with the two following values to change quality.
 // You want as many samples as your GPU can bear. :)
-const SAMPLES = 100;
+const SAMPLES = 60;
 const MAXDEPTH = 4;
 
 const PI = 3.14159265359;
@@ -40,21 +42,18 @@ struct Sphere {
     refl: i32
 };
 
-var<private> lightSourceVolume: Sphere;
-var<private> spheres: array<Sphere, NUM_SPHERES>;
-
-fn initSpheres() {
-    lightSourceVolume = Sphere(20., vec3<f32>(50., 81.6, 81.6), vec3<f32>(12.), vec3<f32>(0.), DIFF);
-    spheres[0] = Sphere(1.e5, vec3<f32>(-1.e5 + 1., 40.8, 81.6),      vec3<f32>(0.), vec3<f32>(.75, .25, .25), DIFF); // left wall
-    spheres[1] = Sphere(1.e5, vec3<f32>( 1.e5+99., 40.8, 81.6),       vec3<f32>(0.), vec3<f32>(.25, .25, .75), DIFF); // right wall
-    spheres[2] = Sphere(1.e5, vec3<f32>(50.,       40.8, -1.e5),      vec3<f32>(0.), vec3<f32>(.75), DIFF); // back wall
-    spheres[3] = Sphere(1.e5, vec3<f32>(50.,       40.8,  1.e5+170.), vec3<f32>(0.), vec3<f32>(0.), DIFF); // front wall
-    spheres[4] = Sphere(1.e5, vec3<f32>(50.,      -1.e5, 81.6),		  vec3<f32>(0.), vec3<f32>(.75), DIFF); // bottom wall
-    spheres[5] = Sphere(1.e5, vec3<f32>(50.,  1.e5+81.6, 81.6),       vec3<f32>(0.0), vec3<f32>(.75), DIFF); // top wall
-    spheres[6] = Sphere(16.5, vec3<f32>(27.,       16.5, 47.), 	      vec3<f32>(0.), vec3<f32>(1.), SPEC);
-    spheres[7] = Sphere(16.5, vec3<f32>(73.,       16.5, 78.), 	      vec3<f32>(0.), vec3<f32>(.7, 1., .9), REFR);
-    spheres[8] = Sphere(600., vec3<f32>(50.,     681.33, 81.6),	      vec3<f32>(12.), vec3<f32>(0.), DIFF); // another light source?
-}
+var<private> lightSourceVolume: Sphere = Sphere(20., vec3<f32>(50., 81.6, 81.6), vec3<f32>(12.), vec3<f32>(0.), DIFF);
+var<private> spheres = array<Sphere, NUM_SPHERES>(
+    Sphere(1.e5, vec3<f32>(-1.e5 + 1., 40.8, 81.6),      vec3<f32>(0.), vec3<f32>(.75, .25, .25), DIFF), // left wall
+    Sphere(1.e5, vec3<f32>( 1.e5+99., 40.8, 81.6),       vec3<f32>(0.), vec3<f32>(.25, .25, .75), DIFF), // right wall
+    Sphere(1.e5, vec3<f32>(50.,       40.8, -1.e5),      vec3<f32>(0.), vec3<f32>(.75), DIFF), // back wall
+    Sphere(1.e5, vec3<f32>(50.,       40.8,  1.e5+170.), vec3<f32>(0.), vec3<f32>(0.), DIFF), // front wall
+    Sphere(1.e5, vec3<f32>(50.,      -1.e5, 81.6),		  vec3<f32>(0.), vec3<f32>(.75), DIFF), // bottom wall
+    Sphere(1.e5, vec3<f32>(50.,  1.e5+81.6, 81.6),       vec3<f32>(0.0), vec3<f32>(.75), DIFF), // top wall
+    Sphere(16.5, vec3<f32>(27.,       16.5, 47.), 	      vec3<f32>(0.), vec3<f32>(1.), SPEC),
+    Sphere(16.5, vec3<f32>(73.,       16.5, 78.), 	      vec3<f32>(0.), vec3<f32>(.7, 1., .9), REFR),
+    Sphere(600., vec3<f32>(50.,     681.33, 81.6),	      vec3<f32>(12.), vec3<f32>(0.), DIFF) // another light source?
+);
 
 fn intersectSphere(s: Sphere, r: Ray) -> f32 {
     var op: vec3<f32> = s.p - r.o;
@@ -199,9 +198,10 @@ fn radiance(r_par: Ray) -> vec3<f32> {
 
 @compute @workgroup_size(8, 8)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    initSpheres();
     var iResolution = vec2<f32>(textureDimensions(img_output));
     var fragCoord = vec2<f32>(global_id.xy) + 0.5;
+
+    let previousColor = textureLoad(img_input, vec2<i32>(global_id.xy), 0).rgb;
 
     seed = staging.iTime + iResolution.y * fragCoord.x / iResolution.x + fragCoord.y / iResolution.y;
 
@@ -213,9 +213,11 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     var cx = vec3<f32>(1., 0., 0.);
     var cy = normalize(cross(cx, cz)); cx = cross(cz, cy);
     var color = vec3<f32>(0.);
-    for(var i: i32 = 0; i<SAMPLES; i = i + 1) {
+
+    for(var i: i32 = 0; i<SAMPLES; i++) {
         color = color + radiance(Ray(camPos, normalize(.53135 * (iResolution.x / iResolution.y * uv.x * cx + uv.y * cy) + cz)));
     }
-    var fragColor = vec4<f32>(pow( clamp(color / f32(SAMPLES), vec3<f32>(0.), vec3<f32>(1.)), vec3<f32>(1. / 2.2)), 1.);
-    textureStore(img_output, vec2<i32>(global_id.xy), fragColor);
+    color = mix(previousColor, color / f32(SAMPLES), 1. / (staging.iFrame + 1.));
+
+    textureStore(img_output, vec2<i32>(global_id.xy), vec4<f32>(color, 1.0));
 }

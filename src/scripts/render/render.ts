@@ -9,8 +9,11 @@ export class Render extends GPUAbstractRunner {
     pipeline: GPURenderPipeline;
     texture: Texture;
 
-    constructor(texture: Texture) {
+    fragmentShaderFilename: string;
+
+    constructor(texture: Texture, fragmentShaderFilename: string = null) {
         super();
+        this.fragmentShaderFilename = fragmentShaderFilename;
         this.texture = texture;
     }
 
@@ -24,11 +27,22 @@ export class Render extends GPUAbstractRunner {
 
     override async Init() {
 
-        let result = await Promise.all([
-            GPU.CreateShader("scripts/render/render.vert.wgsl"),
-            GPU.CreateShader("scripts/render/render.frag.wgsl")])
-        let vertShader = result[0];
-        let fragShader = result[1];
+        let vertShader: GPUProgrammableStage
+        let fragShader: GPUProgrammableStage
+
+        if (this.fragmentShaderFilename !== null) {
+            let result = await Promise.all([
+                GPU.CreateShader("scripts/render/render.vert.wgsl"),
+                GPU.CreateShader(this.fragmentShaderFilename)])
+            vertShader = result[0];
+            fragShader = result[1];
+        } else {
+            let result = await Promise.all([
+                GPU.CreateShader("scripts/render/render.vert.wgsl"),
+                GPU.CreateShader("scripts/render/render.frag.wgsl")])
+            vertShader = result[0];
+            fragShader = result[1];
+        }
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{
