@@ -5,22 +5,14 @@ import {Raytrace} from "./raytrace/raytrace";
 import {SDF} from "./sdf/sdf";
 import {Fluid} from "./fluid/fluid";
 import {Texture} from "./webgpu/texture";
-
-let stop_raytrace = true;
-let stop_sdf = true;
-
-function stopAll() {
-    stop_raytrace = true;
-    stop_sdf = true;
-}
-
-let frame = async () => {
-}
+import {Light} from "./light/light";
+import {Features} from "./features/features";
+import {HandleRunner} from "./GPURunner";
 
 let lastframeTime = 0 as number;
 let nFrame = 0 as number;
 
-function MeasureFrame() {
+export function MeasureFrame() {
     if (lastframeTime == 0) {
         lastframeTime = performance.now();
         nFrame = 0;
@@ -35,8 +27,7 @@ function MeasureFrame() {
     }
 }
 
-
-function ShowError(message: string, e: Error) {
+export function ShowError(message: string, e: Error) {
     let errorObject = document.createElement("pre");
 
     errorObject.style.color = "#dc3545"
@@ -63,237 +54,73 @@ async function Init(powerPreference: GPUPowerPreference) {
     }
 }
 
-function ShowFeatures() {
-    if (!GPU.isInitialized) return;
-    stopAll();
-    let infoElement = document.getElementById("info");
-    infoElement.style.overflowY = "scroll"
-    document.getElementById("screen").style.visibility = "hidden";
-    document.getElementById("screen").style.width = "0%";
-    document.getElementById("screen").style.height = "0%";
 
-    infoElement.innerHTML = "<h4>Adapter Information</h4>"
-    let adapterInfo: GPUAdapterInfo = GPU.GetAdapterInfo();
+async function ShowFeatures() {
+    await HandleRunner(new Features());
+}
 
-    let table = ""
-    table += "<table>"
-    table += "<tr><td >Device  </td><td>" + adapterInfo.device + "</td></tr>"
-    table += "<tr><td style=\"padding-right: 10px\">Architecture  </td><td>" + adapterInfo.architecture + "</td></tr>"
-    table += "<tr><td>Vendor  </td><td>" + adapterInfo.vendor + "</td></tr>"
-    table += "<tr><td>Description  </td><td>" + adapterInfo.description + "</td></tr>"
-    table += "</table>"
-    infoElement.innerHTML += table
-
-
-    infoElement.innerHTML += "<br><h4>Adapter Features</h4>"
-    let features = GPU.GetAdapterFeatures();
-    if (features.size == 0) {
-        infoElement.innerHTML += "-- none --<br>";
-    }
-    for (let item of features.values()) {
-        infoElement.innerHTML += item + "<br>";
-    }
-    infoElement.innerHTML += "<br><h4>Device Features</h4>"
-    features = GPU.GetDeviceFeatures();
-    if (features.size == 0) {
-        infoElement.innerHTML += "-- none --<br>";
-    }
-    for (let item of features.values()) {
-        infoElement.innerHTML += item + "<br>";
-    }
-
-    features = GPU.GetWGSLFeatures();
-    if (features != null) {
-        infoElement.innerHTML += "<br><h4>WGSL Features</h4>"
-        if (features.size == 0) {
-            infoElement.innerHTML += "-- none --";
-        }
-        for (let item of features.values()) {
-            infoElement.innerHTML += item + "<br>";
-        }
-    }
-
-    infoElement.innerHTML += "<br><br><h4>Preferred Output Format</h4>" + navigator.gpu.getPreferredCanvasFormat();
-
-    infoElement.innerHTML += "<br><br><h4>Device Limits</h4>"
-
-    let s = ""
-    let limits = GPU.GetDeviceLimits()
-    s += "<table>"
-    for (let limitsKey in limits) {
-        s += "<tr>"
-        s += "<td style=\"padding-right: 10px\">"
-        s += limitsKey
-        s += "</td>"
-        s += "<td>"
-        s += limits[limitsKey]
-        s += "</td>"
-        s += "</tr>"
-    }
-    s += "</table><br>"
-    infoElement.innerHTML += s
+async function ShowCollatz() {
+    await HandleRunner(new Collatz());
 }
 
 async function ShowTexture() {
-    if (!GPU.isInitialized) return;
-    stopAll();
-    document.getElementById("info").innerHTML = "";
-    document.getElementById("info").style.overflowY = "";
-    //document.getElementById("info").innerHTML = "Hello world";
-    document.getElementById("screen").style.visibility = "visible";
-    document.getElementById("screen").style.width = "100%";
-    document.getElementById("screen").style.height = "100%";
-
-
-    let render: Render
-    let texture: Texture
-    try {
-        texture = await GPU.createTextureFromImage("scripts/render/Lenna.png");
-        render = new Render(texture);
-        await render.Init();
-    } catch (e) {
-        ShowError("Creation of GPU objects failed", e as Error)
-        throw e
-    }
-
-    frame = async () => {
-        await render.Render();
-        await GPU.device.queue.onSubmittedWorkDone();
-        texture.destroy()
-    }
-
-    requestAnimationFrame(frame);
+    let texture: Texture;
+    texture = await GPU.createTextureFromImage("scripts/render/Lenna.png");
+    await HandleRunner(new Render(texture));
+    texture.destroy();
 }
 
+async function ShowRaytrace(filename: string) {
+    await HandleRunner(new Raytrace(filename, true));
+}
+
+
 async function ShowFluid() {
+    await HandleRunner(new Fluid());
+}
+
+
+async function ShowLight() {
+    /*
     if (!GPU.isInitialized) return;
-    stopAll();
-    document.getElementById("info").innerHTML = "";
+    reset();
     document.getElementById("info").style.overflowY = "";
     document.getElementById("screen").style.visibility = "visible";
     document.getElementById("screen").style.width = "100%";
     document.getElementById("screen").style.height = "100%";
 
-    let fluid: Fluid
+    let light = new Light();
+    await light.Init();
+
+    let render = new Render(light.texture);
+    await render.Init();
+
+    stop_animation = false;
+    frame = async () => {
+        GPU.device.queue.submit([light.GetCommandBuffer(), render.GetCommandBuffer()]);
+        await GPU.device.queue.onSubmittedWorkDone();
+        MeasureFrame()
+        //if (stop_animation) {
+            light.destroy()
+            return;
+        //}
+        //requestAnimationFrame(frame)
+    }
+    requestAnimationFrame(frame)
+     */
+}
+
+async function ShowSDF() {
+    let raytrace = new Raytrace("fbm.wgsl", false);
     try {
-        fluid = new Fluid();
-        await fluid.Init();
+        await raytrace.Init();
+        await raytrace.Run();
     } catch (e) {
         ShowError("GPU object creation failed", e as Error)
         throw e
     }
-
-    stop_raytrace = false;
-    frame = async () => {
-        await fluid.Step();
-        if (stop_raytrace) {
-            return;
-        }
-        //await GPU.device.queue.onSubmittedWorkDone();
-        MeasureFrame()
-        requestAnimationFrame(frame)
-    }
-    requestAnimationFrame(frame)
-}
-
-
-async function ShowRaytrace(filename: string) {
-    if (!GPU.isInitialized) return;
-    stopAll();
-    document.getElementById("info").innerHTML = "";
-    document.getElementById("info").style.overflowY = "";
-    document.getElementById("screen").style.visibility = "visible";
-    document.getElementById("screen").style.width = "100%";
-    document.getElementById("screen").style.height = "100%";
-
-
-    let raytrace = new Raytrace();
-    await raytrace.Init(filename);
-
-    let render = new Render(raytrace.texture);
-    await render.Init();
-
-    stop_raytrace = false;
-    frame = async () => {
-        GPU.device.queue.submit([raytrace.GetCommandBuffer(), render.GetCommandBuffer()]);
-        await GPU.device.queue.onSubmittedWorkDone();
-        MeasureFrame()
-        if (stop_raytrace) {
-            raytrace.destroy()
-            return;
-        }
-        requestAnimationFrame(frame)
-    }
-    requestAnimationFrame(frame)
-}
-
-async function ShowSDF() {
-    if (!GPU.isInitialized) return;
-    stopAll();
-    document.getElementById("info").innerHTML = "";
-    document.getElementById("info").style.overflowY = "";
-    document.getElementById("screen").style.visibility = "visible";
-    document.getElementById("screen").style.width = "100%";
-    document.getElementById("screen").style.height = "100%";
-
-
-    let raytrace = new Raytrace();
-    await raytrace.Init("fbm.wgsl");
-    await raytrace.Run();
-
-    let sdf = new SDF(raytrace.texture);
-    await sdf.Init();
-
-    let render = new Render(sdf.render_output);
-    await render.Init();
-    stop_sdf = false;
-    let count = 0;
-    frame = async () => {
-        GPU.device.queue.submit([sdf.GetCommandBuffer(), render.GetCommandBuffer()]);
-        await GPU.device.queue.onSubmittedWorkDone();
-        MeasureFrame()
-        count++;
-        if (stop_sdf || count > 200) {
-            raytrace.destroy()
-            sdf.destroy()
-            return;
-        }
-        requestAnimationFrame(frame)
-    }
-    requestAnimationFrame(frame)
-}
-
-async function ShowCollatz() {
-    if (!GPU.isInitialized) return;
-    stopAll();
-    document.getElementById("info").innerHTML = "";
-    document.getElementById("info").style.overflowY = "";
-    document.getElementById("screen").style.visibility = "hidden";
-
-    let infoElement = document.getElementById("info");
-
-    let integers = new Uint32Array(4);
-    integers[0] = 64;
-    integers[1] = 200;
-    integers[2] = 300;
-    integers[3] = 400;
-
-    let stopping_time = await Collatz(integers);
-    let table = ""
-
-    table += "<table class=\"table text-white\">"
-    table += "<thead></thead><tr><th scope=\"col\">Positive Integer</th><th scope=\"col\">Stopping Time</th></tr></thead>"
-    table += "<tbody>"
-    for (let i = 0; i < integers.length; i++) {
-        table += "<tr scope=\"row\">";
-        table += "<td>" + integers[i] + "</td>";
-        table += "<td>" + stopping_time[i] + "</td>";
-        table += "</tr>";
-    }
-    table += "</tbody>"
-    table += "</table>"
-
-    infoElement.innerHTML = table
+    await HandleRunner(new SDF(raytrace.texture));
+    await raytrace.Destroy();
 }
 
 document.getElementById("button_features").addEventListener("click", ShowFeatures)
@@ -304,6 +131,7 @@ document.getElementById("button_gi").addEventListener("click", () => ShowRaytrac
 document.getElementById("button_fbm").addEventListener("click", () => ShowRaytrace("voronoise_fbm.wgsl"))
 document.getElementById("button_voronoise").addEventListener("click", () => ShowRaytrace("voronoise.wgsl"))
 document.getElementById("button_2dlight").addEventListener("click", () => ShowRaytrace("light.wgsl"))
+//document.getElementById("button_restir").addEventListener("click", () => ShowLight())
 document.getElementById("button_sdf").addEventListener("click", () => ShowSDF())
 document.getElementById("button_fluid").addEventListener("click", () => ShowFluid())
 

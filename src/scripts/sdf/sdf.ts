@@ -1,7 +1,9 @@
 import {GPU} from "../webgpu/gpu";
 import {Texture} from "../webgpu/texture";
+import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
+import {Render} from "../render/render";
 
-export class SDF {
+export class SDF extends GPUAbstractRunner {
     width: number;
     height: number;
 
@@ -15,16 +17,22 @@ export class SDF {
     pipeline_layout: GPUPipelineLayout;
     compute_pipeline: GPUComputePipeline;
 
+    render: Render;
+
     constructor(texture_border: Texture) {
+        super();
         this.texture_border = texture_border;
         this.width = texture_border.width;
         this.height = texture_border.height;
-        this.texturea = GPU.CreateStorageTexture(this.width, this.height, "rg32float");
-        this.textureb = GPU.CreateStorageTexture(this.width, this.height, "rg32float");
-        this.render_output = GPU.CreateStorageTexture(this.width, this.height, "rgba32float");
     }
 
-    destroy() {
+    getType(): RunnerType {
+        return RunnerType.ANIM
+    }
+
+
+    async Destroy() {
+        await this.render.Destroy();
         this.texturea.destroy()
         this.textureb.destroy()
     }
@@ -32,15 +40,22 @@ export class SDF {
     async Init() {
         let shader: GPUProgrammableStage = await GPU.CreateShader("scripts/sdf/sdf.wgsl");
 
+        this.texturea = GPU.CreateStorageTexture(this.width, this.height, "rg32float");
+        this.textureb = GPU.CreateStorageTexture(this.width, this.height, "rg32float");
+        this.render_output = GPU.CreateStorageTexture(this.width, this.height, "rgba32float");
+
+        this.render = new Render(this.render_output);
+        await this.render.Init();
+
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{
                 binding: 0,
                 visibility: GPUShaderStage.COMPUTE,
-                texture: { sampleType: "unfilterable-float" }
+                texture: {sampleType: "unfilterable-float"}
             }, {
                 binding: 1,
                 visibility: GPUShaderStage.COMPUTE,
-                texture: { sampleType: "unfilterable-float" }
+                texture: {sampleType: "unfilterable-float"}
             }, {
                 binding: 2,
                 visibility: GPUShaderStage.COMPUTE,
@@ -85,17 +100,22 @@ export class SDF {
         });
     }
 
-    GetCommandBuffer(): GPUCommandBuffer {
+    getCommandBuffer(): GPUCommandBuffer {
         let encoder: GPUCommandEncoder = GPU.device.createCommandEncoder({});
         {
             let pass: GPUComputePassEncoder = encoder.beginComputePass();
             pass.setBindGroup(0, this.bind_group);
             pass.setPipeline(this.compute_pipeline);
-            pass.dispatchWorkgroups(this.width/8, this.height/8);
+            pass.dispatchWorkgroups(this.width / 8, this.height / 8);
             pass.end();
         }
-        encoder.copyTextureToTexture({ texture: this.textureb.texture }, { texture: this.texturea.texture }, [this.width, this.height, 1]);
-        let command_buffer: GPUCommandBuffer = encoder.finish();
-        return command_buffer;
+        encoder.copyTextureToTexture({texture: this.textureb.texture}, {texture: this.texturea.texture}, [this.width, this.height, 1]);
+        return encoder.finish();
     }
+
+    async Run() {
+        GPU.device.queue.submit([this.getCommandBuffer(), this.render.getCommandBuffer()]);
+        await GPU.device.queue.onSubmittedWorkDone();
+    }
+
 }

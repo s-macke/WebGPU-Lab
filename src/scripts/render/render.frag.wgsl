@@ -9,5 +9,5 @@ struct VertexOutput {
 fn main(data: VertexOutput) -> @location(0) vec4<f32> {
     var d: vec2<f32> = vec2<f32>(textureDimensions(myTexture, 0));
     let c = textureLoad(myTexture, vec2<i32>(data.fragUV*d), 0).rgb;
-    return vec4<f32>(c, 0.1);
+    return vec4<f32>(c, 1.0);
 }

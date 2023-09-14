@@ -1,15 +1,21 @@
+/*
+Buffer A (Buffer A, keyboard, RGBA Noise Medium)   (//Stores vars)
+Buffer B (Buffer A, Buffer b, RGBA Noise Medium, CubeMap a) (Temporal ReSTIR)
+Buffer C (Buffer A, Buffer B, RGBA Noise Medium, CubeMap a
+Buffer D (Buffer A, Buffer B, Buffer C, Buffer D)   (contains lightning, Temporal accumulation)
+CubeMap A (Buffer A, Nothing , RGBA Noise Medium, CubeMap A)  (scene storage)
+Image (Buffer A, Buffer C, Buffer D, CubeMap A)
+*/
+
 import {GPU} from "../webgpu/gpu";
 import {Texture} from "../webgpu/texture";
 import {Buffer} from "../webgpu/buffer";
-import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
-import {Render} from "../render/render";
 
-export class Raytrace extends GPUAbstractRunner {
+export class Light {
     width: number;
     height: number;
 
     texture: Texture;
-    render: Render;
 
     bind_group_layout: GPUBindGroupLayout;
     bind_group: GPUBindGroup;
@@ -19,42 +25,23 @@ export class Raytrace extends GPUAbstractRunner {
     stagingBuffer: Buffer
     stagingData: Float32Array
 
-    filename: string;
+    constructor() {
+        this.width = GPU.viewport.width;
+        this.height = GPU.viewport.height;
 
-    showOnScreen: boolean;
-
-    constructor(filename: string, showOnScreen: boolean) {
-        super();
-        this.showOnScreen = showOnScreen
-        this.filename = filename
-        this.width = GPU.viewport.width
-        this.height = GPU.viewport.height
-    }
-
-    override getType(): RunnerType {
-        return RunnerType.ANIM
-    }
-
-    override async Destroy() {
-        if (this.showOnScreen) {
-            await this.render.Destroy();
-        }
-        this.texture.destroy()
-    }
-
-    override async Init() {
         console.log("Create Texture");
         this.texture = GPU.CreateStorageTexture(this.width, this.height, "rgba32float");
 
-        if (this.showOnScreen) {
-            this.render = new Render(this.texture);
-            await this.render.Init();
-        }
-
         this.stagingBuffer = GPU.CreateUniformBuffer(4*3 + 4); // must be a multiple of 16 bytes
         this.stagingData = new Float32Array(4);
+    }
 
-        this.shader = await GPU.CreateShader("scripts/raytrace/" + this.filename);
+    destroy() {
+        this.texture.destroy()
+    }
+
+    async Init() {
+        this.shader = await GPU.CreateShader("scripts/light/light.wgsl");
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{
@@ -94,7 +81,7 @@ export class Raytrace extends GPUAbstractRunner {
         });
     }
 
-    override getCommandBuffer(): GPUCommandBuffer {
+    GetCommandBuffer(): GPUCommandBuffer {
         this.stagingData[0] = GPU.mouseCoordinate.x; // set iMouseX
         this.stagingData[1] = GPU.mouseCoordinate.y; // set iMouseY
         this.stagingData[2] += 0.01; // increase iTime
@@ -113,12 +100,9 @@ export class Raytrace extends GPUAbstractRunner {
         return encoder.finish();
     }
 
-    override async Run() {
-        if (this.showOnScreen) {
-            GPU.device.queue.submit([this.getCommandBuffer(), this.render.getCommandBuffer()]);
-        } else {
-            GPU.device.queue.submit([this.getCommandBuffer()]);
-        }
+    async Run() {
+        GPU.device.queue.submit([this.GetCommandBuffer()]);
         await GPU.device.queue.onSubmittedWorkDone();
     }
+
 }

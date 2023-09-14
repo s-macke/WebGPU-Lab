@@ -8,6 +8,7 @@ import {Advect} from "./advect/advect";
 import {Div} from "./div/div";
 import {Project} from "./project/project";
 import {Source} from "./source/source";
+import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
 
 // Staggered Grid
 /*
@@ -26,7 +27,13 @@ import {Source} from "./source/source";
                        i,j-0.5
  */
 
-export class Fluid {
+export class Fluid extends GPUAbstractRunner {
+    public getType(): RunnerType {
+        return RunnerType.ANIM
+    }
+    public async Destroy() {
+    }
+
     n: number;
     m: number;
     width: number;
@@ -102,7 +109,7 @@ export class Fluid {
         //await GPU.Render(poisson.pressurea);
     }
 
-    async Step() {
+    async Run() {
 
         GPU.device.queue.submit([
             this.source.GetCommandBuffer(),

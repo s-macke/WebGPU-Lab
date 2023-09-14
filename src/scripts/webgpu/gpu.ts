@@ -4,8 +4,8 @@ import {Buffer} from "./buffer";
 import {BufferFactory} from "./bufferFactory";
 import {TextureFactory} from "./textureFactory";
 
-type Rect = {width: number, height: number};
-type Coordinate = {x: number, y: number};
+type Rect = { width: number, height: number };
+type Coordinate = { x: number, y: number };
 
 export class GPU {
     private static adapter: GPUAdapter;
@@ -51,58 +51,49 @@ export class GPU {
             throw new Error("WebGPU context null");
         }
         canvas.onmousemove = (e) => {
-            this.mouseCoordinate.x = e.offsetX / canvas.clientWidth * canvas.width;
-            this.mouseCoordinate.y = canvas.height - e.offsetY / canvas.clientHeight * canvas.height;
+            this.mouseCoordinate.x = e.offsetX / canvas.clientWidth * canvas.width
+            this.mouseCoordinate.y = canvas.height - e.offsetY / canvas.clientHeight * canvas.height
         }
 
-        this.viewport.width = canvas.width;
-        this.viewport.height = canvas.height;
+        this.viewport.width = canvas.width
+        this.viewport.height = canvas.height
         console.log("canvas width: " + this.viewport.width)
         console.log("canvas height: " + this.viewport.height)
         console.log("canvas clientWidth: " + canvas.clientWidth)
         console.log("canvas clientHeight: " + canvas.clientHeight)
-        const devicePixelRatio = window.devicePixelRatio || 1;
+        const devicePixelRatio = window.devicePixelRatio || 1
         console.log("devicePixelRatio: " + devicePixelRatio)
-        /*
-        const presentationSize = [
-            //canvas.clientWidth * devicePixelRatio,
-            //canvas.clientHeight * devicePixelRatio,
-            canvas.width,
-            canvas.height
-        ];
-*/
         this.gpuContext.configure({
             device: this.device,
             format: navigator.gpu.getPreferredCanvasFormat(),
-            alphaMode: "opaque"
-            //size: presentationSize,
+            alphaMode: "opaque",
         });
         console.log("Set Canvas Done")
-        this.isInitialized = true;
+        this.isInitialized = true
     }
 
-    static GetAdapterInfo() : GPUAdapterInfo {
+    static GetAdapterInfo(): GPUAdapterInfo {
         return this.adapterInfo
     }
 
-    static GetAdapterFeatures() : ReadonlySet<string> {
+    static GetAdapterFeatures(): ReadonlySet<string> {
         return this.adapter.features
     }
 
-    static GetWGSLFeatures() : ReadonlySet<string> {
+    static GetWGSLFeatures(): ReadonlySet<string> {
         return navigator.gpu.wgslLanguageFeatures
     }
 
 
-    static GetDeviceFeatures() : ReadonlySet<string> {
+    static GetDeviceFeatures(): ReadonlySet<string> {
         return this.device.features
     }
 
-    static GetDeviceLimits() : GPUSupportedLimits {
+    static GetDeviceLimits(): GPUSupportedLimits {
         return this.device.limits
     }
 
-    static getRenderPassDescriptor() : GPURenderPassDescriptor {
+    static getRenderPassDescriptor(): GPURenderPassDescriptor {
         return {
             colorAttachments: [{
                 view: GPU.gpuContext.getCurrentTexture().createView(),
@@ -121,17 +112,18 @@ export class GPU {
         return this.mouseCoordinate;
     }
 
-    static CreateTexture(width, height: number, format: GPUTextureFormat): Texture {
+    static CreateTexture(width: number, height: number, format: GPUTextureFormat): Texture {
         return new Texture(width, height, format);
     }
 
-    static CreateStorageTexture(width, height: number, format: GPUTextureFormat): Texture {
+    static CreateStorageTexture(width: number, height: number, format: GPUTextureFormat): Texture {
         return new Texture(width, height, format, TextureType.Storage);
     }
 
-    static async CreateTextureFromArrayBuffer(width, height: number, format: GPUTextureFormat, data: ArrayBuffer): Promise<Texture> {
+    static async CreateTextureFromArrayBuffer(width: number, height: number, format: GPUTextureFormat, data: ArrayBuffer): Promise<Texture> {
         return TextureFactory.CreateTextureFromArrayBuffer(width, height, format, data)
     }
+
     static async createTextureFromImage(src: string): Promise<Texture> {
         return TextureFactory.createTextureFromImage(src)
     }
@@ -166,21 +158,20 @@ export class GPU {
         return BufferFactory.createCopyBuffer(size);
     }
 
+    static workDone(): Promise<undefined> {
+        return this.device.queue.onSubmittedWorkDone();
+    }
+
     static async CreateShader(url: string): Promise<GPUProgrammableStage> {
         console.log("Load Shader from '" + url + "'")
-        return new Promise<GPUProgrammableStage>((resolve, reject) => {
-            LoadTextResource(url).then(
-                code => {
-                    let module: GPUShaderModule = this.device.createShaderModule({
-                        code: code
-                    });
-                    resolve({
-                        entryPoint: "main",
-                        module: module
-                    })
-                }
-            )
-        })
+        const code: string = await LoadTextResource(url)
+        let module: GPUShaderModule = this.device.createShaderModule({
+            code: code
+        });
+        return {
+            entryPoint: "main",
+            module: module
+        }
     }
 
     static async CopyBufferToBuffer(src: Buffer, dest: Buffer, size: number) {
@@ -261,24 +252,14 @@ export class GPU {
 
         let render = () => {
             console.log("render");
+            const commandEncoder = this.device.createCommandEncoder({});
+            const passEncoder = commandEncoder.beginRenderPass(this.getRenderPassDescriptor());
+            passEncoder.setPipeline(pipeline);
+            passEncoder.setBindGroup(0, bind_group);
+            passEncoder.draw(4, 1, 0, 0);
+            passEncoder.end();
 
-                        const renderPassDescriptor: GPURenderPassDescriptor = {
-                            colorAttachments: [{
-                                view: this.gpuContext.getCurrentTexture().createView(),
-                                clearValue: {r: 0.0, g: 0.0, b: 0.0, a: 1.0},
-                                loadOp: "clear",
-                                storeOp: "store"
-                            }],
-                        };
-
-                        const commandEncoder = this.device.createCommandEncoder({});
-                        const passEncoder = commandEncoder.beginRenderPass(this.getRenderPassDescriptor());
-                        passEncoder.setPipeline(pipeline);
-                        passEncoder.setBindGroup(0, bind_group);
-                        passEncoder.draw(4, 1, 0, 0);
-                        passEncoder.end();
-
-                        this.device.queue.submit([commandEncoder.finish()]);
+            this.device.queue.submit([commandEncoder.finish()]);
         }
         requestAnimationFrame(render);
     }

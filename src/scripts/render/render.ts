@@ -1,7 +1,8 @@
 import {GPU} from "../webgpu/gpu";
 import {Texture} from "../webgpu/texture";
+import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
 
-export class Render {
+export class Render extends GPUAbstractRunner {
     bind_group_layout: GPUBindGroupLayout;
     bind_group: GPUBindGroup;
     pipeline_layout: GPUPipelineLayout;
@@ -9,10 +10,19 @@ export class Render {
     texture: Texture;
 
     constructor(texture: Texture) {
+        super();
         this.texture = texture;
     }
 
-    async Init() {
+    override getType(): RunnerType {
+        return RunnerType.GRAPHIC
+    }
+
+
+    override async Destroy() {
+    }
+
+    override async Init() {
         let vertShader = await GPU.CreateShader("scripts/render/render.vert.wgsl")
         let fragShader = await GPU.CreateShader("scripts/render/render.frag.wgsl")
 
@@ -44,7 +54,7 @@ export class Render {
                 module: fragShader.module,
                 constants: fragShader.constants,
                 targets: [{
-                    format: navigator.gpu.getPreferredCanvasFormat()
+                    format: GPU.getPreferredFormat()
                 }]
             },
             primitive: {
@@ -54,7 +64,7 @@ export class Render {
         });
     }
 
-    GetCommandBuffer() : GPUCommandBuffer {
+    override getCommandBuffer(): GPUCommandBuffer {
         const commandEncoder = GPU.device.createCommandEncoder({});
         const passEncoder = commandEncoder.beginRenderPass(GPU.getRenderPassDescriptor());
         passEncoder.setPipeline(this.pipeline);
@@ -64,9 +74,9 @@ export class Render {
         return commandEncoder.finish()
     }
 
-    async Render() {
-            GPU.device.queue.submit([this.GetCommandBuffer()]);
-            await GPU.device.queue.onSubmittedWorkDone();
+    override async Run() {
+        GPU.device.queue.submit([this.getCommandBuffer()]);
+        await GPU.device.queue.onSubmittedWorkDone();
     }
 
 }

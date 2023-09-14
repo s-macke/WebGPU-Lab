@@ -78,7 +78,6 @@ https://www.shadertoy.com/view/4lcfDl
 optimized fluid
 https://www.shadertoy.com/view/tt2GRV
 
-
 easiest fluid (do this one first)
 https://www.shadertoy.com/view/4lyBDW
 
@@ -147,3 +146,53 @@ https://www.shadertoy.com/view/3djcWK
 
 very code for easy waterfall
 https://www.shadertoy.com/view/lt3BWX
+
+dry ice
+https://www.shadertoy.com/view/WlVyRV
+
+cool coloring of fluids
+https://www.shadertoy.com/view/MsGSRd
+https://www.shadertoy.com/view/tsKXR3
+
+cool explosion colors
+https://www.shadertoy.com/view/lsySzd
+
+paint two colors
+https://www.shadertoy.com/view/WtfyDj
+
+texture
+https://www.shadertoy.com/view/ldtGWj
+
+another good and easy 2D Light
+https://www.shadertoy.com/view/lldcDf
+
+the slow 2d gi
+https://www.shadertoy.com/view/lltcRN
+
+2D Light using Quad Tree. Very interesting
+
+https://www.shadertoy.com/view/DslSDM
+
+
+3D raymarching cornell box. 3D global illumination, but fast somehow
+https://www.shadertoy.com/view/4ssGzS
+https://www.shadertoy.com/view/3dfGR2
+
+2D angular sampling?
+https://www.shadertoy.com/view/Xdf3zB
+
+# diffuse global illumination
+https://www.shadertoy.com/view/4dyBRK
+
+# 2d path tracer
+https://www.shadertoy.com/view/Dd3XW4
+
+# triangle distance 3d gi
+https://www.shadertoy.com/view/4sXXRN
+
+# triangle intersection
+https://www.shadertoy.com/view/MlGcDz
+https://www.shadertoy.com/view/XdjSDy
+
+# list of intersection shaders
+https://www.shadertoy.com/playlist/l3dXRf
