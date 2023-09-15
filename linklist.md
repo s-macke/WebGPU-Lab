@@ -196,3 +196,6 @@ https://www.shadertoy.com/view/XdjSDy
 
 # list of intersection shaders
 https://www.shadertoy.com/playlist/l3dXRf
+
+# better sampling?
+https://www.shadertoy.com/view/mdX3Wn
