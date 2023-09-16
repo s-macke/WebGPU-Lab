@@ -13,7 +13,9 @@ async function HandleHTML(runner: GPURunner) {
     document.getElementById("screen").style.height = "0%"
     try {
         await runner.Init()
-        await runner.Run()
+        if (!stop_animation) { // during Init, the user might has pressed another button. So don't run in this case.
+            await runner.Run()
+        }
         await runner.Destroy()
     } catch (e) {
         ShowError("GPU error", e as Error)
@@ -31,6 +33,10 @@ async function HandleGraphic(runner: GPURunner) {
     } catch (e) {
         ShowError("GPU error", e as Error)
         throw e
+    }
+    if (stop_animation) { // during Init, the user has pressed another button. So don't run.
+        await runner.Destroy()
+        return;
     }
     await new Promise(async resolve => {
         try {
@@ -67,7 +73,10 @@ async function HandleAnimation(runner: GPURunner) {
         ShowError("GPU error", e as Error)
         throw e
     }
-    stop_animation = false;
+    if (stop_animation) { // during Init, the user has pressed another button. So don't run.
+        await runner.Destroy()
+        return;
+    }
     await new Promise(async resolve => {
         let frame = async () => {
             try {
@@ -101,6 +110,7 @@ export async function HandleRunner(runner: GPURunner) {
     document.getElementById("info").style.overflowY = ""
 
     promise = new Promise<void>(async resolve => {
+        stop_animation = false;
         const type = runner.getType()
         switch (type) {
             case RunnerType.HTML:

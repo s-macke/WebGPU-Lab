@@ -56,7 +56,7 @@ struct Triangle {
 */
 
 const NCOORDINATES = 28;
-var<private> coordinates = array<vec3<f32>, NCOORDINATES>(
+const coordinates = array<vec3<f32>, NCOORDINATES>(
     vec3<f32>(  -0.57735,  -0.57735,  0.57735),
     vec3<f32>(  0.934172,  0.356822,  0),
     vec3<f32>(  0.934172,  -0.356822,  0),
@@ -88,7 +88,7 @@ var<private> coordinates = array<vec3<f32>, NCOORDINATES>(
 );
 
 const NMATERIALS = 14;
-var<private> materials = array<Material, NMATERIALS>(
+const materials = array<Material, NMATERIALS>(
     Material(vec3<f32>(1., 0., 0.), 0.),
     Material(vec3<f32>(1., 0., 0.), 0.),
     Material(vec3<f32>(1., 0., 0.), 0.),
@@ -106,7 +106,7 @@ var<private> materials = array<Material, NMATERIALS>(
 );
 
 const NTRIANGLES = 40;
-var<private> triangles = array<Triangle, NTRIANGLES>(
+const triangles = array<Triangle, NTRIANGLES>(
     Triangle( 19,  3,  2, 0),
     Triangle( 12,  19,  2, 0),
     Triangle( 15,  12,  2, 0),

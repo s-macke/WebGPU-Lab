@@ -42,8 +42,8 @@ struct Sphere {
     refl: i32
 };
 
-var<private> lightSourceVolume: Sphere = Sphere(20., vec3<f32>(50., 81.6, 81.6), vec3<f32>(12.), vec3<f32>(0.), DIFF);
-var<private> spheres = array<Sphere, NUM_SPHERES>(
+const lightSourceVolume: Sphere = Sphere(20., vec3<f32>(50., 81.6, 81.6), vec3<f32>(12.), vec3<f32>(0.), DIFF);
+const spheres = array<Sphere, NUM_SPHERES>(
     Sphere(1.e5, vec3<f32>(-1.e5 + 1., 40.8, 81.6),      vec3<f32>(0.), vec3<f32>(.75, .25, .25), DIFF), // left wall
     Sphere(1.e5, vec3<f32>( 1.e5+99., 40.8, 81.6),       vec3<f32>(0.), vec3<f32>(.25, .25, .75), DIFF), // right wall
     Sphere(1.e5, vec3<f32>(50.,       40.8, -1.e5),      vec3<f32>(0.), vec3<f32>(.75), DIFF), // back wall
@@ -119,17 +119,17 @@ fn radiance(r_par: Ray) -> vec3<f32> {
         if (id < 0) {
             break;
         }
-        var x = t * r.d + r.o;
-        var n = normalize(x - obj.p);
-        var nl = n * sign(-dot(n, r.d));
+        let x = t * r.d + r.o;
+        let n = normalize(x - obj.p);
+        let nl = n * sign(-dot(n, r.d));
 
         //vec3 f = obj.c;
         //float p = dot(f, vec3(1.2126, 0.7152, 0.0722));
         //if (depth > DEPTH_RUSSIAN || p == 0.) if (rand() < p) f /= p; else { acc += mask * obj.e * E; break; }
 
         if (obj.refl == DIFF) {
-            var r2 = rand();
-            var d = jitter(nl, 2.*PI*rand(), sqrt(r2), sqrt(1. - r2));
+            let r2 = rand();
+            let d = jitter(nl, 2.*PI*rand(), sqrt(r2), sqrt(1. - r2));
             var e = vec3<f32>(0.);
 
 //ifdef ENABLE_NEXT_EVENT_PREDICTION
@@ -158,7 +158,7 @@ fn radiance(r_par: Ray) -> vec3<f32> {
             }
 
 //#endif
-            var E = 1.; // float(depth==0);
+            let E = 1.; // float(depth==0);
             acc = acc + (mask * obj.e * E + mask * obj.c * e);
             mask = mask * obj.c;
             r = Ray(x, d);
@@ -168,21 +168,21 @@ fn radiance(r_par: Ray) -> vec3<f32> {
             mask = mask * obj.c;
             r = Ray(x, reflect(r.d, n));
         } else {
-            var a = dot(n, r.d);
-            var ddn = abs(a);
-            var nc = 1.;
-            var nt = 1.5;
-            var nnt = mix(nc / nt, nt / nc, f32(a > 0.));
-            var cos2t = 1. - nnt * nnt * (1. - ddn * ddn);
+            let a = dot(n, r.d);
+            let ddn = abs(a);
+            let nc = 1.;
+            let nt = 1.5;
+            let nnt = mix(nc / nt, nt / nc, f32(a > 0.));
+            let cos2t = 1. - nnt * nnt * (1. - ddn * ddn);
             r = Ray(x, reflect(r.d, n));
             if (cos2t > 0.) {
-                var tdir = normalize(r.d * nnt + sign(a) * n * (ddn * nnt + sqrt(cos2t)));
-                var R0 = (nt - nc) * (nt - nc) / ((nt + nc) * (nt + nc));
-                var c = 1. - mix(ddn, dot(tdir, n), f32(a > 0.));
-                var Re = R0 + (1. - R0) * c * c * c * c * c;
-                var P = .25 + .5 * Re;
-                var RP = Re / P;
-                var TP = (1. - Re) / (1. - P);
+                let tdir = normalize(r.d * nnt + sign(a) * n * (ddn * nnt + sqrt(cos2t)));
+                let R0 = (nt - nc) * (nt - nc) / ((nt + nc) * (nt + nc));
+                let c = 1. - mix(ddn, dot(tdir, n), f32(a > 0.));
+                let Re = R0 + (1. - R0) * c * c * c * c * c;
+                let P = .25 + .5 * Re;
+                let RP = Re / P;
+                let TP = (1. - Re) / (1. - P);
                 if (rand() < P) {
                     mask = mask * RP;
                 } else {
@@ -198,20 +198,21 @@ fn radiance(r_par: Ray) -> vec3<f32> {
 
 @compute @workgroup_size(8, 8)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    var iResolution = vec2<f32>(textureDimensions(img_output));
-    var fragCoord = vec2<f32>(global_id.xy) + 0.5;
+    let iResolution = vec2<f32>(textureDimensions(img_output));
+    let fragCoord = vec2<f32>(global_id.xy) + 0.5;
 
     let previousColor = textureLoad(img_input, vec2<i32>(global_id.xy), 0).rgb;
 
     seed = staging.iTime + iResolution.y * fragCoord.x / iResolution.x + fragCoord.y / iResolution.y;
 
-    var uv: vec2<f32> = 2. * fragCoord.xy / iResolution.xy - 1.;
+    let uv: vec2<f32> = 2. * fragCoord.xy / iResolution.xy - 1.;
     //var camPos = vec3<f32>((2. * (staging.iMouse.xy==vec2(0.)?.5*iResolution.xy:staging.iMouse.xy) / iResolution.xy - 1.) * vec2<f32>(48., 40.) + vec2<f32>(50., 40.8), 169.);
-    var camPos = vec3<f32>((2. * staging.iMouse.xy / iResolution.xy - 1.) * vec2<f32>(48., 40.) + vec2<f32>(50., 40.8), 169.);
+    let camPos = vec3<f32>((2. * staging.iMouse.xy / iResolution.xy - 1.) * vec2<f32>(48., 40.) + vec2<f32>(50., 40.8), 169.);
     //var camPos = vec3<f32>((2. * (.5 * iResolution.xy) / iResolution.xy - 1.) * vec2<f32>(48., 40.) + vec2<f32>(50., 40.8), 169.);
-    var cz = normalize(vec3<f32>(50., 40., 81.6) - camPos);
+    let cz = normalize(vec3<f32>(50., 40., 81.6) - camPos);
     var cx = vec3<f32>(1., 0., 0.);
-    var cy = normalize(cross(cx, cz)); cx = cross(cz, cy);
+    let cy = normalize(cross(cx, cz));
+    cx = cross(cz, cy);
     var color = vec3<f32>(0.);
 
     for(var i: i32 = 0; i<SAMPLES; i++) {
