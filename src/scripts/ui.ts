@@ -107,7 +107,7 @@ document.getElementById("button_2dlight").addEventListener("click", () => ShowRa
 document.getElementById("button_light_propagation").addEventListener("click", () => ShowLightPropagation())
 document.getElementById("button_sdf").addEventListener("click", () => ShowSDF())
 document.getElementById("button_fluid").addEventListener("click", () => ShowFluid())
-//document.getElementById("button_diffuse").addEventListener("click", () => ShowRaytrace("diffuse.wgsl", "aces-tone-mapping.wgsl"))
+document.getElementById("button_diffuse").addEventListener("click", () => ShowRaytrace("diffuse.wgsl", "aces-tone-mapping.wgsl"))
 
 let gpuSelection1 = document.getElementById("gpuSelection1") as HTMLInputElement
 let gpuSelection2 = document.getElementById("gpuSelection2") as HTMLInputElement

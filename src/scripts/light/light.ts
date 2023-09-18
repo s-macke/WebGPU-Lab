@@ -57,9 +57,10 @@ export class LightPropagation extends GPUAbstractRunner {
         this.textureRSrc.destroy()
         this.textureGSrc.destroy()
         this.textureBSrc.destroy()
-
+/*
         await this.sdf.Destroy()
         await this.raytrace.Destroy()
+ */
     }
 
     async Init() {
