@@ -38,13 +38,13 @@ export class SDF extends GPUAbstractRunner {
     }
 
     async Init() {
-        let shader: GPUProgrammableStage = await GPU.CreateShader("scripts/sdf/sdf.wgsl")
+        let shader: GPUProgrammableStage = await GPU.CreateShaderFromURL("scripts/sdf/sdf.wgsl")
 
         this.texturea = GPU.CreateStorageTexture(this.width, this.height, "rg32float")
         this.textureb = GPU.CreateStorageTexture(this.width, this.height, "rg32float")
         this.render_output = GPU.CreateStorageTexture(this.width, this.height, "rgba32float")
 
-        this.render = new Render(this.render_output)
+        this.render = new Render([this.render_output])
         await this.render.Init()
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({

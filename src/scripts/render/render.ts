@@ -7,14 +7,14 @@ export class Render extends GPUAbstractRunner {
     bind_group: GPUBindGroup;
     pipeline_layout: GPUPipelineLayout;
     pipeline: GPURenderPipeline;
-    texture: Texture;
+    textures: Texture[];
 
-    fragmentShaderFilename: string;
+    fragmentShaderFilenames: string[];
 
-    constructor(texture: Texture, fragmentShaderFilename: string = null) {
+    constructor(textures: Texture[], ...fragmentShaderFilenames: string[]) {
         super();
-        this.fragmentShaderFilename = fragmentShaderFilename;
-        this.texture = texture;
+        this.fragmentShaderFilenames = fragmentShaderFilenames;
+        this.textures = textures;
     }
 
     override getType(): RunnerType {
@@ -26,38 +26,49 @@ export class Render extends GPUAbstractRunner {
     }
 
     override async Init() {
-
         let vertShader: GPUProgrammableStage
         let fragShader: GPUProgrammableStage
 
-        if (this.fragmentShaderFilename !== null) {
+        if (this.fragmentShaderFilenames.length !== 0) {
             let result = await Promise.all([
-                GPU.CreateShader("scripts/render/render.vert.wgsl"),
-                GPU.CreateShader(this.fragmentShaderFilename)])
+                GPU.CreateShaderFromURL("scripts/render/render.vert.wgsl"),
+                GPU.CreateShaderFromURL(...this.fragmentShaderFilenames)])
             vertShader = result[0];
             fragShader = result[1];
         } else {
             let result = await Promise.all([
-                GPU.CreateShader("scripts/render/render.vert.wgsl"),
-                GPU.CreateShader("scripts/render/render.frag.wgsl")])
+                GPU.CreateShaderFromURL("scripts/render/render.vert.wgsl"),
+                GPU.CreateShaderFromURL("scripts/render/render.frag.wgsl")])
             vertShader = result[0];
             fragShader = result[1];
         }
 
-        this.bind_group_layout = GPU.device.createBindGroupLayout({
-            entries: [{
-                binding: 0,
+        let layoutEntries: GPUBindGroupLayoutEntry[] = [];
+        let bindEntries: GPUBindGroupEntry[] = [];
+
+        for (let i = 0; i < this.textures.length; i++) {
+
+            layoutEntries.push({
+                binding: i,
                 visibility: GPUShaderStage.FRAGMENT,
-                texture: {sampleType: "unfilterable-float"}
-            }]
-        });
+                texture: {
+                    sampleType: "unfilterable-float"
+                }
+            })
+
+            bindEntries.push({
+                binding: i,
+                resource: this.textures[i].textureView
+            })
+        }
+
+        this.bind_group_layout = GPU.device.createBindGroupLayout({
+            entries: layoutEntries
+        })
 
         this.bind_group = GPU.device.createBindGroup({
             layout: this.bind_group_layout,
-            entries: [{
-                binding: 0,
-                resource: this.texture.textureView
-            }]
+            entries: bindEntries
         })
 
         this.pipeline_layout = GPU.device.createPipelineLayout({

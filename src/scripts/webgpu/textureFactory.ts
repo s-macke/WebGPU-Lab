@@ -65,5 +65,20 @@ export class TextureFactory {
         return this.CreateTextureFromArrayBuffer(img.width, img.height, "rgba8unorm", data.buffer);
     }
 
+    static async createTextureFromTexture(src: Texture, format: GPUTextureFormat): Promise<Texture> {
+        let texture: Texture = GPU.CreateTexture(src.width, src.height, format);
+        const commandEncoder = GPU.device.createCommandEncoder({});
+        commandEncoder.copyTextureToTexture({
+            texture: src.texture
+        }, {
+            texture: texture.texture
+        }, {
+            width: texture.width,
+            height: texture.height,
+        });
+        GPU.device.queue.submit([commandEncoder.finish()]);
+        return texture;
+    }
+
 
 }

@@ -1,4 +1,3 @@
-//@block
 struct StagingBuffer {
     iMouse: vec2<f32>,
     iTime: f32,

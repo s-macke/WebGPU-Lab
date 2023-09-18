@@ -199,3 +199,43 @@ https://www.shadertoy.com/playlist/l3dXRf
 
 # better sampling?
 https://www.shadertoy.com/view/mdX3Wn
+
+# wavelet denoising
+https://www.shadertoy.com/view/ctSGWm
+https://www.shadertoy.com/view/mtlyW2
+
+# LEGO denoising
+https://www.shadertoy.com/view/msG3zG
+
+# very good shaeders by Mathis
+https://www.shadertoy.com/user/Mathis/sort=popular&from=8&num=8
+
+# denoising and Screen-space radiosity (static) (Remarks. Screen-space radiosity is the standard)
+https://www.shadertoy.com/view/fs2BR3
+
+# Light Propagation volume
+https://www.shadertoy.com/view/XdtSRn
+
+#  Explicit Radiosity
+https://www.shadertoy.com/view/slKXWV
+
+# 2d Radiosity + Analytic Occlusion 
+https://www.shadertoy.com/view/dtsSDB
+
+# Bounding volume hierarchy
+https://www.shadertoy.com/results?query=BVH
+
+# better filtering
+https://www.shadertoy.com/view/XsfGDn
+
+# mandelbrot
+https://www.shadertoy.com/view/ldf3DN
+
+# very nice tunnel:
+https://www.shadertoy.com/view/XdBSzd
+
+# 2d Light Prpagation volume?
+https://www.shadertoy.com/view/fld3R4
+
+# jump flodding
+https://www.shadertoy.com/view/4syGWK

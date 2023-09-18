@@ -52,12 +52,20 @@ A very simple noise + FBM shader.
 
 [Compute Shader](src/scripts/raytrace/fbm.wgsl)
 
+### Diffuse Raytracing
+Global illumination just with diffuse scattering and triangle intersection.
+
 ### 2D Light
 Original Source: https://www.shadertoy.com/view/4dfXDn
 
 Translated from GLSL to WGSL.
 
-[Compute Shader](src/scripts/raytrace/light.wgsl)
+### 2D Light Propagation
+Original Source: https://www.shadertoy.com/view/fld3R4
+
+Translated from GLSL to WGSL.
+
+[Compute Shader](src/scripts/light/)
 
 ### Signed Distance Field
 Source: https://www.shadertoy.com/view/tdjBzG

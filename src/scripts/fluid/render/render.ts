@@ -13,8 +13,8 @@ export class Render {
     }
 
     async Init() {
-        let vertShader = await GPU.CreateShader("scripts/fluid/render/render.vert.wgsl")
-        let fragShader = await GPU.CreateShader("scripts/fluid/render/render.frag.wgsl")
+        let vertShader = await GPU.CreateShaderFromURL("scripts/fluid/render/render.vert.wgsl")
+        let fragShader = await GPU.CreateShaderFromURL("scripts/fluid/render/render.frag.wgsl")
         let sampler = GPU.CreateSampler();
 
 

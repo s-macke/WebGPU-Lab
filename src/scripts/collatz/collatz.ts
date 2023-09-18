@@ -29,7 +29,7 @@ export class Collatz extends GPUAbstractRunner {
     override async Init(): Promise<void> {
         console.log("Collatz");
 
-        let shader: GPUProgrammableStage = await GPU.CreateShader("scripts/collatz/collatz.wgsl");
+        let shader: GPUProgrammableStage = await GPU.CreateShaderFromURL("scripts/collatz/collatz.wgsl");
 
         this.stagingBuffer = GPU.CreateBufferCopy(this.integers.buffer.byteLength);
         this.storageBuffer = GPU.CreateStorageBufferFromArrayBuffer(this.integers.buffer);

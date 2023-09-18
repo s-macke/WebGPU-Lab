@@ -12,11 +12,11 @@ export class Raytrace extends GPUAbstractRunner {
     texturedest: Texture;
     render: Render;
 
-    bind_group_layout: GPUBindGroupLayout;
-    bind_group: GPUBindGroup;
-    pipeline_layout: GPUPipelineLayout;
-    compute_pipeline: GPUComputePipeline;
-    shader: GPUProgrammableStage;
+    bind_group_layout: GPUBindGroupLayout
+    bind_group: GPUBindGroup
+    pipeline_layout: GPUPipelineLayout
+    compute_pipeline: GPUComputePipeline
+    shader: GPUProgrammableStage
     stagingBuffer: Buffer
     stagingData: Float32Array
 
@@ -55,9 +55,9 @@ export class Raytrace extends GPUAbstractRunner {
 
         if (this.showOnScreen) {
             if (this.fragmentShaderFilename === null) {
-                this.render = new Render(this.texturedest)
+                this.render = new Render([this.texturedest])
             } else {
-                this.render = new Render(this.texturedest, "scripts/raytrace/" + this.fragmentShaderFilename)
+                this.render = new Render([this.texturedest], "scripts/raytrace/" + this.fragmentShaderFilename)
             }
             await this.render.Init()
         }
@@ -65,7 +65,7 @@ export class Raytrace extends GPUAbstractRunner {
         this.stagingBuffer = GPU.CreateUniformBuffer(4*3 + 4) // must be a multiple of 16 bytes
         this.stagingData = new Float32Array(4)
 
-        this.shader = await GPU.CreateShader("scripts/raytrace/" + this.filename)
+        this.shader = await GPU.CreateShaderFromURL("scripts/raytrace/" + this.filename)
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{

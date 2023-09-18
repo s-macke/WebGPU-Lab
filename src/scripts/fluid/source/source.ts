@@ -25,7 +25,7 @@ export class Source {
     }
 
     async Init() {
-        let shader = await GPU.CreateShader("scripts/fluid/source/source.wgsl")
+        let shader = await GPU.CreateShaderFromURL("scripts/fluid/source/source.wgsl")
 
         this.velocitydest = GPU.CreateTexture(this.velocitysrc.width, this.velocitysrc.height, this.velocitysrc.format);
         this.densitydest = GPU.CreateTexture(this.densitysrc.width, this.densitysrc.height, this.densitysrc.format);

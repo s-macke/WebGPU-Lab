@@ -23,7 +23,7 @@ export class Advect {
     }
 
     async Init() {
-        let shader = await GPU.CreateShader("scripts/fluid/advect/advect.wgsl")
+        let shader = await GPU.CreateShaderFromURL("scripts/fluid/advect/advect.wgsl")
 
         this.velocitydest = GPU.CreateTexture(this.velocitysrc.width, this.velocitysrc.height, this.velocitysrc.format);
 

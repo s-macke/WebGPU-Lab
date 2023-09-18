@@ -5,7 +5,7 @@ import {Raytrace} from "./raytrace/raytrace";
 import {SDF} from "./sdf/sdf";
 import {Fluid} from "./fluid/fluid";
 import {Texture} from "./webgpu/texture";
-import {Light} from "./light/light";
+import {LightPropagation} from "./light/light";
 import {Features} from "./features/features";
 import {HandleRunner} from "./GPURunner";
 
@@ -66,7 +66,7 @@ async function ShowCollatz() {
 async function ShowTexture() {
     let texture: Texture;
     texture = await GPU.createTextureFromImage("scripts/render/Lenna.png");
-    await HandleRunner(new Render(texture));
+    await HandleRunner(new Render([texture]));
     texture.destroy();
 }
 
@@ -79,35 +79,8 @@ async function ShowFluid() {
     await HandleRunner(new Fluid());
 }
 
-
-async function ShowLight() {
-    /*
-    if (!GPU.isInitialized) return;
-    reset();
-    document.getElementById("info").style.overflowY = "";
-    document.getElementById("screen").style.visibility = "visible";
-    document.getElementById("screen").style.width = "100%";
-    document.getElementById("screen").style.height = "100%";
-
-    let light = new Light();
-    await light.Init();
-
-    let render = new Render(light.texture);
-    await render.Init();
-
-    stop_animation = false;
-    frame = async () => {
-        GPU.device.queue.submit([light.GetCommandBuffer(), render.GetCommandBuffer()]);
-        await GPU.device.queue.onSubmittedWorkDone();
-        MeasureFrame()
-        //if (stop_animation) {
-            light.destroy()
-            return;
-        //}
-        //requestAnimationFrame(frame)
-    }
-    requestAnimationFrame(frame)
-     */
+async function ShowLightPropagation() {
+    await HandleRunner(new LightPropagation());
 }
 
 async function ShowSDF() {
@@ -131,10 +104,10 @@ document.getElementById("button_gi").addEventListener("click", () => ShowRaytrac
 document.getElementById("button_fbm").addEventListener("click", () => ShowRaytrace("voronoise_fbm.wgsl"))
 document.getElementById("button_voronoise").addEventListener("click", () => ShowRaytrace("voronoise.wgsl"))
 document.getElementById("button_2dlight").addEventListener("click", () => ShowRaytrace("light.wgsl"))
-//document.getElementById("button_restir").addEventListener("click", () => ShowLight())
+document.getElementById("button_light_propagation").addEventListener("click", () => ShowLightPropagation())
 document.getElementById("button_sdf").addEventListener("click", () => ShowSDF())
 document.getElementById("button_fluid").addEventListener("click", () => ShowFluid())
-document.getElementById("button_diffuse").addEventListener("click", () => ShowRaytrace("diffuse.wgsl", "aces-tone-mapping.wgsl"))
+//document.getElementById("button_diffuse").addEventListener("click", () => ShowRaytrace("diffuse.wgsl", "aces-tone-mapping.wgsl"))
 
 let gpuSelection1 = document.getElementById("gpuSelection1") as HTMLInputElement
 let gpuSelection2 = document.getElementById("gpuSelection2") as HTMLInputElement

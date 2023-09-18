@@ -128,6 +128,11 @@ export class GPU {
         return TextureFactory.createTextureFromImage(src)
     }
 
+    static async createTextureFromTexture(src: Texture, format: GPUTextureFormat): Promise<Texture> {
+        return TextureFactory.createTextureFromTexture(src, format)
+    }
+
+
     static CreateSampler(): GPUSampler {
         return this.device.createSampler({
             magFilter: "linear",
@@ -162,9 +167,16 @@ export class GPU {
         return this.device.queue.onSubmittedWorkDone();
     }
 
-    static async CreateShader(url: string): Promise<GPUProgrammableStage> {
-        console.log("Load Shader from '" + url + "'")
-        const code: string = await LoadTextResource(url)
+    static async CreateShaderFromURL(...urls: string[]): Promise<GPUProgrammableStage> {
+        console.log("Load Shader from '" + urls + "'")
+        let code: string = ""
+        for (let i = 0; i < urls.length; i++) {
+            code += await LoadTextResource(urls[i])
+        }
+        return await this.CompileShader(code)
+    }
+
+    static async CompileShader(code: string): Promise<GPUProgrammableStage> {
         let module: GPUShaderModule = this.device.createShaderModule({
             code: code
         });
@@ -176,7 +188,7 @@ export class GPU {
         }).length > 0
 
         if (containsErrors) {
-            throw new Error("Shader '" + url + "' compiled with errors")
+            throw new Error("Shader '" + code.slice(0, 30) + "' compiled with errors")
         }
         return {
             entryPoint: "main",
@@ -195,13 +207,13 @@ export class GPU {
 
     static async Render(texture: Texture) {
         let result = await Promise.all([
-            GPU.CreateShader("scripts/webgpu/shader/render.vert.wgsl"),
-            GPU.CreateShader("scripts/webgpu/shader/render.frag.wgsl")])
+            GPU.CreateShaderFromURL("scripts/webgpu/shader/render.vert.wgsl"),
+            GPU.CreateShaderFromURL("scripts/webgpu/shader/render.frag.wgsl")])
         let vertShader = result[0];
         let fragShader = result[1];
 
         if (texture.isFloat == false) {
-            fragShader = await this.CreateShader("scripts/webgpu/shader/render_int.frag.wgsl")
+            fragShader = await this.CreateShaderFromURL("scripts/webgpu/shader/render_int.frag.wgsl")
         }
         let sampler = this.CreateSampler();
 
