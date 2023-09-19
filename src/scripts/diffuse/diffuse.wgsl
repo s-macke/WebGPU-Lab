@@ -24,10 +24,26 @@ struct Triangle {
     material : i32
 };
 
+/*
+// Another triangle type, which might by better for intersection calculation
+struct Triangle {
+    v0: vec3<f32>,
+    edgeA: vec3<f32>,
+    edgeB: vec3<f32>,
+    n : vec3<f32>
+};
+*/
+
 struct Material {
     color: vec3<f32>,
     emission : f32,
 };
+
+const NTRIANGLES = 40;
+
+@group(1) @binding(0) var<storage> coordinates: array<vec3<f32>>;
+@group(1) @binding(1) var<storage> triangles: array<Triangle>;
+@group(1) @binding(2) var<storage> materials: array<Material>;
 
 struct Hit_record {
     t: f32,
@@ -45,108 +61,6 @@ struct Camera {
     w : vec3<f32>,
     lens_radius: f32
 }
-/*
-struct Triangle {
-    v0: vec3<f32>,
-    edgeA: vec3<f32>,
-    edgeB: vec3<f32>,
-    n : vec3<f32>
-};
-*/
-
-const NCOORDINATES = 28;
-const coordinates = array<vec3<f32>, NCOORDINATES>(
-    vec3<f32>(  -0.57735,  -0.57735,  0.57735),
-    vec3<f32>(  0.934172,  0.356822,  0),
-    vec3<f32>(  0.934172,  -0.356822,  0),
-    vec3<f32>(  -0.934172,  0.356822,  0),
-    vec3<f32>(  -0.934172,  -0.356822,  0),
-    vec3<f32>(  0,  0.934172,  0.356822),
-    vec3<f32>(      0,  0.934172,  -0.356822),
-    vec3<f32>(  0.356822,  0,  -0.934172),
-    vec3<f32>(  -0.356822,  0,  -0.934172),
-    vec3<f32>(  0,  -0.934172,  -0.356822),
-    vec3<f32>(  0,  -0.934172,  0.356822),
-    vec3<f32>(  0.356822,  0,  0.934172),
-    vec3<f32>(  -0.356822,  0,  0.934172),
-    vec3<f32>(  0.57735,  0.57735,  -0.57735),
-    vec3<f32>(  0.57735,  0.57735, 0.57735),
-    vec3<f32>(  -0.57735,  0.57735,  -0.57735),
-    vec3<f32>(  -0.57735,  0.57735,  0.57735),
-    vec3<f32>(  0.57735,  -0.57735,  -0.57735),
-    vec3<f32>(  0.57735,  -0.57735,  0.57735),
-    vec3<f32>(  -0.57735,  -0.57735,  -0.57735),
-    vec3<f32>(  -5., -5.,  -1.),
-    vec3<f32>(   5., -5.,  -1.),
-    vec3<f32>(   5.,  5.,  -1.),
-    vec3<f32>(  -5.,  5.,  -1.),
-    vec3<f32>(  -2.+5., -2.+5.,  5.5),
-    vec3<f32>(   2.+5., -2.+5.,  5.5),
-    vec3<f32>(   2.+5.,  2.+5.,  5.5),
-    vec3<f32>(  -2.+5.,  2.+5.,  5.5)
-);
-
-const NMATERIALS = 14;
-const materials = array<Material, NMATERIALS>(
-    Material(vec3<f32>(1., 0., 0.), 0.),
-    Material(vec3<f32>(1., 0., 0.), 0.),
-    Material(vec3<f32>(1., 0., 0.), 0.),
-    Material(vec3<f32>(1., 0., 0.), 0.),
-    Material(vec3<f32>(1., 0., 0.), 0.),
-    Material(vec3<f32>(1., 0., 0.), 0.),
-    Material(vec3<f32>(1., 0., 0.), 0.),
-    Material(vec3<f32>(1., 0., 0.), 0.),
-    Material(vec3<f32>(1., 0., 0.), 0.),
-    Material(vec3<f32>(1., 0., 0.), 0.),
-    Material(vec3<f32>(1., 0., 0.), 0.),
-    Material(vec3<f32>(1., 0., 0.), 0.),
-    Material(vec3<f32>(.5, .5, .5), 0.),
-    Material(vec3<f32>(1., 1., 1.), 10.)
-);
-
-const NTRIANGLES = 40;
-const triangles = array<Triangle, NTRIANGLES>(
-    Triangle( 19,  3,  2, 0),
-    Triangle( 12,  19,  2, 0),
-    Triangle( 15,  12,  2, 0),
-    Triangle(  8,  14,  2, 1),
-    Triangle(  18,  8,  2, 1),
-    Triangle(  3,  18,  2, 1),
-    Triangle(  20,  5,  4, 2),
-    Triangle(  9,  20,  4, 2),
-    Triangle(  16,  9,  4, 2),
-    Triangle(  13,  17,  4, 3),
-    Triangle(  1,  13,  4, 3),
-    Triangle(  5,  1,  4, 3),
-    Triangle(  7,  16,  4, 4),
-    Triangle(  6,  7,  4, 4),
-    Triangle(  17,  6,  4, 4),
-    Triangle(  6,  15,  2, 5),
-    Triangle(  7,  6,  2, 5),
-    Triangle(  14,  7,  2, 5),
-    Triangle(  10,  18,  3, 6),
-    Triangle(  11,  10,  3, 6),
-    Triangle(  19,  11,  3, 6),
-    Triangle(  11,  1,  5, 7),
-    Triangle(  10,  11,  5, 7),
-    Triangle(  20,  10, 5, 7),
-    Triangle(  20,  9,  8, 8),
-    Triangle(  10,  20,  8, 8),
-    Triangle(  18,  10, 8, 8),
-    Triangle(  9,  16,  7, 9),
-    Triangle(  8,  9,  7, 9),
-    Triangle(  14,  8,  7, 9),
-    Triangle(  12,  15,  6, 10),
-    Triangle(  13,  12,  6, 10),
-    Triangle(  17,  13,  6, 10),
-    Triangle(  13,  1,  11, 11),
-    Triangle(  12,  13,  11, 11),
-    Triangle(  19,  12,  11, 11),
-    Triangle(  21,  22,  23, 12),
-    Triangle(  23,  24,  21, 12),
-    Triangle(  25,  26,  27, 13),
-    Triangle(  27,  28,  25, 13)
-);
 
 var<private> g_seed: f32;
 var<private> seed: vec3<f32>;

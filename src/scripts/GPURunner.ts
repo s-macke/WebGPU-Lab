@@ -2,8 +2,17 @@ import {GPU} from "./webgpu/gpu";
 import {GPURunner, RunnerType} from "./AbstractGPURunner";
 import {MeasureFrame, ShowError} from "./ui";
 
-let stop_animation = true;
+let stop_immediately = true;
 let promise = Promise.resolve()
+
+function ListenToError() {
+    GPU.device.addEventListener("uncapturederror", (event) => {
+        let e = event as GPUUncapturedErrorEvent
+        console.error("A WebGPU error was not captured", e.error);
+        stop_immediately = true;
+        ShowError("GPU error", e.error as Error)
+    });
+}
 
 async function HandleHTML(runner: GPURunner) {
     let infoElement = document.getElementById("info")
@@ -11,9 +20,11 @@ async function HandleHTML(runner: GPURunner) {
     document.getElementById("screen").style.visibility = "hidden"
     document.getElementById("screen").style.width = "0%"
     document.getElementById("screen").style.height = "0%"
+    ListenToError();
+
     try {
         await runner.Init()
-        if (!stop_animation) { // during Init, the user might has pressed another button. So don't run in this case.
+        if (!stop_immediately) { // during Init, the user might has pressed another button. So don't run in this case.
             await runner.Run()
         }
         await runner.Destroy()
@@ -28,13 +39,14 @@ async function HandleGraphic(runner: GPURunner) {
     document.getElementById("screen").style.visibility = "visible"
     document.getElementById("screen").style.width = "100%"
     document.getElementById("screen").style.height = "100%"
+    ListenToError();
     try {
         await runner.Init()
     } catch (e) {
         ShowError("GPU error", e as Error)
         throw e
     }
-    if (stop_animation) { // during Init, the user has pressed another button. So don't run.
+    if (stop_immediately) { // during Init, the user has pressed another button. So don't run.
         await runner.Destroy()
         return;
     }
@@ -66,6 +78,7 @@ async function HandleAnimation(runner: GPURunner) {
     document.getElementById("screen").style.visibility = "visible"
     document.getElementById("screen").style.width = "100%"
     document.getElementById("screen").style.height = "100%"
+    ListenToError();
 
     try {
         await runner.Init()
@@ -73,7 +86,7 @@ async function HandleAnimation(runner: GPURunner) {
         ShowError("GPU error", e as Error)
         throw e
     }
-    if (stop_animation) { // during Init, the user has pressed another button. So don't run.
+    if (stop_immediately) { // during Init, the user has pressed another button. So don't run.
         await runner.Destroy()
         return;
     }
@@ -88,7 +101,7 @@ async function HandleAnimation(runner: GPURunner) {
                 throw e
             }
             MeasureFrame()
-            if (stop_animation) {
+            if (stop_immediately) {
                 await runner.Destroy()
                 resolve(0)
                 return;
@@ -103,14 +116,14 @@ export async function HandleRunner(runner: GPURunner) {
     if (!GPU.isInitialized) return;
 
     // signal the previous animation to stop and wait
-    stop_animation = true;
+    stop_immediately = true;
     await promise;
 
     document.getElementById("info").innerHTML = ""
     document.getElementById("info").style.overflowY = ""
 
     promise = new Promise<void>(async resolve => {
-        stop_animation = false;
+        stop_immediately = false;
         const type = runner.getType()
         switch (type) {
             case RunnerType.HTML:

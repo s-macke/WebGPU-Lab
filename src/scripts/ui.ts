@@ -8,6 +8,7 @@ import {Texture} from "./webgpu/texture";
 import {LightPropagation} from "./light/light";
 import {Features} from "./features/features";
 import {HandleRunner} from "./GPURunner";
+import {Diffuse} from "./diffuse/diffuse";
 
 let lastframeTime = 0 as number;
 let nFrame = 0 as number;
@@ -75,6 +76,11 @@ async function ShowRaytrace(filename: string, fragmentShaderFilename: string = n
 }
 
 
+async function ShowDiffuse() {
+    await HandleRunner(new Diffuse());
+}
+
+
 async function ShowFluid() {
     await HandleRunner(new Fluid());
 }
@@ -107,7 +113,7 @@ document.getElementById("button_2dlight").addEventListener("click", () => ShowRa
 document.getElementById("button_light_propagation").addEventListener("click", () => ShowLightPropagation())
 document.getElementById("button_sdf").addEventListener("click", () => ShowSDF())
 document.getElementById("button_fluid").addEventListener("click", () => ShowFluid())
-document.getElementById("button_diffuse").addEventListener("click", () => ShowRaytrace("diffuse.wgsl", "aces-tone-mapping.wgsl"))
+document.getElementById("button_diffuse").addEventListener("click", () => ShowDiffuse())
 
 let gpuSelection1 = document.getElementById("gpuSelection1") as HTMLInputElement
 let gpuSelection2 = document.getElementById("gpuSelection2") as HTMLInputElement
