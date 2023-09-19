@@ -66,7 +66,7 @@ export class TextureFactory {
     }
 
     static async createTextureFromTexture(src: Texture, format: GPUTextureFormat): Promise<Texture> {
-        let texture: Texture = GPU.CreateTexture(src.width, src.height, format);
+        let texture: Texture = GPU.CreateTextureArray(src.width, src.height, src.depth, format);
         const commandEncoder = GPU.device.createCommandEncoder({});
         commandEncoder.copyTextureToTexture({
             texture: src.texture

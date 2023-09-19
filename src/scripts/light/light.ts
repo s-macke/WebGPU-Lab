@@ -23,14 +23,10 @@ export class LightPropagation extends GPUAbstractRunner {
     render: Render
     sdf: SDF
     raytrace: Raytrace
-
-    textureRDest: Texture
-    textureGDest: Texture
-    textureBDest: Texture
-    textureRSrc: Texture
-    textureGSrc: Texture
-    textureBSrc: Texture
     textureSignedDistance: Texture
+
+    textureDest: Texture
+    textureSrc: Texture
 
     bind_group_layout: GPUBindGroupLayout
     bind_group: GPUBindGroup
@@ -51,13 +47,9 @@ export class LightPropagation extends GPUAbstractRunner {
     }
 
     async Destroy() {
-        this.textureRDest.destroy()
-        this.textureGDest.destroy()
-        this.textureBDest.destroy()
-        this.textureRSrc.destroy()
-        this.textureGSrc.destroy()
-        this.textureBSrc.destroy()
-/*
+        this.textureDest.destroy()
+        this.textureSrc.destroy()
+ /*
         await this.sdf.Destroy()
         await this.raytrace.Destroy()
  */
@@ -87,19 +79,15 @@ export class LightPropagation extends GPUAbstractRunner {
         this.textureSignedDistance = this.sdf.texturea
 */
         console.log("Create Texture")
-        this.textureRDest = GPU.CreateStorageTexture(this.width, this.height, "rgba32float")
-        this.textureGDest = GPU.CreateStorageTexture(this.width, this.height, "rgba32float")
-        this.textureBDest = GPU.CreateStorageTexture(this.width, this.height, "rgba32float")
-        this.textureRSrc = GPU.CreateStorageTexture(this.width, this.height, "rgba32float")
-        this.textureGSrc = GPU.CreateStorageTexture(this.width, this.height, "rgba32float")
-        this.textureBSrc = GPU.CreateStorageTexture(this.width, this.height, "rgba32float")
+        this.textureDest = GPU.CreateStorageTextureArray(this.width, this.height, 3,  "rgba32float")
+        this.textureSrc = GPU.CreateStorageTextureArray(this.width, this.height, 3, "rgba32float")
 
         this.stagingBuffer = GPU.CreateUniformBuffer(4 * 4) // must be a multiple of 16 bytes
         this.stagingData = new Float32Array(4)
 
         console.log("Create Render")
         this.render = new Render(
-            [this.textureRDest, this.textureGDest, this.textureBDest], // , this.textureSignedDistance
+            [this.textureDest],
             "scripts/light/common.wgsl", "scripts/light/distance.wgsl", "scripts/light/aces-tone-mapping.wgsl")
         await this.render.Init()
 
@@ -110,48 +98,30 @@ export class LightPropagation extends GPUAbstractRunner {
                 {
                     binding: 0,
                     visibility: GPUShaderStage.COMPUTE,
-                    texture: {sampleType: "unfilterable-float"}
+                    texture: {
+                        sampleType: "unfilterable-float",
+                        viewDimension: "2d-array"
+                    }
                 }, {
                     binding: 1,
                     visibility: GPUShaderStage.COMPUTE,
                     storageTexture: {
                         access: "write-only",
-                        format: "rgba32float"
+                        format: "rgba32float",
+                        viewDimension: "2d-array"
                     }
                 }, {
                     binding: 2,
-                    visibility: GPUShaderStage.COMPUTE,
-                    texture: {sampleType: "unfilterable-float"}
-                }, {
-                    binding: 3,
-                    visibility: GPUShaderStage.COMPUTE,
-                    storageTexture: {
-                        access: "write-only",
-                        format: "rgba32float"
-                    }
-                }, {
-                    binding: 4,
-                    visibility: GPUShaderStage.COMPUTE,
-                    texture: {sampleType: "unfilterable-float"}
-                }, {
-                    binding: 5,
-                    visibility: GPUShaderStage.COMPUTE,
-                    storageTexture: {
-                        access: "write-only",
-                        format: "rgba32float"
-                    }
-                }, {
-                    binding: 6,
                     visibility: GPUShaderStage.COMPUTE,
                     buffer: {
                         type: "uniform"
                     }
                 }/*, {
-                    binding: 7,
+                    binding: 3,
                     visibility: GPUShaderStage.COMPUTE,
                     texture: {sampleType: "unfilterable-float"}
                 }, {
-                    binding: 8,
+                    binding: 4,
                     visibility: GPUShaderStage.COMPUTE,
                     sampler: {}
                 }*/]
@@ -161,24 +131,12 @@ export class LightPropagation extends GPUAbstractRunner {
             layout: this.bind_group_layout,
             entries: [{
                 binding: 0,
-                resource: this.textureRSrc.textureView
+                resource: this.textureSrc.textureView
             },{
                 binding: 1,
-                resource: this.textureRDest.textureView
-            },{
+                resource: this.textureDest.textureView
+            }, {
                 binding: 2,
-                resource: this.textureGSrc.textureView
-            },{
-                binding: 3,
-                resource: this.textureGDest.textureView
-            },{
-                binding: 4,
-                resource: this.textureBSrc.textureView
-            }, {
-                binding: 5,
-                resource: this.textureBDest.textureView
-            }, {
-                binding: 6,
                 resource: this.stagingBuffer.resource
             }/*, {
                 binding: 7,
@@ -215,9 +173,10 @@ export class LightPropagation extends GPUAbstractRunner {
             pass.dispatchWorkgroups(this.width / 8, this.height / 8);
             pass.end();
 
-            encoder.copyTextureToTexture({texture: this.textureRDest.texture}, {texture: this.textureRSrc.texture}, [this.width, this.height, 1])
-            encoder.copyTextureToTexture({texture: this.textureGDest.texture}, {texture: this.textureGSrc.texture}, [this.width, this.height, 1])
-            encoder.copyTextureToTexture({texture: this.textureBDest.texture}, {texture: this.textureBSrc.texture}, [this.width, this.height, 1])
+            encoder.copyTextureToTexture(
+                {texture: this.textureDest.texture},
+                {texture: this.textureSrc.texture},
+                [this.width, this.height, this.textureSrc.depth])
         }
         return encoder.finish();
     }

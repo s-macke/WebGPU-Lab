@@ -117,11 +117,19 @@ export class GPU {
     }
 
     static CreateTexture(width: number, height: number, format: GPUTextureFormat): Texture {
-        return new Texture(width, height, format);
+        return new Texture(width, height, 1, format);
+    }
+
+    static CreateTextureArray(width: number, height: number, depth: number, format: GPUTextureFormat): Texture {
+        return new Texture(width, height, depth, format);
     }
 
     static CreateStorageTexture(width: number, height: number, format: GPUTextureFormat): Texture {
-        return new Texture(width, height, format, TextureType.Storage);
+        return new Texture(width, height, 1, format, TextureType.Storage);
+    }
+
+    static CreateStorageTextureArray(width: number, height: number, depth: number, format: GPUTextureFormat): Texture {
+        return new Texture(width, height, depth, format, TextureType.Storage);
     }
 
     static async CreateTextureFromArrayBuffer(width: number, height: number, format: GPUTextureFormat, data: ArrayBuffer): Promise<Texture> {
@@ -177,11 +185,12 @@ export class GPU {
         for (let i = 0; i < urls.length; i++) {
             code += await LoadTextResource(urls[i])
         }
-        return await this.CompileShader(code)
+        return await this.CompileShader(code, urls.join(","))
     }
 
-    static async CompileShader(code: string): Promise<GPUProgrammableStage> {
+    static async CompileShader(code: string, label: string=null): Promise<GPUProgrammableStage> {
         let module: GPUShaderModule = this.device.createShaderModule({
+            label: label,
             code: code
         });
 

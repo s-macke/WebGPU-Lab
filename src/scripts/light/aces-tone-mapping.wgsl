@@ -89,10 +89,8 @@ fn shade2(sh: vec3<f32>, dV: vec3<f32>, sd: SD, ch: i32) -> f32 {
     //return W + L*(1.0 - b);
 }
 
-@group(0) @binding(0) var textureR: texture_2d<f32>;
-@group(0) @binding(1) var textureG: texture_2d<f32>;
-@group(0) @binding(2) var textureB: texture_2d<f32>;
-@group(0) @binding(3) var texture_signed_distance: texture_2d<f32>;
+@group(0) @binding(0) var texture: texture_2d_array<f32>;
+//@group(0) @binding(1) var texture_signed_distance: texture_2d<f32>;
 
 struct VertexOutput {
   @builtin(position) Position : vec4<f32>,
@@ -101,7 +99,7 @@ struct VertexOutput {
 
 @fragment
 fn main(data: VertexOutput) -> @location(0) vec4<f32> {
-    var iResolution: vec2<f32> = vec2<f32>(textureDimensions(textureR, 0));
+    var iResolution: vec2<f32> = vec2<f32>(textureDimensions(texture, 0));
 
     //setup_mouse_pos();
     set_resolution(iResolution);
@@ -110,9 +108,9 @@ fn main(data: VertexOutput) -> @location(0) vec4<f32> {
     uv *= vec2<f32>(iResolution.x/iResolution.y, 1.0);
 
     //let tuv: vec2<f32> = ((uv * vec2<f32>(iResolution.y/iResolution.x,1.0))*0.5 + 0.5);
-    let shr: vec3<f32> = textureLoad(textureR, vec2<i32>(data.fragUV*iResolution), 0).xyz;
-    let shg: vec3<f32> = textureLoad(textureG, vec2<i32>(data.fragUV*iResolution), 0).xyz;
-    let shb: vec3<f32> = textureLoad(textureB, vec2<i32>(data.fragUV*iResolution), 0).xyz;
+    let shr: vec3<f32> = textureLoad(texture, vec2<i32>(data.fragUV*iResolution), 0, 0).xyz;
+    let shg: vec3<f32> = textureLoad(texture, vec2<i32>(data.fragUV*iResolution), 1, 0).xyz;
+    let shb: vec3<f32> = textureLoad(texture, vec2<i32>(data.fragUV*iResolution), 2, 0).xyz;
 
     //var dV: vec3<f32> = vec3<f32>(-normal_map(uv, pixel_radius), 1.) * CH_Basis;
     //dV = sh_irradiance_probe(dV);
