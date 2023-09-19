@@ -70,15 +70,16 @@ struct SD {
 */
 
 fn shade2(sh: vec3<f32>, dV: vec3<f32>, sd: SD, ch: i32) -> f32 {
-    let dZ = vec3<f32>(0., 0., 1.) * SH1_Basis;
+    let dZ = vec3<f32>(0., 0., 1.) * CH_Basis;
     let W: f32 = max(0.0, dot(sh, dZ));
     var L: f32 = max(0.0, dot(sh, dV));
 
-    let d: f32 = sd.d/pixel_radius;
+    let d: f32 = sd.d / pixel_radius;
     let w: f32 = fwidth(d);
-    let b: f32 = clamp(d*0.5+0.5,0.0,1.0);
+    let b: f32 = clamp(d*0.5+0.5, 0.0, 1.0);
 
     let albedo: f32 = sd.albedo[ch];
+
     if (sd.emissive && (abs(d) <= 1.0)) {
         L = albedo;
     } else {
@@ -104,7 +105,6 @@ fn main(data: VertexOutput) -> @location(0) vec4<f32> {
 
     //setup_mouse_pos();
     set_resolution(iResolution);
-    var fragColor = vec4<f32>(0., 0., 0., 1.);
 
     var uv: vec2<f32> = data.fragUV * 2.0 - 1.0;
     uv *= vec2<f32>(iResolution.x/iResolution.y, 1.0);
@@ -114,17 +114,20 @@ fn main(data: VertexOutput) -> @location(0) vec4<f32> {
     let shg: vec3<f32> = textureLoad(textureG, vec2<i32>(data.fragUV*iResolution), 0).xyz;
     let shb: vec3<f32> = textureLoad(textureB, vec2<i32>(data.fragUV*iResolution), 0).xyz;
 
-    var dV: vec3<f32> = vec3<f32>(-normal_map(uv, pixel_radius), 1.) * SH1_Basis;
-    dV = sh_irradiance_probe(dV);
+    //var dV: vec3<f32> = vec3<f32>(-normal_map(uv, pixel_radius), 1.) * CH_Basis;
+    //dV = sh_irradiance_probe(dV);
+    var dV: vec3<f32> = lambert(-normal_map(uv, pixel_radius)) * CH_Basis;
 
-    //let sd: SD = map(uv);
-    let sd = SD(2.5, vec3<f32>(0.), false);
+    let sd: SD = map(uv);
+    //let sd = SD(2.5, vec3<f32>(0.), false);
 
     let col  = vec3<f32>(
         shade2(shr, dV, sd, 0),
         shade2(shg, dV, sd, 1),
         shade2(shb, dV, sd, 2));
-    fragColor = vec4(linear_srgb_vec(ACESFitted(max(col * 1.0, vec3(0.0)))), 1.0);
+
+    //let col  = vec3<f32>(shr.z, shg.z, shb.z)*CH_Basis.z;
+    let fragColor = vec4(linear_srgb_vec(ACESFitted(max(col, vec3(0.0)))), 1.0);
 
     //let c = textureLoad(myTexture, vec2<i32>(data.fragUV*d), 0).rgb;
     //var fragColor = vec4<f32>(pow( clamp(c, vec3<f32>(0.), vec3<f32>(1.)), vec3<f32>(1. / 2.2)), 1.);

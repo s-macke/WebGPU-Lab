@@ -5,7 +5,7 @@ import {BufferFactory} from "./bufferFactory";
 import {TextureFactory} from "./textureFactory";
 
 type Rect = { width: number, height: number };
-type Coordinate = { x: number, y: number };
+type Coordinate = { x: number, y: number, wheel: number };
 
 export class GPU {
     private static adapter: GPUAdapter;
@@ -13,7 +13,7 @@ export class GPU {
     static device: GPUDevice;
     private static gpuContext: GPUCanvasContext;
     public static viewport: Rect = {width: 0, height: 0};
-    public static mouseCoordinate: Coordinate = {x: 0, y: 0};
+    public static mouseCoordinate: Coordinate = {x: 0, y: 0, wheel: 0};
     public static isInitialized: boolean
 
     static async Init(powerPreference: GPUPowerPreference) {
@@ -53,6 +53,10 @@ export class GPU {
         canvas.onmousemove = (e) => {
             this.mouseCoordinate.x = e.offsetX / canvas.clientWidth * canvas.width
             this.mouseCoordinate.y = canvas.height - e.offsetY / canvas.clientHeight * canvas.height
+        }
+        canvas.onwheel = (e) => {
+            this.mouseCoordinate.wheel += e.deltaY*0.001
+            e.preventDefault()
         }
 
         this.viewport.width = canvas.width

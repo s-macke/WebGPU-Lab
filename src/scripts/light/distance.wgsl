@@ -1,3 +1,6 @@
+var<private> mouse_pos = vec2<f32>(0.);
+var<private> mouse_wheel: f32 = 0.;
+
 fn rotate(p: vec2<f32>, r: f32) -> vec2<f32> {
     let c: f32 = cos(r);
     let s: f32 = sin(r);
@@ -69,20 +72,20 @@ fn map(p: vec2<f32>) -> SD {
 
     //let d: SD = SD(distance.x, color1, false);
 
-    let d: SD = shade(sphere(p, 0.5),color1);
+    let d: SD = shade(sphere(p, 0.5), color1);
 
     let d2: SD = slitlight(p - vec2(-0.8,-0.1));
 
     let d3: SD = shade(box(p - vec2(-0.5,-0.2), vec2(0.52,0.05)),color1);
 
-    let d4: SD = shade(box(rotate(p, radians(90.0+30.5)) - vec2(0.0, 0.0), vec2(0.05,0.8)),color3);
-    let d5: SD = shade(box(p - vec2(0.0, 0.0), vec2(0.05,0.4)),color3);
-    let d7: SD = shade(box(p - vec2(0.20, 0.1), vec2(0.05,0.2)),color4);
+    let d4: SD = shade(box(rotate(p, radians(90.0+30.5)) - vec2(0.0, 0.0), vec2(0.05,0.8)), color3);
+    let d5: SD = shade(box(p - vec2(0.0, 0.0), vec2(0.05,0.4)), color3);
+    let d7: SD = shade(box(p - vec2(0.20, 0.1), vec2(0.05,0.2)), color4);
 
-    let d6: SD = emitter(box(rotate(p - vec2(0.25, -0.2),radians(30.5)), vec2(0.01,0.04)),20.0*vec3(1.0,0.9,0.8));
+    let d6: SD = emitter(box(rotate(p - vec2(0.25, -0.2), radians(30.5)), vec2(0.01,0.04)), 20.0*vec3(1.0,0.9,0.8));
 
     //let mouse_pos: vec2<f32> = vec2<f32>(0.0, 0.0);
-    let d8: SD = shade(sphere(p - mouse_pos, 0.05),vec3(1.0));
+    let d8: SD = shade(sphere(p - mouse_pos, (-mouse_wheel*0.005+0.05)), vec3(1.0));
 
     return sd_min(d8,sd_min(d6,sd_min(d3,sd_min(d2, sd_max(d,sd_neg(sd_min(d7,sd_min(d4,d5))))))));
 }
