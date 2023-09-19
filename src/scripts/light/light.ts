@@ -208,7 +208,7 @@ export class LightPropagation extends GPUAbstractRunner {
         GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData)
 
         let encoder: GPUCommandEncoder = GPU.device.createCommandEncoder({});
-        for(let i = 0; i < 20; i++) {
+        for(let i = 0; i < 30; i++) {
             let pass: GPUComputePassEncoder = encoder.beginComputePass();
             pass.setBindGroup(0, this.bind_group);
             pass.setPipeline(this.compute_pipeline);

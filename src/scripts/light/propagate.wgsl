@@ -37,55 +37,78 @@ fn occluder(p: vec2<i32>, sd: ptr<function, SD>) -> vec3<f32> {
 // sd: signed distance to neighbor
 // colorChannel: which color channel to propagate
 // img_input: input image
-fn propagate(p: vec2<i32>, n: vec2<f32>, sa: f32, sd: SD, colorChannel: i32, img_input: texture_2d<f32>) -> vec3<f32> {
+fn propagate(p: vec2<i32>, n: vec2<f32>, sa: f32, sd: SD,
+    outchr: ptr<function, vec3<f32>>,
+    outchg: ptr<function, vec3<f32>>,
+    outchb: ptr<function, vec3<f32>>) {
+
     let R: vec2<i32> = vec2<i32>(resolution.xy);
 
     // check if neighbor is out of bounds. if so, return black
     if ((p.x < 0) || (p.y < 0) || (p.x >= R.x) || (p.y >= R.y)) {
-        return vec3<f32>(0.0);
+        return;
     }
 
     // check if neighbor is occluded. if so, return black
     if (sd.d < -pixel_radius) {
-        return vec3<f32>(0.0);
+        return;
     }
 
     // get occluder of neighbor
     var occ_sd: SD;
     var occ: vec3<f32> = occluder(p, &occ_sd);
 
-    let F: vec3<f32> = textureLoad(img_input, p, 0).xyz; // incoming light from neighbor as circular harmonics
+    let Fr: vec3<f32> = textureLoad(img_inputR, p, 0).xyz; // incoming red light from neighbor as circular harmonics
+    let Fg: vec3<f32> = textureLoad(img_inputG, p, 0).xyz; // incoming green light from neighbor as circular harmonics
+    let Fb: vec3<f32> = textureLoad(img_inputB, p, 0).xyz; // incoming blue light from neighbor as circular harmonics
+
     let dV = vec3<f32>(n, 1.) * CH_Basis;
 
     // light hitting our interior cell wall
-    let L: f32 = max(0.0, dot(F, dV * sa));
+    let Lr: f32 = max(0.0, dot(Fr, dV * sa));
+    let Lg: f32 = max(0.0, dot(Fg, dV * sa));
+    let Lb: f32 = max(0.0, dot(Fb, dV * sa));
 
     // how much of their cell wall is occupied?
     let E: f32 = max(0.0, dot(occ, dV * sa));
     let O: f32 = min(E, 1.0); // do bounce
 
     // subtract occluder from light
-    var outsh: vec3<f32> = dV * L * (1.0 - O);
+    let chr: vec3<f32> = dV * Lr * (1.0 - O);
+    let chg: vec3<f32> = dV * Lg * (1.0 - O);
+    let chb: vec3<f32> = dV * Lb * (1.0 - O);
+
     let dRV = vec3<f32>(-n, 1.) * CH_Basis;
-    var ref2 = 0.0;
+    var ref2r = 0.0;
+    var ref2g = 0.0;
+    var ref2b = 0.0;
 
     if (sd.emissive) {
         if (abs(occ_sd.d) <= pixel_radius) {
-            ref2 = sd.albedo[colorChannel] * E;
+            ref2r = sd.albedo.r * E;
+            ref2g = sd.albedo.g * E;
+            ref2b = sd.albedo.b * E;
         }
     } else {
-        ref2 = O * L * sd.albedo[colorChannel];
+        ref2r = O * Lr * sd.albedo.r;
+        ref2g = O * Lg * sd.albedo.g;
+        ref2b = O * Lb * sd.albedo.b;
     }
     // add emission
-    outsh += ref2 * dRV;
-    return outsh;
+    *outchr += chr + ref2r * dRV;
+    *outchg += chg + ref2g * dRV;
+    *outchb += chb + ref2b * dRV;
 }
 
 fn solid_angle(a: vec2<f32>, b: vec2<f32>) -> f32 {
     return acos(dot(normalize(a), normalize(b)));
 }
 
-fn lpv_kernel(fragCoord: vec2<i32>, colorChannel: i32, img_input: texture_2d<f32>) -> vec3<f32> {
+fn lpv_kernel(fragCoord: vec2<i32>,
+    outchr: ptr<function, vec3<f32>>,
+    outchg: ptr<function, vec3<f32>>,
+    outchb: ptr<function, vec3<f32>>) {
+
     let p: vec2<i32> = fragCoord;
     var sd: SD = map(pixel2uv(p));
 
@@ -98,24 +121,28 @@ fn lpv_kernel(fragCoord: vec2<i32>, colorChannel: i32, img_input: texture_2d<f32
     let dn1: vec2<f32> = normalize(vec2<f32>(x - 0.5,  1.0)); // normal to the center of the top side of our pixel
     let dn0: vec2<f32> = normalize(vec2<f32>(x - 0.5, -1.0)); // normal to the center of the bottom side of our pixel
 
-    let ch: vec3<f32> =
-     propagate(p+vec2<i32>(-1, 0), vec2<f32>(1., 0.),  sa1, sd, colorChannel, img_input)
-    +propagate(p+vec2<i32>(-1, 0), dn1,                sa2, sd, colorChannel, img_input)
-    +propagate(p+vec2<i32>(-1, 0), dn0,                sa2, sd, colorChannel, img_input)
+    var chr: vec3<f32>;
+    var chg: vec3<f32>;
+    var chb: vec3<f32>;
+    propagate(p+vec2<i32>(-1, 0), vec2<f32>(1., 0.),  sa1, sd, &chr, &chg, &chb);
+    propagate(p+vec2<i32>(-1, 0), dn1,                sa2, sd, &chr, &chg, &chb);
+    propagate(p+vec2<i32>(-1, 0), dn0,                sa2, sd, &chr, &chg, &chb);
 
-    +propagate(p+vec2<i32>( 1, 0), vec2<f32>(-1., 0.), sa1, sd, colorChannel, img_input)
-    +propagate(p+vec2<i32>( 1, 0), -dn0,               sa2, sd, colorChannel, img_input)
-    +propagate(p+vec2<i32>( 1, 0), -dn1,               sa2, sd, colorChannel, img_input)
+    propagate(p+vec2<i32>( 1, 0), vec2<f32>(-1., 0.), sa1, sd, &chr, &chg, &chb);
+    propagate(p+vec2<i32>( 1, 0), -dn0,               sa2, sd, &chr, &chg, &chb);
+    propagate(p+vec2<i32>( 1, 0), -dn1,               sa2, sd, &chr, &chg, &chb);
 
-    +propagate(p+vec2<i32>(0, -1), vec2<f32>(0., 1.),  sa1, sd, colorChannel, img_input)
-    +propagate(p+vec2<i32>(0, -1), dn1.yx,             sa2, sd, colorChannel, img_input)
-    +propagate(p+vec2<i32>(0, -1), dn0.yx,             sa2, sd, colorChannel, img_input)
+    propagate(p+vec2<i32>(0, -1), vec2<f32>(0., 1.),  sa1, sd, &chr, &chg, &chb);
+    propagate(p+vec2<i32>(0, -1), dn1.yx,             sa2, sd, &chr, &chg, &chb);
+    propagate(p+vec2<i32>(0, -1), dn0.yx,             sa2, sd, &chr, &chg, &chb);
 
-    +propagate(p+vec2<i32>(0,  1), vec2<f32>(0., -1.), sa1, sd, colorChannel, img_input)
-    +propagate(p+vec2<i32>(0,  1), -dn1.yx,            sa2, sd, colorChannel, img_input)
-    +propagate(p+vec2<i32>(0,  1), -dn0.yx,            sa2, sd, colorChannel, img_input);
+    propagate(p+vec2<i32>(0,  1), vec2<f32>(0., -1.), sa1, sd, &chr, &chg, &chb);
+    propagate(p+vec2<i32>(0,  1), -dn1.yx,            sa2, sd, &chr, &chg, &chb);
+    propagate(p+vec2<i32>(0,  1), -dn0.yx,            sa2, sd, &chr, &chg, &chb);
 
-    return ch;
+    *outchr = chr;
+    *outchg = chg;
+    *outchb = chb;
 }
 
 @compute @workgroup_size(8, 8)
@@ -127,16 +154,14 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
 
     set_resolution(iResolution.xy);
 
-    var ch: vec3<f32>;
+    var chr = vec3<f32>(0.);
+    var chg = vec3<f32>(0.);
+    var chb = vec3<f32>(0.);
 
-    ch = lpv_kernel(vec2<i32>(global_id.xy), 0, img_inputR);
-    textureStore(img_outputR, vec2<i32>(global_id.xy), vec4<f32>(ch, 0.));
-
-    ch = lpv_kernel(vec2<i32>(global_id.xy), 1, img_inputG);
-    textureStore(img_outputG, vec2<i32>(global_id.xy), vec4<f32>(ch, 0.));
-
-    ch = lpv_kernel(vec2<i32>(global_id.xy), 2, img_inputB);
-    textureStore(img_outputB, vec2<i32>(global_id.xy), vec4<f32>(ch, 0.));
+    lpv_kernel(vec2<i32>(global_id.xy), &chr, &chg, &chb);
+    textureStore(img_outputR, vec2<i32>(global_id.xy), vec4<f32>(chr, 0.));
+    textureStore(img_outputG, vec2<i32>(global_id.xy), vec4<f32>(chg, 0.));
+    textureStore(img_outputB, vec2<i32>(global_id.xy), vec4<f32>(chb, 0.));
 }
 
 
