@@ -7,19 +7,21 @@ export enum TextureType {
 }
 
 export class Texture {
-    width: number;
-    height: number;
-    format: GPUTextureFormat;
-    isFloat: boolean;
-    bytesPerPixel: number;
-    texture: GPUTexture;
-    textureView: GPUTextureView;
+    width: number
+    height: number
+    depth: number
+    format: GPUTextureFormat
+    isFloat: boolean
+    bytesPerPixel: number
+    texture: GPUTexture
+    textureView: GPUTextureView
 
-    constructor(width: number, height: number, format: GPUTextureFormat, type: TextureType = TextureType.Readonly) {
-        console.log("Create Texture: width: " + width + " height: " + height + " format: " + format + " type:" + type);
-        this.width = width;
-        this.height = height;
-        this.format = format;
+    constructor(width: number, height: number, depth: number, format: GPUTextureFormat, type: TextureType = TextureType.Readonly) {
+        console.log("Create Texture: width: " + width + " height: " + height + " format: " + format + " type:" + type)
+        this.width = width
+        this.height = height
+        this.depth = depth
+        this.format = format
         switch(format)
         {
             case "r8sint":
@@ -71,7 +73,11 @@ export class Texture {
         const desc: GPUTextureDescriptor = {
             usage: 0,
             format: this.format,
-            size: [width, height, 1]
+            size: {
+                width: width,
+                height: height,
+                depthOrArrayLayers: depth
+            }
         };
         switch(type) {
             case TextureType.Readonly: {

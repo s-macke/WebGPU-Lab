@@ -4,13 +4,9 @@ struct StagingBuffer {
     iFrame: f32
 };
 
-@group(0) @binding(0) var img_inputR: texture_2d<f32>;
-@group(0) @binding(1) var img_outputR: texture_storage_2d<rgba32float, write>;
-@group(0) @binding(2) var img_inputG: texture_2d<f32>;
-@group(0) @binding(3) var img_outputG: texture_storage_2d<rgba32float, write>;
-@group(0) @binding(4) var img_inputB: texture_2d<f32>;
-@group(0) @binding(5) var img_outputB: texture_storage_2d<rgba32float, write>;
-@group(0) @binding(6) var<uniform> staging: StagingBuffer;
+@group(0) @binding(0) var img_input : texture_2d_array<f32>;
+@group(0) @binding(1) var img_output : texture_storage_2d_array<rgba16float, write>;
+@group(0) @binding(2) var<uniform> staging: StagingBuffer;
 
 fn occluder(p: vec2i, sd: ptr<function, SD>) -> vec3f {
     let uv: vec2f = pixel2uv(p);
@@ -58,17 +54,14 @@ fn propagate(p: vec2i, n: vec2f, sa: f32, sd: SD,
     var occ_sd: SD;
     var occ: vec3<f32> = occluder(p, &occ_sd);
 
-    let Fr: vec3f = textureLoad(img_inputR, p, 0).xyz; // incoming red light from neighbor as circular harmonics
-    let Fg: vec3f = textureLoad(img_inputG, p, 0).xyz; // incoming green light from neighbor as circular harmonics
-    let Fb: vec3f = textureLoad(img_inputB, p, 0).xyz; // incoming blue light from neighbor as circular harmonics
+    let Fr: vec3f = textureLoad(img_input, p, 0, 0).xyz; // incoming red light from neighbor as circular harmonics
+    let Fg: vec3f = textureLoad(img_input, p, 1, 0).xyz; // incoming green light from neighbor as circular harmonics
+    let Fb: vec3f = textureLoad(img_input, p, 2, 0).xyz; // incoming blue light from neighbor as circular harmonics
 
     let dV = vec3f(n, 1.) * CH_Basis;
 
     // light hitting our interior cell wall
-    let L = max(vec3f(0.0), vec3f(
-        dot(Fr, dV * sa),
-        dot(Fg, dV * sa),
-        dot(Fb, dV * sa)));
+    let L = max(vec3f(0.0), vec3f(dot(Fr, dV), dot(Fg, dV), dot(Fb, dV)))*sa;
 
     // how much of their cell wall is occupied?
     let E: f32 = max(0.0, dot(occ, dV * sa));
@@ -142,7 +135,7 @@ fn lpv_kernel(fragCoord: vec2i,
 
 @compute @workgroup_size(8, 8)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    let iResolution: vec2f = vec2f(textureDimensions(img_inputR, 0));
+    let iResolution: vec2f = vec2f(textureDimensions(img_input, 0));
 
     mouse_pos = ((staging.iMouse.xy / iResolution.xy)*2.0 - 1.0) * vec2(iResolution.x/iResolution.y, 1.0);
     mouse_wheel = staging.wheel;
@@ -154,9 +147,9 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     var chb = vec3f(0.);
 
     lpv_kernel(vec2i(global_id.xy), &chr, &chg, &chb);
-    textureStore(img_outputR, vec2i(global_id.xy), vec4f(chr, 0.));
-    textureStore(img_outputG, vec2i(global_id.xy), vec4f(chg, 0.));
-    textureStore(img_outputB, vec2i(global_id.xy), vec4f(chb, 0.));
+    textureStore(img_output, vec2i(global_id.xy), 0, vec4f(chr, 0.));
+    textureStore(img_output, vec2i(global_id.xy), 1, vec4f(chg, 0.));
+    textureStore(img_output, vec2i(global_id.xy), 2, vec4f(chb, 0.));
 }
 
 

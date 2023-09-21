@@ -48,13 +48,24 @@ export class Render extends GPUAbstractRunner {
 
         for (let i = 0; i < this.textures.length; i++) {
 
-            layoutEntries.push({
-                binding: i,
-                visibility: GPUShaderStage.FRAGMENT,
-                texture: {
-                    sampleType: "unfilterable-float"
-                }
-            })
+            if (this.textures[i].depth > 1) {
+                layoutEntries.push({
+                    binding: i,
+                    visibility: GPUShaderStage.FRAGMENT,
+                    texture: {
+                        sampleType: "unfilterable-float",
+                        viewDimension: "2d-array"
+                    }
+                })
+            } else {
+                layoutEntries.push({
+                    binding: i,
+                    visibility: GPUShaderStage.FRAGMENT,
+                    texture: {
+                        sampleType: "unfilterable-float"
+                    }
+                })
+            }
 
             bindEntries.push({
                 binding: i,
