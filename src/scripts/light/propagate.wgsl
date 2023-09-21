@@ -5,7 +5,7 @@ struct StagingBuffer {
 };
 
 @group(0) @binding(0) var img_input : texture_2d_array<f32>;
-@group(0) @binding(1) var img_output : texture_storage_2d_array<rgba32float, write>;
+@group(0) @binding(1) var img_output : texture_storage_2d_array<rgba16float, write>;
 @group(0) @binding(2) var<uniform> staging: StagingBuffer;
 
 fn occluder(p: vec2i, sd: ptr<function, SD>) -> vec3f {
@@ -61,10 +61,7 @@ fn propagate(p: vec2i, n: vec2f, sa: f32, sd: SD,
     let dV = vec3f(n, 1.) * CH_Basis;
 
     // light hitting our interior cell wall
-    let L = max(vec3f(0.0), vec3f(
-        dot(Fr, dV * sa),
-        dot(Fg, dV * sa),
-        dot(Fb, dV * sa)));
+    let L = max(vec3f(0.0), vec3f(dot(Fr, dV), dot(Fg, dV), dot(Fb, dV)))*sa;
 
     // how much of their cell wall is occupied?
     let E: f32 = max(0.0, dot(occ, dV * sa));

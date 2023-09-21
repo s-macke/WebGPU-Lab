@@ -14,7 +14,6 @@ import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
 import {Render} from "../render/render";
 import {Raytrace} from "../raytrace/raytrace";
 import {SDF} from "../sdf/sdf";
-import {ShowError} from "../ui";
 
 export class LightPropagation extends GPUAbstractRunner {
     width: number
@@ -79,8 +78,8 @@ export class LightPropagation extends GPUAbstractRunner {
         this.textureSignedDistance = this.sdf.texturea
 */
         console.log("Create Texture")
-        this.textureDest = GPU.CreateStorageTextureArray(this.width, this.height, 3,  "rgba32float")
-        this.textureSrc = GPU.CreateStorageTextureArray(this.width, this.height, 3, "rgba32float")
+        this.textureDest = GPU.CreateStorageTextureArray(this.width, this.height, 3,  "rgba16float")
+        this.textureSrc = GPU.CreateStorageTextureArray(this.width, this.height, 3, "rgba16float")
 
         this.stagingBuffer = GPU.CreateUniformBuffer(4 * 4) // must be a multiple of 16 bytes
         this.stagingData = new Float32Array(4)
@@ -107,7 +106,7 @@ export class LightPropagation extends GPUAbstractRunner {
                     visibility: GPUShaderStage.COMPUTE,
                     storageTexture: {
                         access: "write-only",
-                        format: "rgba32float",
+                        format: "rgba16float",
                         viewDimension: "2d-array"
                     }
                 }, {
@@ -166,7 +165,7 @@ export class LightPropagation extends GPUAbstractRunner {
         GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData)
 
         let encoder: GPUCommandEncoder = GPU.device.createCommandEncoder({});
-        for(let i = 0; i < 30; i++) {
+        for(let i = 0; i < 40; i++) {
             let pass: GPUComputePassEncoder = encoder.beginComputePass();
             pass.setBindGroup(0, this.bind_group);
             pass.setPipeline(this.compute_pipeline);
