@@ -1,7 +1,8 @@
 struct StagingBuffer
 {
     iMouse: vec2<f32>,
-    iTime: f32
+    iTime: f32,
+    iFrame: f32
 };
 
 @group(0) @binding(1) var img_output: texture_storage_2d<rgba32float, write>;
@@ -29,7 +30,7 @@ fn worley3D(u : vec3<f32>) -> f32 {
     let f = u - k;
     var p : vec3<f32>;
     let q = k;
-    const r : i32 = 3;
+    let r : i32 = 3;
     for(var i = -r; i < r; i++) {
         for(var j = -r; j < r; j++) {
             for(var l = -r; l < r; l++) {

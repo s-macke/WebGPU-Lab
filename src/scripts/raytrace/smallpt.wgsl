@@ -1,4 +1,3 @@
-//@block
 struct StagingBuffer {
     iMouse: vec2<f32>,
     iTime: f32,
@@ -36,23 +35,23 @@ struct Ray {
 //[[block]]
 struct Sphere {
     r: f32,
-    p: vec3<f32>,
-    e: vec3<f32>,
-    c: vec3<f32>,
+    p: vec3f,
+    e: vec3f,
+    c: vec3f,
     refl: i32
 };
 
-const lightSourceVolume: Sphere = Sphere(20., vec3<f32>(50., 81.6, 81.6), vec3<f32>(12.), vec3<f32>(0.), DIFF);
+const lightSourceVolume: Sphere = Sphere(20., vec3f(50., 81.6, 81.6), vec3f(12.0), vec3f(0.), DIFF);
 const spheres = array<Sphere, NUM_SPHERES>(
-    Sphere(1.e5, vec3<f32>(-1.e5 + 1., 40.8, 81.6),      vec3<f32>(0.), vec3<f32>(.75, .25, .25), DIFF), // left wall
-    Sphere(1.e5, vec3<f32>( 1.e5+99., 40.8, 81.6),       vec3<f32>(0.), vec3<f32>(.25, .25, .75), DIFF), // right wall
-    Sphere(1.e5, vec3<f32>(50.,       40.8, -1.e5),      vec3<f32>(0.), vec3<f32>(.75), DIFF), // back wall
-    Sphere(1.e5, vec3<f32>(50.,       40.8,  1.e5+170.), vec3<f32>(0.), vec3<f32>(0.), DIFF), // front wall
-    Sphere(1.e5, vec3<f32>(50.,      -1.e5, 81.6),		  vec3<f32>(0.), vec3<f32>(.75), DIFF), // bottom wall
-    Sphere(1.e5, vec3<f32>(50.,  1.e5+81.6, 81.6),       vec3<f32>(0.0), vec3<f32>(.75), DIFF), // top wall
-    Sphere(16.5, vec3<f32>(27.,       16.5, 47.), 	      vec3<f32>(0.), vec3<f32>(1.), SPEC),
-    Sphere(16.5, vec3<f32>(73.,       16.5, 78.), 	      vec3<f32>(0.), vec3<f32>(.7, 1., .9), REFR),
-    Sphere(600., vec3<f32>(50.,     681.33, 81.6),	      vec3<f32>(12.), vec3<f32>(0.), DIFF) // another light source?
+    Sphere(1.e5, vec3f(-1.e5 + 1., 40.8, 81.6),       vec3f(0.),  vec3f(.75, .25, .25), DIFF), // left wall
+    Sphere(1.e5, vec3f( 1.e5+99.,  40.8, 81.6),       vec3f(0.),  vec3f(.25, .25, .75), DIFF), // right wall
+    Sphere(1.e5, vec3f(50.,        40.8, -1.e5),      vec3f(0.),  vec3f(.75), DIFF), // back wall
+    Sphere(1.e5, vec3f(50.,        40.8,  1.e5+170.), vec3f(0.),  vec3f(0.), DIFF), // front wall
+    Sphere(1.e5, vec3f(50.,       -1.e5, 81.6),		  vec3f(0.),  vec3f(.75), DIFF), // bottom wall
+    Sphere(1.e5, vec3f(50.,   1.e5+81.6, 81.6),       vec3f(0.0), vec3f(.75), DIFF), // top wall
+    Sphere(16.5, vec3f(27.,        16.5, 47.), 	      vec3f(0.),  vec3f(1.), SPEC),
+    Sphere(16.5, vec3f(73.,        16.5, 78.), 	      vec3f(0.),  vec3f(.7, 1., .9), REFR),
+    Sphere(600., vec3f(50.,      681.33, 81.6),	      vec3f(12.), vec3f(0.), DIFF) // another light source?
 );
 
 fn intersectSphere(s: Sphere, r: Ray) -> f32 {

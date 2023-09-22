@@ -67,8 +67,7 @@ async function HandleGraphic(runner: GPURunner) {
                 resolve(0)
                 throw e
             }
-
-            resolve(0);
+            resolve(0)
         });
     });
 
@@ -125,20 +124,23 @@ export async function HandleRunner(runner: GPURunner) {
     promise = new Promise<void>(async resolve => {
         stop_immediately = false;
         const type = runner.getType()
-        switch (type) {
-            case RunnerType.HTML:
-                await HandleHTML(runner)
-                break
+        try {
+            switch (type) {
+                case RunnerType.HTML:
+                    await HandleHTML(runner)
+                    break
 
-            case RunnerType.GRAPHIC:
-                await HandleGraphic(runner)
-                break
+                case RunnerType.GRAPHIC:
+                    await HandleGraphic(runner)
+                    break
 
-            case RunnerType.ANIM:
-                await HandleAnimation(runner)
-                break
+                case RunnerType.ANIM:
+                    await HandleAnimation(runner)
+                    break
+            }
+        } finally {
+            resolve()
         }
-        resolve()
     })
     await promise
 }

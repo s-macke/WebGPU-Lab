@@ -71,21 +71,21 @@ fn base_hash(p: vec2<u32>) -> u32 {
     return h32^(h32 >> 16);
 }
 
-fn InitRandom(fragCoord: vec2<f32>, iFrame: i32, iTime: f32) {
-    seed = vec3<f32>(fragCoord, f32(iFrame));
+fn InitRandom(fragCoord: vec2f, iFrame: i32, iTime: f32) {
+    seed = vec3f(fragCoord, f32(iFrame));
     g_seed = f32(base_hash(bitcast<vec2<u32>>(fragCoord)))/f32(0xffffffffu)+iTime;
 }
 
 fn getRandom() -> f32 {
-    seed = fract(sin(cross(seed, vec3<f32>(12.9898, 78.233, 43.1931))) * 43758.5453);
+    seed = fract(sin(cross(seed, vec3f(12.9898, 78.233, 43.1931))) * 43758.5453);
     return seed.x;
 }
 
-fn hash2() -> vec2<f32> {
-    let n: u32 = base_hash(bitcast<vec2<u32>>(vec2(g_seed, g_seed+0.1)));
+fn hash2() -> vec2f {
+    let n: u32 = base_hash(bitcast<vec2<u32>>(vec2f(g_seed, g_seed+0.1)));
     g_seed += .2;
     let rz = vec2<u32>(n, n*48271u);
-    return vec2<f32>(rz.xy & vec2<u32>(0x7fffffffu))/f32(0x7fffffff);
+    return vec2f(rz.xy & vec2<u32>(0x7fffffffu))/f32(0x7fffffff);
 }
 /*
 fn hash3() -> vec3<f32> {
@@ -96,13 +96,13 @@ fn hash3() -> vec3<f32> {
 }
 */
 fn random_in_unit_disk() -> vec2<f32> {
-    let h: vec2<f32> = hash2() * vec2(1.,6.28318530718);
+    let h: vec2f = hash2() * vec2(1.,6.28318530718);
     let phi: f32 = h.y;
     let r: f32 = sqrt(h.x);
 	return r * vec2(sin(phi), cos(phi));
 }
 
-fn camera_const(lookfrom: vec3<f32>, lookat: vec3<f32>, vup: vec3<f32>, vfov: f32, aspect: f32, aperture: f32, focus_dist: f32) -> Camera {
+fn camera_const(lookfrom: vec3f, lookat: vec3f, vup: vec3f, vfov: f32, aspect: f32, aperture: f32, focus_dist: f32) -> Camera {
     var cam: Camera;
     cam.lens_radius = aperture / 2.;
     let theta: f32 = vfov*3.14159265359/180.;
@@ -118,24 +118,24 @@ fn camera_const(lookfrom: vec3<f32>, lookat: vec3<f32>, vup: vec3<f32>, vfov: f3
     return cam;
 }
 
-fn camera_get_ray(c: Camera, uv: vec2<f32>) -> Ray {
-    let rd: vec2<f32> = c.lens_radius*random_in_unit_disk();
-    let offset: vec3<f32> = c.u * rd.x + c.v * rd.y;
+fn camera_get_ray(c: Camera, uv: vec2f) -> Ray {
+    let rd: vec2f = c.lens_radius*random_in_unit_disk();
+    let offset: vec3f = c.u * rd.x + c.v * rd.y;
     return Ray(c.origin + offset,
                normalize(c.lower_left_corner + uv.x*c.horizontal + uv.y*c.vertical - c.origin - offset));
 }
 
-fn triIntersect(ray: Ray, v0: vec3<f32>, v1: vec3<f32>, v2: vec3<f32>, rec: ptr<function, Hit_record>) -> bool {
-    let v1v0: vec3<f32> = v1 - v0;
-    let v2v0: vec3<f32> = v2 - v0;
-    let rov0: vec3<f32> = ray.origin - v0;
+fn triIntersect(ray: Ray, v0: vec3f, v1: vec3f, v2: vec3f, rec: ptr<function, Hit_record>) -> bool {
+    let v1v0: vec3f = v1 - v0;
+    let v2v0: vec3f = v2 - v0;
+    let rov0: vec3f = ray.origin - v0;
 
     // The four determinants above have lots of terms in common. Knowing the changing
     // the order of the columns/rows doesn't change the volume/determinant, and that
     // the volume is dot(cross(a,b,c)), we can precompute some common terms and reduce
     // it all to:
-    let n: vec3<f32> = cross( v1v0, v2v0 );
-    let q: vec3<f32> = cross( rov0, ray.direction );
+    let n: vec3f = cross( v1v0, v2v0 );
+    let q: vec3f = cross( rov0, ray.direction );
     let d: f32 = 1.0/dot( ray.direction, n );
     let u: f32 = d*dot( -q, v2v0 );
     let v: f32 = d*dot(  q, v1v0 );
@@ -147,14 +147,14 @@ fn triIntersect(ray: Ray, v0: vec3<f32>, v1: vec3<f32>, v2: vec3<f32>, rec: ptr<
     return t>1e-6;
 }
 
-fn getHemisphereUniformSample(n: vec3<f32>) -> vec3<f32> {
+fn getHemisphereUniformSample(n: vec3f) -> vec3f {
     let cosTheta: f32 = getRandom();
     let sinTheta: f32 = sqrt(1. - cosTheta * cosTheta);
     let phi: f32 = 2. * PI * getRandom();
 
     // Spherical to cartesian
-    let t: vec3<f32> = normalize(cross(n.yzx, n));
-    let b: vec3<f32> = cross(n, t);
+    let t: vec3f = normalize(cross(n.yzx, n));
+    let b: vec3f = cross(n, t);
 
 	return (t * cos(phi) + b * sin(phi)) * sinTheta + n * cosTheta;
 }
@@ -166,9 +166,9 @@ fn world_hit(r: Ray, rec: ptr<function, Hit_record>) -> bool {
     for (var i=0; i<NTRIANGLES; i++) {
         var tri_hit: Hit_record;
         if (triIntersect(r,
-            coordinates[triangles[i].v0-1],
-            coordinates[triangles[i].v1-1],
-            coordinates[triangles[i].v2-1],
+            coordinates[triangles[i].v0 - 1],
+            coordinates[triangles[i].v1 - 1],
+            coordinates[triangles[i].v2 - 1],
             &tri_hit)) {
             if (tri_hit.t < (*rec).t) {
                 isHit = true;
@@ -181,10 +181,10 @@ fn world_hit(r: Ray, rec: ptr<function, Hit_record>) -> bool {
     return isHit;
 }
 
-fn recurse(ray_: Ray) -> vec3<f32> {
+fn recurse(ray_: Ray) -> vec3f {
     var ray: Ray = ray_;
-    var acc = vec3<f32>(0.);    // Cumulative radiance
-    var att = vec3<f32>(1.);    // Light attenuation
+    var acc = vec3f(0.);    // Cumulative radiance
+    var att = vec3f(1.);    // Light attenuation
 
     for (var depth = 0; depth < MAXDEPTH; depth++) {
         var hit: Hit_record;
@@ -197,12 +197,12 @@ fn recurse(ray_: Ray) -> vec3<f32> {
         acc += att * materials[hit.material].emission;
 
         // Orient normal towards ray direction
-        var facingNormal: vec3<f32> = hit.normal * sign(-dot(hit.normal, ray.direction));
+        var facingNormal: vec3f = hit.normal * sign(-dot(hit.normal, ray.direction));
 
         // Lambert material
-        let reflected: vec3<f32> = getHemisphereUniformSample(facingNormal);
+        let reflected: vec3f = getHemisphereUniformSample(facingNormal);
         att *= materials[hit.material].color * dot(facingNormal, reflected);
-        let p: vec3<f32> = ray.origin + ray.direction * hit.t;
+        let p: vec3f = ray.origin + ray.direction * hit.t;
         ray = Ray(p, reflected);
     }
 
@@ -218,11 +218,11 @@ fn recurse(ray_: Ray) -> vec3<f32> {
 
 @compute @workgroup_size(8, 8)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    var iResolution = vec2<f32>(textureDimensions(img_output));
-    var fragCoord = vec2<f32>(global_id.xy) + 0.5;
+    var iResolution = vec2f(textureDimensions(img_output));
+    var fragCoord = vec2f(global_id.xy) + 0.5;
 
     InitRandom(fragCoord, i32(staging.iFrame), staging.iTime);
-    let previousColor: vec3<f32> = textureLoad(img_input, vec2<i32>(global_id.xy), 0).rgb;
+    let previousColor: vec3f = textureLoad(img_input, vec2<i32>(global_id.xy), 0).rgb;
 
     let aspect : f32 = iResolution.x/iResolution.y;
 
@@ -231,19 +231,19 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         mousey = iResolution.y*0.5;
     }
 
-    let lookfrom = vec3<f32>(5.*cos(staging.iMouse.x*0.01), 5.*sin(staging.iMouse.x*0.01), (mousey - iResolution.y*0.5)*0.03);
-    let lookat = vec3<f32>(0.0, 0.0, 0.0);
-    let up = vec3<f32>(0, 0, 1.);
+    let lookfrom = vec3f(5.*cos(staging.iMouse.x*0.01), 5.*sin(staging.iMouse.x*0.01), (mousey - iResolution.y*0.5)*0.03);
+    let lookat = vec3f(0.0, 0.0, 0.0);
+    let up = vec3f(0, 0, 1.);
     let cam: Camera = camera_const(lookfrom, lookat, up, 40., aspect, .05, 5.);
 
-    let uv : vec2<f32> = fragCoord/iResolution.xy;
+    let uv : vec2f = fragCoord/iResolution.xy;
 
-    var col = vec3<f32>(0.);
+    var col = vec3f(0.);
     for(var i=0; i<SAMPLES; i++) {
         let r: Ray = camera_get_ray(cam, uv);
         col += recurse(r);
     }
     col = mix(previousColor, col / f32(SAMPLES), 1. / (staging.iFrame + 1.));
 
-    textureStore(img_output, vec2<i32>(global_id.xy), vec4<f32>(col, 1.));
+    textureStore(img_output, vec2i(global_id.xy), vec4f(col, 1.));
 }

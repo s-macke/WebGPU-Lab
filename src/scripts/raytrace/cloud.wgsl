@@ -21,7 +21,6 @@
 
 */
 
-//@block
 struct StagingBuffer {
     iMouse: vec2<f32>,
     iTime: f32
@@ -53,7 +52,7 @@ fn linstep(mn: f32, mx: f32, x: f32) -> f32 {
 }
 
 var<private> prm1: f32 = 0.;
-var<private> bsMo: vec2<f32> = vec2<f32>(0.);
+var<private> bsMo: vec2f;
 
 fn disp(t: f32) -> vec2<f32> {
     return vec2<f32>(sin(t*0.22)*1., cos(t*0.175)*1.)*2.;
