@@ -201,7 +201,7 @@ export class GPU {
         }).length > 0
 
         if (containsErrors) {
-            throw new Error("Shader '" + code.slice(0, 30) + "' compiled with errors")
+            throw new Error("Shader '" + label + "' compiled with errors")
         }
         return {
             entryPoint: "main",

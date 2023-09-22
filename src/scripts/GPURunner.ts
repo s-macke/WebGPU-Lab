@@ -1,9 +1,9 @@
 import {GPU} from "./webgpu/gpu";
 import {GPURunner, RunnerType} from "./AbstractGPURunner";
 import {MeasureFrame, ShowError} from "./ui";
+import {Mutex} from "async-mutex";
 
 let stop_immediately = true;
-let promise = Promise.resolve()
 
 function ListenToError() {
     GPU.device.addEventListener("uncapturederror", (event) => {
@@ -111,36 +111,34 @@ async function HandleAnimation(runner: GPURunner) {
     })
 }
 
+const mutex = new Mutex();
+
 export async function HandleRunner(runner: GPURunner) {
     if (!GPU.isInitialized) return;
 
     // signal the previous animation to stop and wait
     stop_immediately = true;
-    await promise;
+    const release = await mutex.acquire(); // wait for the previous task to finish
 
     document.getElementById("info").innerHTML = ""
     document.getElementById("info").style.overflowY = ""
+    stop_immediately = false;
+    const type = runner.getType()
+    try {
+        switch (type) {
+            case RunnerType.HTML:
+                await HandleHTML(runner)
+                break
 
-    promise = new Promise<void>(async resolve => {
-        stop_immediately = false;
-        const type = runner.getType()
-        try {
-            switch (type) {
-                case RunnerType.HTML:
-                    await HandleHTML(runner)
-                    break
+            case RunnerType.GRAPHIC:
+                await HandleGraphic(runner)
+                break
 
-                case RunnerType.GRAPHIC:
-                    await HandleGraphic(runner)
-                    break
-
-                case RunnerType.ANIM:
-                    await HandleAnimation(runner)
-                    break
-            }
-        } finally {
-            resolve()
+            case RunnerType.ANIM:
+                await HandleAnimation(runner)
+                break
         }
-    })
-    await promise
+    } finally {
+        release()
+    }
 }
