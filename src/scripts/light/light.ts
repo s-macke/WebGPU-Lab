@@ -12,17 +12,12 @@ import {Texture} from "../webgpu/texture";
 import {Buffer} from "../webgpu/buffer";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
 import {Render} from "../render/render";
-import {Raytrace} from "../raytrace/raytrace";
-import {SDF} from "../sdf/sdf";
 
 export class LightPropagation extends GPUAbstractRunner {
     width: number
     height: number
 
     render: Render
-    sdf: SDF
-    raytrace: Raytrace
-    textureSignedDistance: Texture
 
     textureDest: Texture
     textureSrc: Texture
@@ -48,35 +43,9 @@ export class LightPropagation extends GPUAbstractRunner {
     async Destroy() {
         this.textureDest.destroy()
         this.textureSrc.destroy()
- /*
-        await this.sdf.Destroy()
-        await this.raytrace.Destroy()
- */
     }
 
     async Init() {
-/*
-        this.raytrace = new Raytrace("fbm.wgsl", false)
-        try {
-            await this.raytrace.Init()
-            await this.raytrace.Run()
-        } catch (e) {
-            ShowError("Creation of FBM failed", e as Error)
-            throw e
-        }
-        this.sdf = new SDF(this.raytrace.texturedest)
-        try {
-            await this.sdf.Init()
-            for(let i = 0; i < 256; i++) {
-                await this.sdf.Run()
-            }
-        } catch (e) {
-            ShowError("Creation of SDF failed", e as Error)
-            throw e
-        }
-        //this.textureSignedDistance = await GPU.createTextureFromTexture(this.sdf.texturea, "rgba16float")
-        this.textureSignedDistance = this.sdf.texturea
-*/
         console.log("Create Texture")
         this.textureDest = GPU.CreateStorageTextureArray(this.width, this.height, 3,  "rgba16float")
         this.textureSrc = GPU.CreateStorageTextureArray(this.width, this.height, 3, "rgba16float")

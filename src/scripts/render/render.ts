@@ -3,13 +3,12 @@ import {Texture} from "../webgpu/texture";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
 
 export class Render extends GPUAbstractRunner {
-    bind_group_layout: GPUBindGroupLayout;
-    bind_group: GPUBindGroup;
-    pipeline_layout: GPUPipelineLayout;
-    pipeline: GPURenderPipeline;
-    textures: Texture[];
-
-    fragmentShaderFilenames: string[];
+    bind_group_layout: GPUBindGroupLayout
+    bind_group: GPUBindGroup
+    pipeline_layout: GPUPipelineLayout
+    pipeline: GPURenderPipeline
+    textures: Texture[]
+    fragmentShaderFilenames: string[]
 
     constructor(textures: Texture[], ...fragmentShaderFilenames: string[]) {
         super();
@@ -20,7 +19,6 @@ export class Render extends GPUAbstractRunner {
     override getType(): RunnerType {
         return RunnerType.GRAPHIC
     }
-
 
     override async Destroy() {
     }
@@ -101,16 +99,16 @@ export class Render extends GPUAbstractRunner {
                 topology: "triangle-strip",
                 stripIndexFormat: "uint32"
             }
-        });
+        })
     }
 
     override getCommandBuffer(): GPUCommandBuffer {
-        const commandEncoder = GPU.device.createCommandEncoder({});
-        const passEncoder = commandEncoder.beginRenderPass(GPU.getRenderPassDescriptor());
-        passEncoder.setPipeline(this.pipeline);
-        passEncoder.setBindGroup(0, this.bind_group);
-        passEncoder.draw(4, 1, 0, 0);
-        passEncoder.end();
+        const commandEncoder = GPU.device.createCommandEncoder({})
+        const passEncoder = commandEncoder.beginRenderPass(GPU.getRenderPassDescriptor())
+        passEncoder.setPipeline(this.pipeline)
+        passEncoder.setBindGroup(0, this.bind_group)
+        passEncoder.draw(4, 1, 0, 0)
+        passEncoder.end()
         return commandEncoder.finish()
     }
 

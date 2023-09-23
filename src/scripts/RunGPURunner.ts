@@ -5,7 +5,7 @@ import {Mutex} from "async-mutex";
 
 let stop_immediately = true;
 
-function ListenToError() {
+export function ListenToError() {
     GPU.device.addEventListener("uncapturederror", (event) => {
         let e = event as GPUUncapturedErrorEvent
         console.error("A WebGPU error was not captured", e.error);

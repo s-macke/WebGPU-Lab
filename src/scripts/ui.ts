@@ -7,29 +7,31 @@ import {Fluid} from "./fluid/fluid";
 import {Texture} from "./webgpu/texture";
 import {LightPropagation} from "./light/light";
 import {Features} from "./features/features";
-import {HandleRunner} from "./GPURunner";
+import {HandleRunner} from "./RunGPURunner";
 import {Diffuse} from "./diffuse/diffuse";
+import {GPURunner} from "./AbstractGPURunner";
+import {GPURenderRunner} from "./GPURenderRunner";
 
-let lastframeTime = 0 as number;
-let nFrame = 0 as number;
+let lastframeTime = 0 as number
+let nFrame = 0 as number
 
 export function MeasureFrame() {
     if (lastframeTime == 0) {
-        lastframeTime = performance.now();
-        nFrame = 0;
+        lastframeTime = performance.now()
+        nFrame = 0
     }
     nFrame++
     if (nFrame >= 20) {
-        let currentFrameTime = performance.now();
-        let fps = 20 / (currentFrameTime - lastframeTime) * 1000;
-        lastframeTime = currentFrameTime;
-        nFrame = 0;
-        document.getElementById("textFps").innerHTML = fps.toFixed(2) + " fps";
+        let currentFrameTime = performance.now()
+        let fps = 20 / (currentFrameTime - lastframeTime) * 1000
+        lastframeTime = currentFrameTime
+        nFrame = 0
+        document.getElementById("textFps").innerHTML = fps.toFixed(2) + " fps"
     }
 }
 
 export function ShowError(message: string, e: Error) {
-    let errorObject = document.createElement("pre");
+    let errorObject = document.createElement("pre")
 
     errorObject.style.color = "#dc3545"
 
@@ -37,17 +39,17 @@ export function ShowError(message: string, e: Error) {
     errorObject.innerHTML += "\n\n"
     errorObject.innerHTML += e.message
 
-    let infoElement = document.getElementById("info");
-    infoElement.innerHTML = "";
-    infoElement.appendChild(errorObject);
-    document.getElementById("screen").style.visibility = "hidden";
+    let infoElement = document.getElementById("info")
+    infoElement.innerHTML = ""
+    infoElement.appendChild(errorObject)
+    document.getElementById("screen").style.visibility = "hidden"
 }
 
 async function Init(powerPreference: GPUPowerPreference) {
-    let infoElement = document.getElementById("info");
+    let infoElement = document.getElementById("info")
     infoElement.innerHTML = "Initializing WebGPU..."
     try {
-        await GPU.Init(powerPreference);
+        await GPU.Init(powerPreference)
         GPU.SetCanvas("screen")
     } catch (e) {
         ShowError("WebGPU initialization failed", e as Error)
@@ -57,49 +59,55 @@ async function Init(powerPreference: GPUPowerPreference) {
 
 
 async function ShowFeatures() {
-    await HandleRunner(new Features());
+    await HandleRunner(new Features())
 }
 
 async function ShowCollatz() {
-    await HandleRunner(new Collatz());
+    await HandleRunner(new Collatz())
 }
 
 async function ShowTexture() {
-    let texture: Texture;
-    texture = await GPU.createTextureFromImage("scripts/render/Lenna.png");
-    await HandleRunner(new Render([texture]));
-    texture.destroy();
+    let texture: Texture
+    texture = await GPU.createTextureFromImage("scripts/render/Lenna.png")
+    await HandleRunner(new Render([texture]))
+    texture.destroy()
 }
 
 async function ShowRaytrace(filename: string, fragmentShaderFilename: string = null) {
-    await HandleRunner(new Raytrace(filename, true, fragmentShaderFilename));
+    let raytrace = new Raytrace(filename, fragmentShaderFilename)
+    await HandleRunner(new GPURenderRunner(raytrace))
 }
-
 
 async function ShowDiffuse() {
-    await HandleRunner(new Diffuse());
+    let diffuse = new Diffuse()
+    await HandleRunner(new GPURenderRunner(diffuse))
 }
 
-
 async function ShowFluid() {
-    await HandleRunner(new Fluid());
+    await HandleRunner(new Fluid())
 }
 
 async function ShowLightPropagation() {
-    await HandleRunner(new LightPropagation());
+    await HandleRunner(new LightPropagation())
 }
 
-async function ShowSDF() {
-    let raytrace = new Raytrace("fbm.wgsl", false);
+async function RunOnce(runner: GPURunner) {
     try {
-        await raytrace.Init();
-        await raytrace.Run();
+        await runner.Init()
+        await runner.Run()
     } catch (e) {
         ShowError("GPU object creation failed", e as Error)
         throw e
     }
-    await HandleRunner(new SDF(raytrace.texturedest));
-    await raytrace.Destroy();
+}
+
+async function ShowSDF() {
+    let raytrace = new Raytrace("fbm.wgsl")
+    await RunOnce(raytrace)
+
+    let sdf = new SDF(raytrace.texturedest)
+    await HandleRunner(new GPURenderRunner(sdf))
+    await raytrace.Destroy()
 }
 
 document.getElementById("button_features").addEventListener("click", ShowFeatures)
@@ -147,7 +155,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     await Init(preference);
     console.log("Init finished");
-    ShowFeatures();
+    await ShowFeatures();
 });
 
 

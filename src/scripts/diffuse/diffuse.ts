@@ -10,7 +10,6 @@ export class Diffuse extends GPUAbstractRunner {
 
     texturesrc: Texture;
     texturedest: Texture;
-    render: Render;
 
     bind_group_layout: GPUBindGroupLayout
     bind_group_layout_mesh: GPUBindGroupLayout
@@ -52,7 +51,6 @@ export class Diffuse extends GPUAbstractRunner {
     }
 
     override async Destroy() {
-        await this.render.Destroy()
         this.texturesrc.destroy()
         this.texturedest.destroy()
         this.vertexBuffer.destroy()
@@ -157,8 +155,6 @@ export class Diffuse extends GPUAbstractRunner {
         this.texturesrc = GPU.CreateStorageTexture(this.width, this.height, "rgba32float")
         this.texturedest = GPU.CreateStorageTexture(this.width, this.height, "rgba32float")
 
-        this.render = new Render([this.texturedest], "scripts/diffuse/aces-tone-mapping.wgsl")
-        await this.render.Init()
 
         this.stagingBuffer = GPU.CreateUniformBuffer(4 * 4) // must be a multiple of 16 bytes
         this.stagingData = new Float32Array(4)
@@ -278,7 +274,15 @@ export class Diffuse extends GPUAbstractRunner {
     }
 
     override async Run() {
-        GPU.device.queue.submit([this.getCommandBuffer(), this.render.getCommandBuffer()])
+        GPU.device.queue.submit([this.getCommandBuffer()])
         await GPU.device.queue.onSubmittedWorkDone()
     }
+
+    override getRenderInfo(): { textures: Texture[]; fragmentShaderFilenames: string[] } {
+        return {
+            textures: [this.texturedest],
+            fragmentShaderFilenames: ["scripts/diffuse/aces-tone-mapping.wgsl"]
+        }
+    }
+
 }

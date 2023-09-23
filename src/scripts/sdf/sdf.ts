@@ -1,7 +1,6 @@
 import {GPU} from "../webgpu/gpu";
 import {Texture} from "../webgpu/texture";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
-import {Render} from "../render/render";
 
 export class SDF extends GPUAbstractRunner {
     width: number;
@@ -17,8 +16,6 @@ export class SDF extends GPUAbstractRunner {
     pipeline_layout: GPUPipelineLayout;
     compute_pipeline: GPUComputePipeline;
 
-    render: Render;
-
     constructor(texture_border: Texture) {
         super();
         this.texture_border = texture_border;
@@ -32,7 +29,6 @@ export class SDF extends GPUAbstractRunner {
 
 
     async Destroy() {
-        await this.render.Destroy()
         this.texturea.destroy()
         this.textureb.destroy()
     }
@@ -43,9 +39,6 @@ export class SDF extends GPUAbstractRunner {
         this.texturea = GPU.CreateStorageTexture(this.width, this.height, "rg32float")
         this.textureb = GPU.CreateStorageTexture(this.width, this.height, "rg32float")
         this.render_output = GPU.CreateStorageTexture(this.width, this.height, "rgba32float")
-
-        this.render = new Render([this.render_output])
-        await this.render.Init()
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{
@@ -114,8 +107,13 @@ export class SDF extends GPUAbstractRunner {
     }
 
     async Run() {
-        GPU.device.queue.submit([this.getCommandBuffer(), this.render.getCommandBuffer()]);
+        GPU.device.queue.submit([this.getCommandBuffer()]);
         await GPU.device.queue.onSubmittedWorkDone();
     }
-
+    override getRenderInfo(): { textures: Texture[]; fragmentShaderFilenames: string[] } {
+        return {
+            textures: [this.render_output],
+            fragmentShaderFilenames: []
+        }
+    }
 }

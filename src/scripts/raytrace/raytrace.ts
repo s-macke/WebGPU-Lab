@@ -5,12 +5,12 @@ import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
 import {Render} from "../render/render";
 
 export class Raytrace extends GPUAbstractRunner {
-    width: number;
-    height: number;
+    width: number
+    height: number
 
-    texturesrc: Texture;
-    texturedest: Texture;
-    render: Render;
+    texturesrc: Texture
+    texturedest: Texture
+    render: Render
 
     bind_group_layout: GPUBindGroupLayout
     bind_group: GPUBindGroup
@@ -20,16 +20,13 @@ export class Raytrace extends GPUAbstractRunner {
     stagingBuffer: Buffer
     stagingData: Float32Array
 
-    filename: string;
+    filename: string
+    fragmentShaderFilename: string
 
-    showOnScreen: boolean;
-    fragmentShaderFilename: string;
+    startTime: number
 
-    startTime: number;
-
-    constructor(filename: string, showOnScreen: boolean, fragmentShaderFilename: string = null) {
+    constructor(filename: string, fragmentShaderFilename: string = null) {
         super();
-        this.showOnScreen = showOnScreen
         this.filename = filename
         this.width = GPU.viewport.width
         this.height = GPU.viewport.height
@@ -41,9 +38,6 @@ export class Raytrace extends GPUAbstractRunner {
     }
 
     override async Destroy() {
-        if (this.showOnScreen) {
-            await this.render.Destroy()
-        }
         this.texturesrc.destroy()
         this.texturedest.destroy()
     }
@@ -52,15 +46,6 @@ export class Raytrace extends GPUAbstractRunner {
         console.log("Create Texture")
         this.texturesrc = GPU.CreateStorageTexture(this.width, this.height, "rgba32float")
         this.texturedest = GPU.CreateStorageTexture(this.width, this.height, "rgba32float")
-
-        if (this.showOnScreen) {
-            if (this.fragmentShaderFilename === null) {
-                this.render = new Render([this.texturedest])
-            } else {
-                this.render = new Render([this.texturedest], "scripts/raytrace/" + this.fragmentShaderFilename)
-            }
-            await this.render.Init()
-        }
 
         this.stagingBuffer = GPU.CreateUniformBuffer(4*3 + 4) // must be a multiple of 16 bytes
         this.stagingData = new Float32Array(4)
@@ -112,7 +97,19 @@ export class Raytrace extends GPUAbstractRunner {
         })
 
         this.startTime = new Date().getTime();
+    }
 
+    override getRenderInfo(): { textures: Texture[]; fragmentShaderFilenames: string[] } {
+        if (this.fragmentShaderFilename == null) {
+            return {
+                textures: [this.texturedest],
+                fragmentShaderFilenames: []
+            }
+        }
+        return {
+            textures: [this.texturedest],
+            fragmentShaderFilenames: ["scripts/raytrace/" + this.fragmentShaderFilename]
+        }
     }
 
     previousMouseCoordinatex: number = 0
@@ -145,11 +142,7 @@ export class Raytrace extends GPUAbstractRunner {
     }
 
     override async Run() {
-        if (this.showOnScreen) {
-            GPU.device.queue.submit([this.getCommandBuffer(), this.render.getCommandBuffer()])
-        } else {
-            GPU.device.queue.submit([this.getCommandBuffer()])
-        }
+        GPU.device.queue.submit([this.getCommandBuffer()])
         await GPU.device.queue.onSubmittedWorkDone()
     }
 }

@@ -1,3 +1,4 @@
+import {Texture} from "./webgpu/texture";
 
 export enum RunnerType {
     HTML = 1,
@@ -8,6 +9,7 @@ export enum RunnerType {
 export interface GPURunner {
     getType(): RunnerType;
     getHTML(): string;
+    getRenderInfo(): {textures: Texture[], fragmentShaderFilenames: string[]};
     getCommandBuffer(): GPUCommandBuffer;
     Run(): Promise<void>;
     Init(): Promise<void>;
@@ -25,6 +27,10 @@ export abstract class GPUAbstractRunner implements GPURunner {
     }
 
     getHTML(): string {
+        throw new Error("Method not implemented.");
+    }
+
+    getRenderInfo(): { textures: Texture[]; fragmentShaderFilenames: string[] } {
         throw new Error("Method not implemented.");
     }
 }
