@@ -10,7 +10,7 @@ fn rotate(p: vec2<f32>, r: f32) -> vec2<f32> {
 // shaded distance
 struct SD {
     d : f32,
-    albedo: vec3<f32>,
+    albedo: vec3f,
     emissive: bool
 };
 
@@ -54,11 +54,11 @@ fn sphere(p: vec2<f32>, r: f32) -> f32 {
 
 fn slitlight(p: vec2<f32>) -> SD {
     const color: vec3<f32> = vec3(0.01, 0.5, 0.95);
-    var angle : f32 = max(0.0,cos(atan2(p.y, p.x)*6.0));
+    var angle : f32 = max(0.0, cos(atan2(p.y, p.x)*6.0));
     if (angle < 0.5) {
         angle = 0.0;
     }
-    let d2: SD = emitter(sphere(p, 0.1),color * angle * 20.0);
+    let d2: SD = emitter(sphere(p, 0.1), color * angle * 20.0);
     return d2;
 }
 

@@ -1,5 +1,5 @@
 set -e
-npm install
+#npm install
 npm run prestart:copysrc
 npm run prestart:copyassets
 npx tsc -noEmit

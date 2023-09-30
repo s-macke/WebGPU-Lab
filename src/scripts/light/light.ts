@@ -12,18 +12,23 @@ import {Texture} from "../webgpu/texture";
 import {Buffer} from "../webgpu/buffer";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
 import {Render} from "../render/render";
+import {LightScene} from "./scene/scene";
+import {ShowError} from "../ui";
 
 export class LightPropagation extends GPUAbstractRunner {
     width: number
     height: number
 
     render: Render
+    scene: LightScene
 
     textureDest: Texture
     textureSrc: Texture
 
     bind_group_layout: GPUBindGroupLayout
     bind_group: GPUBindGroup
+    scene_bind_group_layout: GPUBindGroupLayout
+    scene_bind_group: GPUBindGroup
     pipeline_layout: GPUPipelineLayout
     compute_pipeline: GPUComputePipeline
     shader: GPUProgrammableStage
@@ -47,15 +52,24 @@ export class LightPropagation extends GPUAbstractRunner {
 
     async Init() {
         console.log("Create Texture")
+
         this.textureDest = GPU.CreateStorageTextureArray(this.width, this.height, 3,  "rgba16float")
         this.textureSrc = GPU.CreateStorageTextureArray(this.width, this.height, 3, "rgba16float")
 
         this.stagingBuffer = GPU.CreateUniformBuffer(4 * 4) // must be a multiple of 16 bytes
         this.stagingData = new Float32Array(4)
 
+        this.scene = new LightScene(this.stagingBuffer)
+        try {
+            await this.scene.Init()
+        } catch (e) {
+            ShowError("Creation of Scene failed", e as Error)
+            throw e
+        }
+
         console.log("Create Render")
         this.render = new Render(
-            [this.textureDest],
+            [this.textureDest, this.scene.emitter],
             "scripts/light/common.wgsl", "scripts/light/distance.wgsl", "scripts/light/aces-tone-mapping.wgsl")
         await this.render.Init()
 
@@ -75,7 +89,7 @@ export class LightPropagation extends GPUAbstractRunner {
                     visibility: GPUShaderStage.COMPUTE,
                     storageTexture: {
                         access: "write-only",
-                        format: "rgba16float",
+                        format: this.textureDest.format,
                         viewDimension: "2d-array"
                     }
                 }, {
@@ -84,15 +98,7 @@ export class LightPropagation extends GPUAbstractRunner {
                     buffer: {
                         type: "uniform"
                     }
-                }/*, {
-                    binding: 3,
-                    visibility: GPUShaderStage.COMPUTE,
-                    texture: {sampleType: "unfilterable-float"}
-                }, {
-                    binding: 4,
-                    visibility: GPUShaderStage.COMPUTE,
-                    sampler: {}
-                }*/]
+                }]
         })
 
         this.bind_group = GPU.device.createBindGroup({
@@ -106,18 +112,31 @@ export class LightPropagation extends GPUAbstractRunner {
             }, {
                 binding: 2,
                 resource: this.stagingBuffer.resource
-            }/*, {
-                binding: 7,
-                resource: this.textureSignedDistance.textureView
-            }, {
-                binding: 8,
-                resource: GPU.CreateSampler()
-            }*/]
+            }]
         })
 
+        this.scene_bind_group_layout = GPU.device.createBindGroupLayout({
+            entries: [
+                {
+                    binding: 0,
+                    visibility: GPUShaderStage.COMPUTE,
+                    texture: {
+                        sampleType: "unfilterable-float",
+                        viewDimension: "2d-array"
+                    }
+                }]
+        })
+
+        this.scene_bind_group = GPU.device.createBindGroup({
+            layout: this.scene_bind_group_layout,
+            entries: [{
+                binding: 0,
+                resource: this.scene.emitter.textureView
+            }]
+        })
 
         this.pipeline_layout = GPU.device.createPipelineLayout({
-            bindGroupLayouts: [this.bind_group_layout]
+            bindGroupLayouts: [this.bind_group_layout, this.scene_bind_group_layout]
         })
 
         this.compute_pipeline = GPU.device.createComputePipeline({
@@ -137,6 +156,7 @@ export class LightPropagation extends GPUAbstractRunner {
         for(let i = 0; i < 40; i++) {
             let pass: GPUComputePassEncoder = encoder.beginComputePass();
             pass.setBindGroup(0, this.bind_group);
+            pass.setBindGroup(1, this.scene_bind_group);
             pass.setPipeline(this.compute_pipeline);
             pass.dispatchWorkgroups(this.width / 8, this.height / 8);
             pass.end();
@@ -150,8 +170,7 @@ export class LightPropagation extends GPUAbstractRunner {
     }
 
     async Run() {
-        //GPU.device.queue.submit([this.GetCommandBuffer()]);
-        GPU.device.queue.submit([this.GetCommandBuffer(), this.render.getCommandBuffer()]);
+        GPU.device.queue.submit([this.scene.GetCommandBuffer(), this.GetCommandBuffer(), this.render.getCommandBuffer()]);
         await GPU.device.queue.onSubmittedWorkDone();
     }
 
