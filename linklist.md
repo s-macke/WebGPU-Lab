@@ -1,66 +1,60 @@
-opengl texture formats
+# Best websites for Shader Demos
+https://compute.toys/
+https://www.shadertoy.com/
+https://webgpu.github.io/webgpu-samples/
 
-https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexImage2D.xhtml
-
-learn wgpu
-
-https://sotrh.github.io/learn-wgpu/beginner/tutorial5-textures/#loading-an-image-from-a-file
-
-wiki opengl shader language
-
-https://www.khronos.org/opengl/wiki/Image_Load_Store
-
-webgpu spec
-
+# WebGPU spec
 https://gpuweb.github.io/gpuweb/#texel-block
 
-About storage texture vs samples texture
+# Learn WebGPU
+https://sotrh.github.io/learn-wgpu/
 
+# WIKI OpenGL shader language
+https://www.khronos.org/opengl/wiki/Image_Load_Store
+
+# GLSL color formats
+https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexImage2D.xhtml
+
+# About storage texture vs sampled textures
 https://github.com/gpuweb/gpuweb/issues/513
 
-vortex shredding simulation
+# Vortex Shredding Simulation
 https://experiments.withgoogle.com/vortex-shedding-fluid-simulation
 
-fluid simulation shaders
+# Fluid simulation shaders
 http://www.amandaghassaei.com/projects/shaders/
 
-2d gi
+# 2d GI
 https://www.shadertoy.com/view/lltcRN
 
-webgpu rs
+# WebGPU Rust Mipmap example
 https://github.com/gfx-rs/wgpu-rs/blob/master/examples/mipmap/main.rs
 
-blog article about WHSL
+# Blog article about WHSL
 https://webkit.org/blog/8482/web-high-level-shading-language/
 
-nicely explained fluid simulations
+# Nicely explained fluid simulations
 http://jamie-wong.com/2016/08/05/webgl-fluid-simulation/
 
-fluid graphics
+# Fluid graphics
 https://www.shadertoy.com/view/WdyGzy
 https://www.shadertoy.com/view/WdVXWy
 https://www.shadertoy.com/view/tsKXR3
 https://www.shadertoy.com/view/4tGfDW
 
-glsl color formats
-
-https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexImage2D.xhtml
-
-difference sampler and image
-
+# Difference sampler and image
 https://computergraphics.stackexchange.com/questions/3998/what-is-the-difference-between-a-sampler-and-an-image-variables-in-glsl
 
-
-webgl fluid code
+# WebGL fluid code
 https://github.com/haxiomic/GPU-Fluid-Experiments
 
-webgl fluid code 2
+# Webgl fluid code 2
 https://github.com/PavelDoGreat/WebGL-Fluid-Simulation/blob/master/script.js
 
-fluid simulation shaders
+# Fluid simulation shaders
 https://github.com/amandaghassaei/FluidSimulation
 
-particle hydrodynamics
+# Particle hydrodynamics
 https://www.shadertoy.com/view/ldy3D1
 
 particle tracking
@@ -102,59 +96,57 @@ https://www.shadertoy.com/view/3sKXzW
 pretty easy fluid simulation
 https://www.shadertoy.com/view/4ltBWj
 
-
 robust fluid
 https://www.shadertoy.com/view/WdGXRG
 
 rather short fluid
 https://www.shadertoy.com/view/3tcSDj
 
-chimeras breath
-https://www.shadertoy.com/view/wd3XW
+# Chimeras breath 2D Fluid
+https://www.shadertoy.com/view/4tGfDW
 
-fft fluid
+# FFT fluid
 https://www.shadertoy.com/view/3dXXWN
 
-surface forces
+# Surface Forces
 https://www.shadertoy.com/view/WtySzV
 
-SPH
+# SPH
 https://www.shadertoy.com/view/ttVGW1
 
-fluid dynamics with pressure and possoin
+# Fluid dynamics with pressure and possoin
 https://www.shadertoy.com/view/llXfRn
 
-2phase fluid
+# 2-Phase fluid
 https://www.shadertoy.com/view/wtVGzW
 looks intersting and short
 
-multi color fluid, looks like an interesting code
+# Multi color fluid, looks like an interesting code
 https://www.shadertoy.com/view/3dsyRl
 
-2 fluid
-
+# 2 fluid
 https://www.shadertoy.com/view/WtK3R
 
-bad navier stokes maybe with a good explanation
-
+# Bad navier stokes maybe with a good explanation
 https://www.shadertoy.com/view/tsK3DK
 
-celerity
-nice colors
-and maybe last from wyatt
+# Wyatt shaders
+https://www.shadertoy.com/user/wyatt/sort=newest&from=0&num=8
+
+# Celerity, nice colors, and maybe last from wyatt
 https://www.shadertoy.com/view/3djcWK
 
-very code for easy waterfall
+# Code for easy waterfall
 https://www.shadertoy.com/view/lt3BWX
 
-dry ice
+# Dry ice, cool
 https://www.shadertoy.com/view/WlVyRV
 
-cool coloring of fluids
+# Cool coloring of fluids
 https://www.shadertoy.com/view/MsGSRd
 https://www.shadertoy.com/view/tsKXR3
 
-cool explosion colors
+# cool explosion colors
 https://www.shadertoy.com/view/lsySzd
 
 paint two colors
@@ -163,22 +155,22 @@ https://www.shadertoy.com/view/WtfyDj
 texture
 https://www.shadertoy.com/view/ldtGWj
 
-another good and easy 2D Light
+# another good and easy 2D Light
 https://www.shadertoy.com/view/lldcDf
 
-the slow 2d gi
+# the slow 2d gi
 https://www.shadertoy.com/view/lltcRN
 
-2D Light using Quad Tree. Very interesting
+# 2D Light using Quad Tree. Very interesting
 
 https://www.shadertoy.com/view/DslSDM
 
 
-3D raymarching cornell box. 3D global illumination, but fast somehow
+# 3D raymarching cornell box. 3D global illumination, but fast somehow
 https://www.shadertoy.com/view/4ssGzS
 https://www.shadertoy.com/view/3dfGR2
 
-2D angular sampling?
+# 2D angular sampling?
 https://www.shadertoy.com/view/Xdf3zB
 
 # diffuse global illumination
@@ -234,8 +226,36 @@ https://www.shadertoy.com/view/ldf3DN
 # very nice tunnel:
 https://www.shadertoy.com/view/XdBSzd
 
-# 2d Light Prpagation volume?
+# 2d Light Prpagation volume
 https://www.shadertoy.com/view/fld3R4
 
 # jump flodding
 https://www.shadertoy.com/view/4syGWK
+
+# Paper Cry Engine 3
+https://advances.realtimerendering.com/s2009/Light_Propagation_Volumes.pdf
+
+# light propagation 3d
+https://www.shadertoy.com/view/XdtSRn
+https://www.shadertoy.com/view/4d3fWX
+
+# 3d light propagation explained
+https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.233.104&rep=rep1&type=pdf
+
+# another 2d light
+https://www.shadertoy.com/view/XdjGDm
+
+# another 2d light propagation  
+https://www.shadertoy.com/view/tdBXzh
+
+# another 2d light
+https://www.shadertoy.com/view/XsK3RR
+
+# 2d pixel perfect shadows
+https://github.com/mattdesl/lwjgl-basics/wiki/2D-Pixel-Perfect-Shadows
+
+# 2d clouds
+https://www.shadertoy.com/view/WdXBW4
+
+# WebGPU fluid
+https://compute.toys/view/167

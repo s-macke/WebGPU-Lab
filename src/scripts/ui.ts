@@ -11,6 +11,7 @@ import {HandleRunner} from "./RunGPURunner";
 import {Diffuse} from "./diffuse/diffuse";
 import {GPURunner} from "./AbstractGPURunner";
 import {GPURenderRunner} from "./GPURenderRunner";
+import {LightPropagation2} from "./light2/light";
 
 let lastframeTime = 0 as number
 let nFrame = 0 as number
@@ -91,6 +92,10 @@ async function ShowLightPropagation() {
     await HandleRunner(new LightPropagation())
 }
 
+async function ShowLightPropagation2() {
+    await HandleRunner(new LightPropagation2())
+}
+
 async function RunOnce(runner: GPURunner) {
     try {
         await runner.Init()
@@ -119,6 +124,7 @@ document.getElementById("button_fbm").addEventListener("click", () => ShowRaytra
 document.getElementById("button_voronoise").addEventListener("click", () => ShowRaytrace("voronoise.wgsl"))
 document.getElementById("button_2dlight").addEventListener("click", () => ShowRaytrace("light.wgsl"))
 document.getElementById("button_light_propagation").addEventListener("click", () => ShowLightPropagation())
+document.getElementById("button_light_propagation2").addEventListener("click", () => ShowLightPropagation2())
 document.getElementById("button_sdf").addEventListener("click", () => ShowSDF())
 document.getElementById("button_fluid").addEventListener("click", () => ShowFluid())
 document.getElementById("button_diffuse").addEventListener("click", () => ShowDiffuse())
