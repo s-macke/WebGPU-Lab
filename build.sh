@@ -3,7 +3,7 @@ set -e
 npm run prestart:copysrc
 npm run prestart:copyassets
 npx tsc -noEmit
-npx esbuild src/scripts/ui.ts --bundle --outfile=build/ui.js
+npx esbuild src/scripts/ui.ts --sourcemap --bundle --outfile=build/ui.js
 
 #on first start run "npm install"
 #npm outdated

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "dependencies": {
     "async-mutex": "^0.4.0",
-    "gl-matrix": "^3.2.1"
+    "gl-matrix": "^3.2"
   },
   "devDependencies": {
     "@webgpu/types": "^0.1",
@@ -12,7 +12,7 @@
     "typescript": "^5"
   },
   "scripts": {
-    "prestart:copysrc": "copyfiles -u 1 src/**/*.html src/sidebar.js src/**/*.comp src/**/*.vert src/**/*.frag src/**/*.wgsl src/**/*.png build",
+    "prestart:copysrc": "copyfiles -u 1 src/**/*.html src/**/*.comp src/**/*.vert src/**/*.frag src/**/*.wgsl src/**/*.png build",
     "prestart:copyassets": "copyfiles assets/**/* build",
     "compile": "npx esbuild src/scripts/ui.ts --bundle --outfile=build/src/ui.js"
   }
