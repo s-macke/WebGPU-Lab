@@ -7,7 +7,6 @@ struct StagingBuffer {
 @group(0) @binding(0) var img_input : texture_2d_array<f32>;
 @group(0) @binding(1) var img_output : texture_storage_2d_array<rgba16float, write>;
 @group(0) @binding(2) var<uniform> staging: StagingBuffer;
-
 @group(1) @binding(0) var scene : texture_2d_array<f32>;
 
 struct ColorCH {
@@ -17,7 +16,6 @@ struct ColorCH {
 };
 
 // propagate light from neighbor to this pixel
-// p: pixel of neighbor in screen space
 // n: normal of neighbor to center
 // sa: solid angle of neighbor
 fn propagate(

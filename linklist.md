@@ -149,10 +149,10 @@ https://www.shadertoy.com/view/tsKXR3
 # cool explosion colors
 https://www.shadertoy.com/view/lsySzd
 
-paint two colors
+# Paint streams paint two colors. Very interesting code
 https://www.shadertoy.com/view/WtfyDj
 
-texture
+# Precalculated Voronoi Heightmap
 https://www.shadertoy.com/view/ldtGWj
 
 # another good and easy 2D Light
@@ -259,3 +259,21 @@ https://www.shadertoy.com/view/WdXBW4
 
 # WebGPU fluid
 https://compute.toys/view/167
+
+# 2D Lighting with cascades. Pretty cool
+https://www.shadertoy.com/view/mtlBzX
+
+# Another jump flood algorithm
+https://www.shadertoy.com/view/DdS3zm
+
+# Analytic 2d lighting 
+https://www.shadertoy.com/view/dlcXR4
+
+# 3D water with SPH. Very smooth
+https://www.shadertoy.com/view/dscfRf
+
+# Cool, with very low lines of code
+https://www.shadertoy.com/view/cstfz2
+
+# Fluid
+https://www.shadertoy.com/view/MdSczK

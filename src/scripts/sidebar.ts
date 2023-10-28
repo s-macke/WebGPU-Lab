@@ -15,7 +15,6 @@ import {LightPropagation2} from "./light2/light";
 import {GPURunner} from "./AbstractGPURunner";
 import {SDF} from "./sdf/sdf";
 
-
 export async function ShowFeatures() {
     await HandleRunner(new Features())
 }
