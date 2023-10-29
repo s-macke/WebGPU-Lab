@@ -21,7 +21,7 @@ fn sphere(p: vec2<f32>, r: f32) -> f32 {
     return length(p) - r;
 }
 
-@group(0) @binding(0) var scene : texture_storage_2d_array<rgba16float, write>;
+@group(0) @binding(0) var scene : texture_storage_2d_array<rgba8unorm, write>;
 @group(0) @binding(1) var<uniform> staging: StagingBuffer;
 @group(0) @binding(2) var sdf : texture_2d<f32>;
 

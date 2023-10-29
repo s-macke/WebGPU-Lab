@@ -43,7 +43,7 @@ export class LightScene {
 
         // 0: color emitter circular harmonics, z-component
         // 1: normal vector of the surface
-        this.emitter = GPU.CreateStorageTextureArray(this.width, this.height, 2,  "rgba16float")
+        this.emitter = GPU.CreateStorageTextureArray(this.width, this.height, 2,  "rgba8unorm")
 
         this.raytrace = new Raytrace("fbm.wgsl")
         try {

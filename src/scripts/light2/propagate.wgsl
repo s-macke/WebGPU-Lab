@@ -62,6 +62,17 @@ fn retrieveConstants(pn: vec2i, F: ptr<function, ColorCH>,  E: ptr<function, Col
     */
 }
 
+    // note that sa2 = (90° - sa1) / 2
+    //const sa1: f32 = solid_angle(vec2f(1.5,      -0.5), vec2<f32>(1.5, 0.5)); // ~53.13°, projecting to the right side of our pixel
+    //const sa2: f32 = solid_angle(vec2f(0.5, 0.5), vec2<f32>(1.5, 0.5)); // ~18.43°, projecting to the top/bottom side of our pixel
+    //const dn1: vec2f = normalize(vec2f(2.,  1.0)); // normal to the center of the top side of our pixel
+
+    // TODO: the comments are wrong
+    const sa1= 0.6435011087932845; // ~53.13°, projecting to the right side of our pixel
+    const sa2= 0.4636476090008066; // ~18.43°, projecting to the top/bottom side of our pixel
+    const dn1 = vec2f(0.8944271909999159, 0.4472135954999579); // normal to the center of the top side of our pixel
+    const dn0 = vec2f(0.8944271909999159, -0.4472135954999579); // normal to the center of the bottom side of our pixel
+
 fn lpv_kernel(p: vec2i, out: ptr<function, ColorCH>) {
     let Em = textureLoad(scene, p, 0, 0).xyz; // emitted rgb light as circular harmonics
     let translucency = textureLoad(scene, p, 1, 0).w;
@@ -75,11 +86,6 @@ fn lpv_kernel(p: vec2i, out: ptr<function, ColorCH>) {
     let dn1: vec2f = normalize(vec2f(x - 0.5,  1.0)); // normal to the center of the top side of our pixel
     let dn0: vec2f = normalize(vec2f(x - 0.5, -1.0)); // normal to the center of the bottom side of our pixel
 */
-    let sa1: f32 = solid_angle(vec2f(1.5,      -0.5), vec2<f32>(1.5, 0.5)); // ~53.13°, projecting to the right side of our pixel
-    let sa2: f32 = solid_angle(vec2f(0.5, 0.5), vec2<f32>(1.5, 0.5)); // ~18.43°, projecting to the top/bottom side of our pixel
-    // note that sa2 = (90° - sa1) / 2
-    let dn1: vec2f = normalize(vec2f(2.,  1.0)); // normal to the center of the top side of our pixel
-    let dn0: vec2f = normalize(vec2f(2., -1.0)); // normal to the center of the bottom side of our pixel
 
 /*
 float sa1 = solid_angle(vec2(1.5, -0.5),vec2(1.5,0.5)); // ~53.13°, projecting to the right side of our pixel
@@ -98,13 +104,11 @@ float sa1 = solid_angle(vec2(1.5, -0.5),vec2(1.5,0.5)); // ~53.13°, projecting 
     propagate(dn1,            sa2, F, E, out);
     propagate(dn0,            sa2, F, E, out);
 
-
     pn = p + vec2i(1, 0);
     retrieveConstants(pn, &F, &E);
     propagate(vec2f(-1., 0.), sa1, F, E, out);
     propagate(-dn0,           sa2, F, E, out);
     propagate(-dn1,           sa2, F, E, out);
-
 
     pn = p + vec2i(0, -1);
     retrieveConstants(pn, &F, &E);

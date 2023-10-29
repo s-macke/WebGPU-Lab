@@ -26,13 +26,16 @@ export class LightPropagation2 extends GPUAbstractRunner {
     textureSrc: Texture
 
     bind_group_layout: GPUBindGroupLayout
-    bind_groupa: GPUBindGroup
-    bind_groupb: GPUBindGroup
+    bind_group_atob: GPUBindGroup
+    bind_group_btoa: GPUBindGroup
+
     scene_bind_group_layout: GPUBindGroupLayout
     scene_bind_group: GPUBindGroup
+
     pipeline_layout: GPUPipelineLayout
     compute_pipeline: GPUComputePipeline
     shader: GPUProgrammableStage
+
     stagingBuffer: Buffer
     stagingData: Float32Array
 
@@ -102,7 +105,7 @@ export class LightPropagation2 extends GPUAbstractRunner {
                 }]
         })
 
-        this.bind_groupa = GPU.device.createBindGroup({
+        this.bind_group_atob = GPU.device.createBindGroup({
             layout: this.bind_group_layout,
             entries: [{
                 binding: 0,
@@ -116,7 +119,7 @@ export class LightPropagation2 extends GPUAbstractRunner {
             }]
         })
 
-        this.bind_groupb = GPU.device.createBindGroup({
+        this.bind_group_btoa = GPU.device.createBindGroup({
             layout: this.bind_group_layout,
             entries: [{
                 binding: 0,
@@ -168,16 +171,16 @@ export class LightPropagation2 extends GPUAbstractRunner {
         GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData)
 
         let encoder: GPUCommandEncoder = GPU.device.createCommandEncoder({});
-        for(let i = 0; i < 60; i++) {
+        for(let i = 0; i < 80; i++) {
             let pass: GPUComputePassEncoder = encoder.beginComputePass();
-            pass.setBindGroup(0, this.bind_groupa);
+            pass.setBindGroup(0, this.bind_group_atob);
             pass.setBindGroup(1, this.scene_bind_group);
             pass.setPipeline(this.compute_pipeline);
             pass.dispatchWorkgroups(this.width / 8, this.height / 8);
             pass.end();
 
             pass = encoder.beginComputePass();
-            pass.setBindGroup(0, this.bind_groupb);
+            pass.setBindGroup(0, this.bind_group_btoa);
             pass.setBindGroup(1, this.scene_bind_group);
             pass.setPipeline(this.compute_pipeline);
             pass.dispatchWorkgroups(this.width / 8, this.height / 8);
