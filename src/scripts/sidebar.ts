@@ -14,6 +14,7 @@ import {LightPropagation} from "./light/light";
 import {LightPropagation2} from "./light2/light";
 import {GPURunner} from "./AbstractGPURunner";
 import {SDF} from "./sdf/sdf";
+import {LightMonteCarloPathTracing} from "./light_monte_carlo_path_tracing/light";
 
 export async function ShowFeatures() {
     await HandleRunner(new Features())
@@ -129,6 +130,11 @@ let toc: TOCEntry[] = [
         title: "2D Light Propagation V2.0",
         elementName: "button_light_propagation2",
         func: ShowLightPropagation2
+    },
+    {
+        title: "2D Light By Monte Carlo Path Tracing",
+        elementName: "button_light_path_tracing",
+        func: async() => await HandleRunner(new LightMonteCarloPathTracing())
     },
     {
         title: "Signed Distance Field",

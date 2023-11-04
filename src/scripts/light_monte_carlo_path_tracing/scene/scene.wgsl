@@ -38,16 +38,19 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
 
     var ch = vec3f(0.);
 
+    const pi: f32 = 3.14159265359;
+    //const scale = 1./sqrt(2.0 * pi);
+    const scale = 1.;
+
     let d = sphere(uv - mouse_pos, (-mouse_wheel*0.005+0.05));
     if (d < 0) {
-        ch.r += 1.*CH_Basis.z;
-        ch.g += 1.*CH_Basis.z;
-        ch.b += 1.*CH_Basis.z;
+        ch.r += 1.*scale;
+        ch.g += 1.*scale;
+        ch.b += 1.*scale;
     }
+    var translucency = f32(1.0);
 
-    var translucency = f32(1.);
-
-    let dT = textureLoad(sdf, p, 0).x/256.0;
+   let dT = textureLoad(sdf, p, 0).x/256.0;
     if (dT < -0.05) {
         translucency = 0.6;
     }

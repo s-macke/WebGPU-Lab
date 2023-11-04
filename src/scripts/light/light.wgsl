@@ -21,7 +21,6 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     df = BoxDF(UV, iResolution.xy*0.5);
     c = vec4<f32>(df*0.01, df*0.01, 0., 1.);
 
-
     /*
         //Scene
         if (length(iChannelResolution[0].xy - texture(iChannel0, vec2(3.5,0.5)*IRES).zw) > 0.5) {
