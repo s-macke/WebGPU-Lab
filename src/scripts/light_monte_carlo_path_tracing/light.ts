@@ -174,7 +174,7 @@ export class LightMonteCarloPathTracing extends GPUAbstractRunner {
 
         GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData)
 
-        let encoder: GPUCommandEncoder = GPU.device.createCommandEncoder({});
+        let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();
 
         let pass: GPUComputePassEncoder = encoder.beginComputePass();
         pass.setBindGroup(0, this.bind_group_atob);

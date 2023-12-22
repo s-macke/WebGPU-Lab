@@ -20,6 +20,11 @@ export function MeasureFrame() {
 }
 
 export function ShowError(message: string, e: Error) {
+    document.getElementById("screen").style.visibility = "hidden"
+
+    let infoElement = document.getElementById("info")
+    infoElement.innerHTML = ""
+
     let errorObject = document.createElement("pre")
 
     errorObject.style.color = "#dc3545"
@@ -28,10 +33,7 @@ export function ShowError(message: string, e: Error) {
     errorObject.innerHTML += "\n\n"
     errorObject.innerHTML += e.message
 
-    let infoElement = document.getElementById("info")
-    infoElement.innerHTML = ""
     infoElement.appendChild(errorObject)
-    document.getElementById("screen").style.visibility = "hidden"
 }
 
 async function Init(powerPreference: GPUPowerPreference) {

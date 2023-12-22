@@ -16,6 +16,11 @@ export class GPU {
     public static mouseCoordinate: Coordinate = {x: 0, y: 0, wheel: 0};
     public static isInitialized: boolean
 
+    public static useTimestamp: boolean
+    public static timestampQuerySet: GPUQuerySet
+    public static timestampBuffer: Buffer
+
+
     static async Init(powerPreference: GPUPowerPreference) {
         this.isInitialized = false;
         console.log("Initialize WebGPU");
@@ -41,6 +46,20 @@ export class GPU {
         if (this.device == null) {
             throw new Error("Cannot get GPU device");
         }
+        if (this.adapter.features.has("timestamp-query")) {
+            this.CreateTimestampQuery()
+        }
+    }
+
+    static CreateTimestampQuery() {
+        const entries = 2
+        this.useTimestamp = true
+        console.log("Create Timestamp Query")
+        this.timestampQuerySet = this.device.createQuerySet({
+            type: "timestamp",
+            count: entries
+        });
+        this.timestampBuffer = BufferFactory.createQueryBuffer(entries)
     }
 
     static SetCanvas(id: string) {
@@ -55,7 +74,7 @@ export class GPU {
             this.mouseCoordinate.y = canvas.height - e.offsetY / canvas.clientHeight * canvas.height
         }
         canvas.onwheel = (e) => {
-            this.mouseCoordinate.wheel += e.deltaY*0.001
+            this.mouseCoordinate.wheel += e.deltaY * 0.001
             e.preventDefault()
         }
 
@@ -188,7 +207,7 @@ export class GPU {
         return await this.CompileShader(code, urls.join(","))
     }
 
-    static async CompileShader(code: string, label: string=null): Promise<GPUProgrammableStage> {
+    static async CompileShader(code: string, label: string = null): Promise<GPUProgrammableStage> {
         let module: GPUShaderModule = this.device.createShaderModule({
             label: label,
             code: code
@@ -218,88 +237,15 @@ export class GPU {
         await GPU.device.queue.onSubmittedWorkDone();
     }
 
-    static async Render(texture: Texture) {
-        let result = await Promise.all([
-            GPU.CreateShaderFromURL("scripts/webgpu/shader/render.vert.wgsl"),
-            GPU.CreateShaderFromURL("scripts/webgpu/shader/render.frag.wgsl")])
-        let vertShader = result[0];
-        let fragShader = result[1];
-
-        if (texture.isFloat == false) {
-            fragShader = await this.CreateShaderFromURL("scripts/webgpu/shader/render_int.frag.wgsl")
-        }
-        let sampler = this.CreateSampler();
-
-        let layout: GPUBindGroupLayout = GPU.device.createBindGroupLayout({
-            entries: [{
-                binding: 0,
-                visibility: GPUShaderStage.FRAGMENT,
-                texture: {sampleType: "unfilterable-float"}
-            }, {
-                binding: 1,
-                visibility: GPUShaderStage.FRAGMENT,
-                sampler: {}
-            }]
+    static CreateCommandEncoder(): GPUCommandEncoder {
+        let encoder =  this.device.createCommandEncoder({
+            label: "command_encoder"
         });
-
-        if (texture.isFloat == false) {
-            layout = GPU.device.createBindGroupLayout({
-                entries: [{
-                    binding: 0,
-                    visibility: GPUShaderStage.FRAGMENT,
-                    texture: {sampleType: "sint"}
-                }, {
-                    binding: 1,
-                    visibility: GPUShaderStage.FRAGMENT,
-                    sampler: {}
-                }]
-            });
+        if (this.useTimestamp) {
+            encoder.writeTimestamp(this.timestampQuerySet, 0);
         }
 
-        let bind_group: GPUBindGroup = GPU.device.createBindGroup({
-            layout: layout,
-            entries: [{
-                binding: 0,
-                resource: texture.textureView
-            }, {
-                binding: 1,
-                resource: sampler
-            }]
-        })
-
-        let pipelineLayout: GPUPipelineLayout = GPU.device.createPipelineLayout({
-            bindGroupLayouts: [layout]
-        });
-
-        const pipeline = this.device.createRenderPipeline({
-            layout: pipelineLayout,
-            vertex: vertShader,
-            fragment: {
-                entryPoint: fragShader.entryPoint,
-                module: fragShader.module,
-                constants: fragShader.constants,
-                targets: [{
-                    format: navigator.gpu.getPreferredCanvasFormat()
-                }]
-            },
-            primitive: {
-                topology: "triangle-strip",
-                stripIndexFormat: "uint32"
-            }
-        });
-
-        let render = () => {
-            console.log("render");
-            const commandEncoder = this.device.createCommandEncoder({});
-            const passEncoder = commandEncoder.beginRenderPass(this.getRenderPassDescriptor());
-            passEncoder.setPipeline(pipeline);
-            passEncoder.setBindGroup(0, bind_group);
-            passEncoder.draw(4, 1, 0, 0);
-            passEncoder.end();
-
-            this.device.queue.submit([commandEncoder.finish()]);
-        }
-        requestAnimationFrame(render);
+        return encoder
     }
 }
 

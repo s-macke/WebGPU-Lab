@@ -63,4 +63,23 @@ export class BufferFactory {
         return buffer;
     }
 
+    static createQueryBuffer(entries: number) : Buffer {
+        let buffer = new Buffer()
+        buffer.size = entries*8;
+        buffer.buffer =
+            GPU.device.createBuffer({
+                usage: GPUBufferUsage.QUERY_RESOLVE
+                    | GPUBufferUsage.STORAGE
+                    | GPUBufferUsage.COPY_SRC
+                    | GPUBufferUsage.COPY_DST,
+                size: buffer.size,
+                mappedAtCreation: false
+            });
+        buffer.resource = {
+            buffer: buffer.buffer
+        }
+        return buffer;
+    }
+
+
 }

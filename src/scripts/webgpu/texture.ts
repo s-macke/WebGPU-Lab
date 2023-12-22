@@ -113,7 +113,7 @@ export class Texture {
         let buffer: Buffer = GPU.CreateBufferCopy(size);
 
         let encoder: GPUCommandEncoder = GPU.device.createCommandEncoder({
-            label: "command_encoder"
+            label: "command_encoder_extract"
         });
         encoder.copyTextureToBuffer({
                 texture: this.texture
