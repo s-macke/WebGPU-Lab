@@ -277,3 +277,12 @@ https://www.shadertoy.com/view/cstfz2
 
 # Fluid
 https://www.shadertoy.com/view/MdSczK
+
+# awesome music
+https://www.shadertoy.com/view/dlGyzD
+
+# color FBM
+https://www.shadertoy.com/view/DlVcRm
+
+# good description of 2d fluid simulation
+https://andrewkchan.dev/posts/fire.html

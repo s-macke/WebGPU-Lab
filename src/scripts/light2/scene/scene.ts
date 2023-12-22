@@ -116,7 +116,7 @@ export class LightScene {
     }
 
     GetCommandBuffer() : GPUCommandBuffer {
-        let encoder: GPUCommandEncoder = GPU.device.createCommandEncoder({});
+        let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();
         {
             let pass: GPUComputePassEncoder = encoder.beginComputePass();
             pass.setBindGroup(0, this.bind_group);

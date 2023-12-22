@@ -65,7 +65,7 @@ export class Collatz extends GPUAbstractRunner {
 
     override async Run(): Promise<void> {
         console.log("Compute");
-        let encoder: GPUCommandEncoder = GPU.device.createCommandEncoder({});
+        let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();
         {
             let pass: GPUComputePassEncoder = encoder.beginComputePass();
             pass.setBindGroup(0, this.bind_group);

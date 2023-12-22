@@ -152,7 +152,7 @@ export class LightPropagation extends GPUAbstractRunner {
         this.stagingData[3] += 1.; // increase iFrame
         GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData)
 
-        let encoder: GPUCommandEncoder = GPU.device.createCommandEncoder({});
+        let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();
         for(let i = 0; i < 40; i++) {
             let pass: GPUComputePassEncoder = encoder.beginComputePass();
             pass.setBindGroup(0, this.bind_group);

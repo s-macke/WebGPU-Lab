@@ -103,7 +103,7 @@ export class Render extends GPUAbstractRunner {
     }
 
     override getCommandBuffer(): GPUCommandBuffer {
-        const commandEncoder = GPU.device.createCommandEncoder({})
+        const commandEncoder = GPU.CreateCommandEncoder()
         const passEncoder = commandEncoder.beginRenderPass(GPU.getRenderPassDescriptor())
         passEncoder.setPipeline(this.pipeline)
         passEncoder.setBindGroup(0, this.bind_group)

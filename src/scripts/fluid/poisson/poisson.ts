@@ -178,7 +178,7 @@ export class Poisson {
     }
 
     GetCommandBuffer() : GPUCommandBuffer {
-        let encoder: GPUCommandEncoder = GPU.device.createCommandEncoder({});
+        let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();
 
         for(let i=0; i<10; i++) {
             let pass: GPUComputePassEncoder;
