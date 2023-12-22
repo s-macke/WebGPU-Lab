@@ -1,0 +1,1269 @@
+<html lang="en" style="--tabs-and-editor-width: 778px;">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>Playground – Lit</title>
+    <meta name="description" content="Simple. Fast. Web Components.">
+    <link rel="icon" href="/images/flame-favicon.svg">
+    <link rel="mask-icon" href="/images/flame-favicon.svg" color="#324fff">
+    <link rel="modulepreload" href="/js/tslib.js">
+    <link rel="modulepreload" href="/js/lit.js">
+    <link rel="modulepreload" href="/js/global/hydrate-common-components.js">
+    <style>
+    @font-face {
+        font-family: Manrope;
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(/fonts/manrope/manrope-regular.woff2) format('woff2')
+    }
+
+    @font-face {
+        font-family: Manrope;
+        font-style: normal;
+        font-weight: 500;
+        font-display: swap;
+        src: url(/fonts/manrope/manrope-medium.woff2) format('woff2')
+    }
+
+    @font-face {
+        font-family: Manrope;
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+        src: url(/fonts/manrope/manrope-semibold.woff2) format('woff2')
+    }
+
+    @font-face {
+        font-family: Manrope;
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url(/fonts/manrope/manrope-bold.woff2) format('woff2')
+    }
+
+    @font-face {
+        font-family: Manrope;
+        font-style: normal;
+        font-weight: 800;
+        font-display: swap;
+        src: url(/fonts/manrope/manrope-extrabold.woff2) format('woff2')
+    }
+
+    @font-face {
+        font-family: 'Roboto Mono';
+        font-style: normal;
+        font-weight: 400;
+        font-display: fallback;
+        src: url(/fonts/roboto-mono/RobotoMono-Latin-400.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+    }
+
+    @font-face {
+        font-family: 'Open Sans';
+        font-style: normal;
+        font-weight: 300;
+        font-display: swap;
+        src: url(/fonts/opensans/OpenSans-Latin-300.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+    }
+
+    @font-face {
+        font-family: 'Open Sans';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(/fonts/opensans/OpenSans-Latin-400.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+    }
+
+    @font-face {
+        font-family: 'Open Sans';
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+        src: url(/fonts/opensans/OpenSans-Latin-600.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+    }
+
+    @font-face {
+        font-family: 'Open Sans';
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url(/fonts/opensans/OpenSans-Latin-700.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+    }
+
+    @font-face {
+        font-family: 'Open Sans';
+        font-style: normal;
+        font-weight: 800;
+        font-display: swap;
+        src: url(/fonts/opensans/OpenSans-Latin-800.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD
+    }
+
+    .pageHeader {
+        position: sticky;
+        top: 0;
+        height: var(--header-nav-height);
+        z-index: 4;
+        background: #fff;
+        display: flex;
+        padding: 0 1.5em;
+        justify-content: stretch;
+        border-bottom: 1px solid #d1d1d1;
+        box-sizing: border-box;
+        box-shadow: 0 1px 5px 0 rgb(0 0 0 / 10%)
+    }
+
+    #headerLogo {
+        height: 2em;
+        width: auto;
+        padding: .1em .5em
+    }
+
+    .pageHeader > nav {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: var(--header-footer-max-width, unset);
+        margin: var(--header-footer-margin, unset)
+    }
+
+    .navItem > a > svg {
+        width: 1.5em;
+        height: 1.5em;
+        vertical-align: middle
+    }
+
+    #desktopNav {
+        display: flex;
+        align-items: center;
+        list-style: none;
+        padding-left: 0;
+        margin: 0
+    }
+
+    #desktopNav > .navItem > a, #desktopNav > .navItem > litdev-search-modal {
+        color: #6f6f6f;
+        font-weight: 600;
+        padding: .3em .5em;
+        margin-left: .5em;
+        font-size: .9em
+    }
+
+    @supports not selector(:modal) {
+        litdev-search-modal {
+            display: none !important
+        }
+    }
+
+    #desktopNav > .navItem.active > a, #desktopNav > .navItem > :hover {
+        color: var(--color-blue)
+    }
+
+    #mobileMenuButton {
+        display: none
+    }
+
+    @media (max-width: 864px) {
+        #desktopNav {
+            display: none
+        }
+
+        #mobileMenuButton {
+            display: flex
+        }
+
+        .pageHeader {
+            padding: 0 .5em
+        }
+    }
+
+    #footerTop {
+        height: var(--footer-top-height);
+        padding: 0 2em;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: var(--header-footer-max-width, unset);
+        margin: var(--header-footer-margin, unset)
+    }
+
+    #footerNameAndLogo {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end
+    }
+
+    #footerFlame {
+        height: 3.5em;
+        width: 2.8em
+    }
+
+    #footerName {
+        height: 2.14em;
+        width: 3.24em
+    }
+
+    #footerSocialLinks {
+        flex: 1;
+        display: flex;
+        justify-content: flex-end
+    }
+
+    #footerSocialLinks > a {
+        padding: .5em;
+        width: 1.67em;
+        height: 1.67em;
+        color: var(--color-medium-gray)
+    }
+
+    #footerSocialLinks > a:hover {
+        color: #000
+    }
+
+    #footerSocialLinks > a > lazy-svg::part(svg) {
+        width: 100%;
+        height: 100%
+    }
+
+    #footerBottom {
+        height: var(--footer-bottom-height);
+        background: var(--color-light-gray);
+        padding: 0 .5em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        line-height: 1.7em
+    }
+
+    #footerBottom > p > a {
+        color: var(--color-blue)
+    }
+
+    #footerBottom > p > a:hover {
+        text-decoration: underline
+    }
+
+    @media (max-width: 864px) {
+        #footerTop {
+            flex-direction: column;
+            justify-content: space-around
+        }
+
+        #footerNameAndLogo {
+            flex-direction: column;
+            align-items: center;
+            flex: unset
+        }
+
+        #footerFlame {
+            order: -1;
+            height: 6.5em;
+            width: 5.2em;
+            margin-bottom: 2em
+        }
+
+        #footerSocialLinks {
+            flex: unset
+        }
+
+        #footerSocialLinks > a {
+            margin: 0 .5em
+        }
+
+        #footerBottom {
+            font-size: .8em
+        }
+    }
+
+    mwc-drawer:not(:defined) {
+        display: none
+    }
+
+    #mobileDrawer ol {
+        margin: 0;
+        padding: 0
+    }
+
+    #mobileDrawer li {
+        list-style-type: none;
+        font-size: 16px;
+        margin-top: 10px
+    }
+
+    #mobileDrawer a {
+        color: inherit
+    }
+
+    #mobileDrawer .active {
+        font-weight: 700
+    }
+
+    #mobileSiteNav {
+        background: var(--color-blue);
+        color: #fff;
+        padding: 20px
+    }
+
+    #mobileDocsNav {
+        padding: 20px !important
+    }
+
+    #mobileDocsNav ol {
+        margin-left: 30px
+    }
+
+    #mobileDocsNav > li:first-of-type {
+        margin-top: 0
+    }
+
+    #mobileDocsNav .sectionHead {
+        padding-left: 5px
+    }
+
+    #mobileDocsNav details {
+        cursor: pointer
+    }
+
+    #mobileDocsNav summary::marker {
+        font-size: 13px
+    }
+
+    #mobileDocsNav img.labs {
+        width: 1.25rem;
+        height: 1.25rem;
+        vertical-align: text-bottom
+    }
+
+    html {
+        --color-light-gray: #f4f4f4;
+        --color-medium-gray: #949494;
+        --color-dark-gray: #454545;
+        --color-blue: #324fff;
+        --color-cyan: #91ffff;
+        --color-dark-cyan: #00e8ff
+    }
+
+    .CodeMirror {
+        font-size: var(--playground-code-font-size, inherit);
+        color: var(--playground-code-default-color, #000);
+        background: var(--playground-code-background, #fff);
+        padding: var(--litdev-code-padding)
+    }
+
+    .CodeMirror pre.CodeMirror-line {
+        margin: 0;
+        font-family: var(--playground-code-font-family, monospace);
+        line-height: var(--playground-code-line-height, 1.7em)
+    }
+
+    .cm-keyword {
+        color: var(--playground-code-keyword-color, #708)
+    }
+
+    .cm-atom {
+        color: var(--playground-code-atom-color, #219)
+    }
+
+    .cm-number {
+        color: var(--playground-code-number-color, #164)
+    }
+
+    .cm-def {
+        color: var(--playground-code-def-color, #00f)
+    }
+
+    .cm-variable {
+        color: var(--playground-code-variable-color, #000)
+    }
+
+    .cm-property {
+        color: var(--playground-code-property-color, #000)
+    }
+
+    .cm-operator {
+        color: var(--playground-code-operator-color, #000)
+    }
+
+    .cm-variable-2 {
+        color: var(--playground-code-variable-2-color, #05a)
+    }
+
+    .cm-variable-3 {
+        color: var(--playground-code-variable-3-color, #085)
+    }
+
+    .cm-type {
+        color: var(--playground-code-type-color, #085)
+    }
+
+    .cm-comment {
+        color: var(--playground-code-comment-color, #a50)
+    }
+
+    .cm-string {
+        color: var(--playground-code-string-color, #a11)
+    }
+
+    .cm-string-2 {
+        color: var(--playground-code-string-2-color, #f50)
+    }
+
+    .cm-meta {
+        color: var(--playground-code-meta-color, #555)
+    }
+
+    .cm-qualifier {
+        color: var(--playground-code-qualifier-color, #555)
+    }
+
+    .cm-builtin {
+        color: var(--playground-code-builtin-color, #30a)
+    }
+
+    .cm-tag {
+        color: var(--playground-code-tag-color, #170)
+    }
+
+    .cm-attribute {
+        color: var(--playground-code-attribute-color, #00c)
+    }
+
+    .cm-callee {
+        color: var(--playground-code-callee-color, #000)
+    }
+
+    html {
+        --playground-code-font-family: 'Roboto Mono', monospace;
+        --playground-code-font-size: 14px;
+        --playground-code-line-height: 1.6em;
+        --litdev-code-padding: 0.5em 0 0.5em 1em;
+        --playground-bar-height: 44px;
+        --playground-code-gutter-background: white;
+        --playground-code-gutter-border-right: none;
+        --playground-highlight-color: var(--color-blue);
+        --playground-code-keyword-color: #d92f3f;
+        --playground-code-atom-color: #005cc5;
+        --playground-code-number-color: #005cc5;
+        --playground-code-def-color: #6f42c1;
+        --playground-code-variable-color: #6f42c1;
+        --playground-code-property-color: #008176;
+        --playground-code-operator-color: #d92f3f;
+        --playground-code-variable-2-color: #000000;
+        --playground-code-variable-3-color: #000000;
+        --playground-code-type-color: #005cc5;
+        --playground-code-comment-color: #6a737d;
+        --playground-code-string-color: #032f62;
+        --playground-code-string-2-color: #032f62;
+        --playground-code-meta-color: #000000;
+        --playground-code-qualifier-color: #6f42c1;
+        --playground-code-builtin-color: #6f42c1;
+        --playground-code-tag-color: #032f62;
+        --playground-code-attribute-color: #6f42c1;
+        --playground-code-callee-color: #005cc5
+    }
+
+    .CodeMirror {
+        overflow-y: auto
+    }
+
+    playground-preview {
+        background: var(--color-light-gray)
+    }
+
+    playground-preview::part(preview-toolbar) {
+        background: var(--color-light-gray);
+        border-bottom: 1px solid #ccc;
+        font-family: 'Open Sans', sans-serif;
+        font-size: .9rem;
+        box-sizing: border-box
+    }
+
+    playground-tab-bar {
+        background: #fff;
+        font-size: 16px;
+        font-family: 'Open Sans', sans-serif;
+        border-bottom: 1px solid #ccc;
+        box-sizing: border-box
+    }
+
+    playground-file-editor {
+        background: #fff
+    }
+
+    body[code-language-preference=ts] litdev-switchable-sample > pre > code.language-js {
+        display: none
+    }
+
+    body[code-language-preference=js] litdev-switchable-sample > pre > code.language-ts {
+        display: none
+    }
+
+    litdev-version-selector > select {
+        background: 0 0;
+        border-radius: 8px;
+        border: 1.5px solid #cacaca;
+        color: #636363;
+        cursor: pointer;
+        font-family: Manrope, sans-serif;
+        font-weight: 600;
+        margin-left: -3px;
+        padding: 1px 3px
+    }
+
+    .active > litdev-version-selector > select, litdev-version-selector > select:focus, litdev-version-selector > select:hover {
+        color: var(--color-blue)
+    }
+
+    #mobileSiteNav litdev-version-selector > select {
+        border-color: #fff;
+        color: #fff;
+        margin-left: 5px
+    }
+
+    #mobileSiteNav litdev-version-selector > select > option {
+        background: #fff;
+        color: #000
+    }
+
+    body[dsd-pending] {
+        display: none
+    }
+
+    html {
+        font-size: 18px;
+        --header-nav-height: 60px;
+        --banner-height: 0px;
+        --header-height: calc(var(--header-nav-height) + var(--banner-height));
+        --footer-top-height: 12rem;
+        --footer-bottom-height: 6rem;
+        --content-max-width: 76rem;
+        -webkit-font-smoothing: antialiased
+    }
+
+    code {
+        font-family: "Roboto Mono", monospace
+    }
+
+    @media (max-width: 864px) {
+        html {
+            --footer-top-height: 20rem
+        }
+    }
+
+    body {
+        margin: 0;
+        font-family: Manrope, sans-serif
+    }
+
+    main {
+        min-height: calc(100vh - var(--header-height) - var(--footer-top-height) - var(--footer-bottom-height));
+        scroll-margin-top: var(--header-height)
+    }
+
+    a {
+        text-decoration: none;
+        color: #1879cd
+    }
+
+    .minimalScroller::-webkit-scrollbar {
+        width: 15px
+    }
+
+    .minimalScroller:hover::-webkit-scrollbar-thumb {
+        background: rgb(255 255 255 / .3);
+        background-clip: content-box !important;
+        border: 4px solid transparent;
+        border-radius: 10px
+    }
+
+    .offscreen {
+        position: absolute;
+        left: -10000px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden
+    }
+
+    #bypassNavLink {
+        position: fixed;
+        top: 10px;
+        left: 0;
+        transform: translateX(-100%);
+        transition: transform .1s;
+        font-size: 18px;
+        padding: 8px 14px;
+        color: var(--color-blue);
+        background: #fff;
+        z-index: 5
+    }
+
+    #bypassNavLink:focus {
+        transform: translateX(10px)
+    }
+
+    #bypassNavLink:hover {
+        text-decoration: underline
+    }</style>
+    <style>.codeDark, .codeDark .CodeMirror {
+        --playground-code-background: #1e1e1e;
+        --playground-code-default-color: #d4d4d4;
+        --playground-code-keyword-color: #569cd6;
+        --playground-code-atom-color: #569cd6;
+        --playground-code-number-color: #b5cea8;
+        --playground-code-def-color: #9cdcfe;
+        --playground-code-variable-color: #9cdcfe;
+        --playground-code-property-color: #9cdcfe;
+        --playground-code-operator-color: #569cd6;
+        --playground-code-variable-2-color: #9cdcfe;
+        --playground-code-variable-3-color: #d4d4d4;
+        --playground-code-type-color: #4ec9b0;
+        --playground-code-comment-color: #6a9955;
+        --playground-code-string-color: #ce9178;
+        --playground-code-string-2-color: #ce9178;
+        --playground-code-meta-color: #d4d4d4;
+        --playground-code-qualifier-color: #d7ba7d;
+        --playground-code-builtin-color: #d7ba7d;
+        --playground-code-tag-color: #808080;
+        --playground-code-attribute-color: #9cdcfe;
+        --playground-code-callee-color: #dcdcaa
+    }</style>
+    <script type="module">const e = new URL(window.location.href), r = e.searchParams.get("mods"), n = n => {
+        if (r) {
+            const o = new URL(n, e);
+            if (o.origin === e.origin) return o.searchParams.set("mods", r), o.href
+        }
+        return n
+    };
+    r && (document.body.classList.add(...r.split(" ").map((e => e.trim())).filter((e => "" !== e))), window.addEventListener("click", (e => {
+        for (const r of e.composedPath()) if (r instanceof HTMLAnchorElement) {
+            r.href = n(r.href);
+            break
+        }
+    })));</script>
+    <script type="module">document.body.setAttribute("code-language-preference", localStorage.getItem("code-language-preference") ?? "ts");</script>
+    <script type="module">document.querySelector("#mobileMenuButton")?.addEventListener("click", (() => {
+        const e = document.querySelector("mwc-drawer");
+        e && (e.open = !0, e.dispatchEvent(new Event("opening")))
+    }));</script>
+    <script type="module" href="/js/lit.js"></script>
+    <script type="module">let e;
+    const t = e => null === e.parentElement;
+    HTMLTemplateElement.prototype.hasOwnProperty("shadowRootMode") || (n => {
+        var o;
+        if (function () {
+            var t;
+            if (void 0 === e) {
+                const n = '<div><template shadowrootmode="open"></template></div>',
+                    o = (new DOMParser).parseFromString(n, "text/html", {includeShadowRoots: !0});
+                e = !!(null === (t = o.querySelector("div")) || void 0 === t ? void 0 : t.shadowRoot)
+            }
+            return e
+        }()) return;
+        const l = [];
+        let i = n.firstElementChild;
+        for (; i !== n && null !== i;) if ("TEMPLATE" === i.tagName) l.push(i), i = i.content; else if (null !== i.firstElementChild) i = i.firstElementChild; else if (i.nodeType === Node.ELEMENT_NODE && null !== i.nextElementSibling) i = i.nextElementSibling; else {
+            let e;
+            for (; i !== n && null !== i;) if (t(i)) {
+                e = l.pop();
+                const t = e.parentElement, n = e.getAttribute("shadowrootmode");
+                if (i = e, "open" === n || "closed" === n) {
+                    const o = e.hasAttribute("shadowrootdelegatesfocus");
+                    try {
+                        t.attachShadow({mode: n, delegatesFocus: o}).append(e.content)
+                    } catch {
+                    }
+                } else e = void 0
+            } else {
+                const t = i.nextElementSibling;
+                if (null != t) {
+                    i = t, void 0 !== e && e.parentElement.removeChild(e);
+                    break
+                }
+                const n = null === (o = i.parentElement) || void 0 === o ? void 0 : o.nextElementSibling;
+                if (null != n) {
+                    i = n, void 0 !== e && e.parentElement.removeChild(e);
+                    break
+                }
+                i = i.parentElement, void 0 !== e && (e.parentElement.removeChild(e), e = void 0)
+            }
+        }
+    })(document.body), document.body.removeAttribute("dsd-pending");</script>
+    <script type="module" src="/js/global/hydrate-common-components.js"></script>
+    <script type="module" src="/js/tslib.js"></script>
+    <link rel="preconnect" href="https://OC866NN61X-dsn.algolia.net/" crossorigin="">
+    <link href="/blog/atom.xml" rel="alternate" type="application/atom+xml" title="Lit Blog feed">
+    <noscript>
+        <style>body[dsd-pending] {
+            display: block !important;
+        }</style>
+    </noscript>
+    <meta property="og:url" content="https://lit.dev/playground/">
+    <meta property="og:title" content="Playground – Lit">
+    <meta property="og:description" content="Simple. Fast. Web Components.">
+    <meta property="og:site_name" content="lit.dev">
+    <meta property="og:image" content="https://lit.dev/images/logo-whitebg-padded-1600x800.png">
+    <meta property="og:image:alt" content="Lit Logo">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@buildWithLit">
+    <style>
+    body {
+        overflow-y: hidden;
+        touch-action: pan-x pan-y;
+        -webkit-text-size-adjust: none
+    }
+
+    main {
+        display: flex;
+        min-height: calc(100vh - var(--header-height));
+        --litdev-drawer-header-height: 3.4em;
+        --litdev-drawer-open-width: 280px;
+        --litdev-drawer-closed-width: 2.5rem;
+        --example-drawer-padding: 2em;
+        --litdev-drawer-transition-duration: 0;
+        font-family: "Open Sans", sans-serif
+    }
+
+    footer {
+        display: none
+    }
+
+    body:not(.ready) > main > * {
+        visibility: hidden
+    }
+
+    litdev-drawer:not(:defined) {
+        width: var(--litdev-drawer-closed-width)
+    }
+
+    litdev-drawer:not(:defined)[open] {
+        width: var(--litdev-drawer-open-width)
+    }
+
+    litdev-drawer {
+        background: var(--color-dark-gray);
+        color: #fff;
+        height: calc(100vh - var(--header-height));
+        z-index: 1
+    }
+
+    litdev-drawer:not(:defined) > * {
+        display: none
+    }
+
+    litdev-drawer:not([closed])::part(header) {
+        background: #333
+    }
+
+    #exampleContent {
+        overflow-y: auto;
+        height: calc(100vh - var(--header-height) - var(--litdev-drawer-header-height))
+    }
+
+    #exampleHeading {
+        font-size: 1em;
+        font-weight: 500;
+        padding-left: var(--example-drawer-padding)
+    }
+
+    .exampleSectionHeading {
+        font-size: 16px;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-top: 2em;
+        margin-bottom: 0;
+        padding-left: var(--example-drawer-padding)
+    }
+
+    .exampleList {
+        list-style: none;
+        padding-left: 0;
+        margin-top: 8px
+    }
+
+    .exampleItem {
+        font-size: 16px
+    }
+
+    .exampleItem > a {
+        display: block;
+        color: #fff;
+        padding: 6px var(--example-drawer-padding)
+    }
+
+    .exampleItem > a:hover {
+        text-decoration: underline
+    }
+
+    .exampleItem.active > a {
+        position: relative;
+        font-weight: 700
+    }
+
+    .exampleItem.active > a::before {
+        content: '';
+        background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 3"><rect style="fill:%2300e8ff" width="2" height="2" x="1" y="-1" transform="rotate(45)"/></svg>');
+        width: 12px;
+        height: 12px;
+        position: absolute;
+        left: 10px;
+        top: 12px
+    }
+
+    #content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0
+    }
+
+    #actionBar {
+        flex: 0 0 var(--litdev-drawer-header-height);
+        margin-left: -100px;
+        padding: 0 1.3em 0 calc(100px + 1em);
+        box-sizing: border-box;
+        background: var(--color-blue);
+        color: #fff;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center
+    }
+
+    #actionBar > * {
+        margin-left: 1em
+    }
+
+    #actionBar > button {
+        font-family: "Open Sans", sans-serif;
+        background: 0 0;
+        border: 1px solid currentcolor;
+        padding: .3em .5em;
+        display: flex;
+        color: inherit;
+        align-items: center;
+        font-size: 16px;
+        cursor: pointer
+    }
+
+    #actionBar > button:hover {
+        background: #00f
+    }
+
+    #actionBar > button > svg {
+        margin-right: 1em
+    }
+
+    #tabsEditorAndPreview {
+        flex: 1;
+        display: flex
+    }
+
+    #tabsAndEditor {
+        width: var(--tabs-and-editor-width, 60%);
+        min-width: 200px;
+        display: flex;
+        flex-direction: column
+    }
+
+    #tabsAndControls {
+        display: flex;
+        padding-right: 8px;
+        border-bottom: 1px solid #ccc;
+        height: var(--playground-bar-height);
+        box-sizing: border-box
+    }
+
+    playground-tab-bar {
+        min-width: 0;
+        border-bottom: none;
+        height: auto
+    }
+
+    playground-file-editor {
+        flex: 1 0 0
+    }
+
+    playground-preview {
+        flex: 1;
+        height: unset;
+        min-width: 200px;
+        margin-left: -3px
+    }
+
+    resize-bar {
+        flex: 0 0 auto
+    }
+
+    resize-bar[active] {
+        background: var(--color-dark-cyan)
+    }
+
+    #verticalResizeBar {
+        display: none
+    }
+
+    @media (max-width: 864px) {
+        #tabsEditorAndPreview {
+            flex-direction: column
+        }
+
+        #tabsAndEditor {
+            width: initial;
+            flex: 1
+        }
+
+        playground-file-editor {
+            min-height: 100px
+        }
+
+        playground-preview {
+            flex: 0 0 var(--preview-height, 45%);
+            min-height: 200px;
+            margin-left: 0;
+            margin-top: -3px
+        }
+
+        #verticalResizeBar {
+            display: initial
+        }
+
+        #horizontalResizeBar {
+            display: none
+        }
+    }
+
+    #actionBar lazy-svg::part(svg) {
+        width: 24px;
+        height: 24px
+    }
+
+    litdev-playground-page[view-mode=code] #actionBar .splitscreen, litdev-playground-page[view-mode=preview] #actionBar .code, litdev-playground-page[view-mode=split] #actionBar .preview {
+        display: contents
+    }
+
+    #actionBar lazy-svg, litdev-playground-page:not([view-mode=split]) .horizontalResizeBar, litdev-playground-page:not([view-mode=split]) .verticalResizeBar, litdev-playground-page[view-mode=code] #preview, litdev-playground-page[view-mode=preview] #tabsAndEditor {
+        display: none
+    }
+
+    litdev-playground-page[view-mode=preview] #preview {
+        --preview-height: 100%;
+        --preview-width: 100%
+    }
+
+    litdev-playground-page[view-mode=code] #tabsAndEditor {
+        --tabs-and-editor-width: 100%
+    }</style>
+    <script type="module">window.location.hash.match(/^#(project|gist)=/) || document.body.querySelector("litdev-drawer").setAttribute("open", ""), document.body.classList.add("ready");</script>
+    <script type="module" src="/js/components/litdev-playground-page.js"></script>
+    <script type="module" src="/js/components/litdev-drawer.js"></script>
+    <script type="module" src="/js/components/playground-elements.js"></script>
+    <script type="module" src="/js/components/resize-bar.js"></script>
+</head>
+
+
+
+
+<body code-language-preference="ts" class="ready">
+<mwc-drawer type="modal" id="mobileDrawer">
+    <nav>
+        <div id="mobileSiteNav"><img src="/images/flame-white.svg" alt="" width="24" height="30">
+            <ol>
+                <li class="navItem"><a href="/docs/">Documentation</a>
+                    <litdev-version-selector>
+                        <select name="version" autocomplete="off">
+                        <option value="v3" selected="selected">v3</option>
+                        <option value="v2" data-path="/docs/v2/">v2</option>
+                        <option value="v1" data-path="/docs/v1/">v1</option>
+                    </select></litdev-version-selector>
+                </li>
+                <li class="navItem"><a href="/tutorials/">Tutorials</a></li>
+                <li class="navItem active"><a href="/playground/">Playground</a></li>
+                <li class="navItem"><a href="/blog/">Blog</a></li>
+                <li class="navItem">
+                    <litdev-search-modal></litdev-search-modal>
+                </li>
+                <li class="navItem"><a href="https://github.com/lit/lit/" target="_blank" rel="noopener" title="GitHub"
+                                       aria-label="GitHub">
+                    <svg>
+                        <use xlink:href="/images/social/github.svg#github"></use>
+                    </svg>
+                </a></li>
+            </ol>
+        </div>
+        <ol id="mobileDocsNav"></ol>
+    </nav>
+</mwc-drawer>
+<header class="pageHeader">
+    <nav><a id="homeLink" href="/" aria-label="Home"><img id="headerLogo" class="black" src="/images/logo.svg"
+                                                          alt="Lit Home" width="425" height="200"></a>
+        <ol id="desktopNav">
+            <li class="navItem"><a href="/docs/">Documentation</a>
+                <litdev-version-selector><select name="version" autocomplete="off">
+                    <option value="v3" selected="selected">v3</option>
+                    <option value="v2" data-path="/docs/v2/">v2</option>
+                    <option value="v1" data-path="/docs/v1/">v1</option>
+                </select></litdev-version-selector>
+            </li>
+            <li class="navItem"><a href="/tutorials/">Tutorials</a></li>
+            <li class="navItem active"><a href="/playground/">Playground</a></li>
+            <li class="navItem"><a href="/blog/">Blog</a></li>
+            <li class="navItem">
+                <litdev-search-modal></litdev-search-modal>
+            </li>
+            <li class="navItem"><a href="https://github.com/lit/lit/" target="_blank" rel="noopener" title="GitHub"
+                                   aria-label="GitHub">
+                <svg>
+                    <use xlink:href="/images/social/github.svg#github"></use>
+                </svg>
+            </a></li>
+        </ol>
+        <litdev-ripple-icon-button id="mobileMenuButton" label="Open menu">
+            <svg height="24" width="24" fill="currentcolor">
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
+            </svg>
+        </litdev-ripple-icon-button>
+    </nav>
+</header>
+<main>
+    <litdev-playground-page githubapiurl="https://api.github.com/" view-mode="split">
+        <litdev-drawer open=""><h1 id="exampleHeading" slot="header">Examples</h1>
+            <div id="exampleContent" slot="content" class="minimalScroller">
+                <div class="exampleSection"><h2 class="exampleSectionHeading">Basics</h2>
+                    <ul class="exampleList">
+                        <li class="exampleItem active" data-sample="examples/hello-world"><a
+                                href="#sample=examples/hello-world" title="Basic example of a Lit component.">Hello
+                            World</a></li>
+                        <li class="exampleItem" data-sample="examples/full-component"><a
+                                href="#sample=examples/full-component"
+                                title="Basic example of a Lit component, using TypeScript.">Full component</a></li>
+                    </ul>
+                </div>
+                <div class="exampleSection"><h2 class="exampleSectionHeading">Reactive properties</h2>
+                    <ul class="exampleList">
+                        <li class="exampleItem" data-sample="examples/properties-basic"><a
+                                href="#sample=examples/properties-basic" title="Declaring reactive properties.">Basic
+                            properties</a></li>
+                        <li class="exampleItem" data-sample="examples/properties-has-changed"><a
+                                href="#sample=examples/properties-has-changed" title="Customizing change detection.">Change
+                            detection</a></li>
+                        <li class="exampleItem" data-sample="examples/properties-custom-converter"><a
+                                href="#sample=examples/properties-custom-converter"
+                                title="Customizing deserialization of an attribute to a property.">Custom attribute
+                            converter</a></li>
+                    </ul>
+                </div>
+                <div class="exampleSection"><h2 class="exampleSectionHeading">Template concepts</h2>
+                    <ul class="exampleList">
+                        <li class="exampleItem" data-sample="examples/expressions"><a
+                                href="#sample=examples/expressions"
+                                title="Use expressions to set attributes, boolean attributes, properties, text content, and event handlers in a template.">Expression
+                            types</a></li>
+                        <li class="exampleItem" data-sample="examples/templates-conditional"><a
+                                href="#sample=examples/templates-conditional" title="Use conditionals in a template.">Conditional
+                            templates</a></li>
+                        <li class="exampleItem" data-sample="examples/repeating-and-conditional"><a
+                                href="#sample=examples/repeating-and-conditional"
+                                title="Create a repeating template from an array of data.">Repeating templates</a></li>
+                        <li class="exampleItem" data-sample="examples/slotting-children"><a
+                                href="#sample=examples/slotting-children"
+                                title="Render children with the <slot> element.">Slotting children</a></li>
+                        <li class="exampleItem" data-sample="examples/element-composition"><a
+                                href="#sample=examples/element-composition"
+                                title="Compose a template from other custom elements.">Element composition</a></li>
+                        <li class="exampleItem" data-sample="examples/template-composition"><a
+                                href="#sample=examples/template-composition"
+                                title="Compose a template from other templates by calling methods in a template expression.">Template
+                            composition</a></li>
+                    </ul>
+                </div>
+                <div class="exampleSection"><h2 class="exampleSectionHeading">Directives</h2>
+                    <ul class="exampleList">
+                        <li class="exampleItem" data-sample="examples/directive-async-append"><a
+                                href="#sample=examples/directive-async-append"
+                                title="Demo exploring use of the asyncAppend directive.">asyncAppend directive</a></li>
+                        <li class="exampleItem" data-sample="examples/directive-async-replace"><a
+                                href="#sample=examples/directive-async-replace"
+                                title="Demo exploring use of the asyncReplace directive.">asyncReplace directive</a>
+                        </li>
+                        <li class="exampleItem" data-sample="examples/directive-cache"><a
+                                href="#sample=examples/directive-cache"
+                                title="Demo exploring use of the cache directive.">cache directive</a></li>
+                        <li class="exampleItem" data-sample="examples/directive-class-map"><a
+                                href="#sample=examples/directive-class-map"
+                                title="Demo exploring use of the classMap directive.">classMap directive</a></li>
+                        <li class="exampleItem" data-sample="examples/directive-guard"><a
+                                href="#sample=examples/directive-guard"
+                                title="Demo exploring use of the guard directive.">guard directive</a></li>
+                        <li class="exampleItem" data-sample="examples/directive-if-defined"><a
+                                href="#sample=examples/directive-if-defined"
+                                title="Demo exploring use of the ifDefined directive.">ifDefined directive</a></li>
+                        <li class="exampleItem" data-sample="examples/directive-live"><a
+                                href="#sample=examples/directive-live"
+                                title="Demo exploring use of the live directive.">live directive</a></li>
+                        <li class="exampleItem" data-sample="examples/directive-ref"><a
+                                href="#sample=examples/directive-ref" title="Demo exploring use of the ref directive.">ref
+                            directive</a></li>
+                        <li class="exampleItem" data-sample="examples/directive-repeat"><a
+                                href="#sample=examples/directive-repeat"
+                                title="Demo exploring use of the repeat directive.">repeat directive</a></li>
+                        <li class="exampleItem" data-sample="examples/directive-style-map"><a
+                                href="#sample=examples/directive-style-map"
+                                title="Demo exploring use of the styleMap directive.">styleMap directive</a></li>
+                        <li class="exampleItem" data-sample="examples/directive-template-content"><a
+                                href="#sample=examples/directive-template-content"
+                                title="Demo exploring use of the templateContent directive.">templateContent
+                            directive</a></li>
+                        <li class="exampleItem" data-sample="examples/directive-unsafe-html"><a
+                                href="#sample=examples/directive-unsafe-html"
+                                title="Demo exploring use of the unsafeHTML directive.">unsafeHTML directive</a></li>
+                        <li class="exampleItem" data-sample="examples/directive-unsafe-svg"><a
+                                href="#sample=examples/directive-unsafe-svg"
+                                title="Demo exploring use of the unsafeSVG directive.">unsafeSVG directive</a></li>
+                        <li class="exampleItem" data-sample="examples/directive-until"><a
+                                href="#sample=examples/directive-until"
+                                title="Demo exploring use of the until directive.">until directive</a></li>
+                    </ul>
+                </div>
+                <div class="exampleSection"><h2 class="exampleSectionHeading">Managing Data</h2>
+                    <ul class="exampleList">
+                        <li class="exampleItem" data-sample="examples/async-task"><a href="#sample=examples/async-task"
+                                                                                     title="Shows an example of an async Task controller. This one fetches npm package info and renders based on the state of the fetch.">Async
+                            Tasks</a></li>
+                        <li class="exampleItem" data-sample="examples/context-basics"><a
+                                href="#sample=examples/context-basics"
+                                title="Share data from a provider element with Context.">Context Basics</a></li>
+                    </ul>
+                </div>
+                <div class="exampleSection"><h2 class="exampleSectionHeading">@lit/react</h2>
+                    <ul class="exampleList">
+                        <li class="exampleItem" data-sample="examples/react-basics"><a
+                                href="#sample=examples/react-basics"
+                                title="Render web components in React apps.">Basics</a></li>
+                        <li class="exampleItem" data-sample="examples/react-events"><a
+                                href="#sample=examples/react-events"
+                                title="Listen to react events from web components.">React events</a></li>
+                        <li class="exampleItem" data-sample="examples/react-refs"><a href="#sample=examples/react-refs"
+                                                                                     title="Interact with Web Component APIs via Refs.">Refs</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="exampleSection"><h2 class="exampleSectionHeading">@lit-labs/motion</h2>
+                    <ul class="exampleList">
+                        <li class="exampleItem" data-sample="examples/motion-simple"><a
+                                href="#sample=examples/motion-simple" title="Simple `animate()` directive example.">Sliding
+                            Circle</a></li>
+                        <li class="exampleItem" data-sample="examples/motion-in-out"><a
+                                href="#sample=examples/motion-in-out"
+                                title="Animate elements when they go in and out of the page.">Lit Logo Animation</a>
+                        </li>
+                        <li class="exampleItem" data-sample="examples/motion-list"><a
+                                href="#sample=examples/motion-list" title="Animate list items.">List Item Animation</a>
+                        </li>
+                        <li class="exampleItem" data-sample="examples/motion-grid"><a
+                                href="#sample=examples/motion-grid" title="Animate css grid layouts.">Grid Layout
+                            Transitions</a></li>
+                        <li class="exampleItem" data-sample="examples/motion-carousel"><a
+                                href="#sample=examples/motion-carousel" title="Animated carousel.">Carousel
+                            Transitions</a></li>
+                        <li class="exampleItem" data-sample="examples/motion-hero"><a
+                                href="#sample=examples/motion-hero" title="Hero animation.">List/Detail Hero
+                            Transition</a></li>
+                        <li class="exampleItem" data-sample="examples/motion-todos"><a
+                                href="#sample=examples/motion-todos" title="Animated list of todos.">Todos List
+                            Transitions</a></li>
+                    </ul>
+                </div>
+                <div class="exampleSection"><h2 class="exampleSectionHeading">@lit-labs/react</h2>
+                    <ul class="exampleList">
+                        <li class="exampleItem" data-sample="examples/react-slots"><a
+                                href="#sample=examples/react-slots"
+                                title="Project React Components onto web component slots.">Slots</a></li>
+                    </ul>
+                </div>
+            </div>
+        </litdev-drawer>
+        <div id="content">
+            <div id="actionBar">
+                <litdev-playground-download-button></litdev-playground-download-button>
+                <litdev-playground-share-button clientid="d5c8e81abdf8867459c1"
+                                                authorizeurl="https://github.com/login/oauth/authorize"
+                                                githubapiurl="https://api.github.com/"
+                                                githubavatarurl="https://avatars.githubusercontent.com/"></litdev-playground-share-button>
+                <litdev-ripple-icon-button button-title="Toggle view mode" id="view-mode-button">
+                    <lazy-svg class="preview" label="Show Only Preview" href="/images/icons/preview.svg#icon"
+                              loading="eager"></lazy-svg>
+                    <lazy-svg class="code" label="Show Only Code" href="/images/icons/code.svg#icon"
+                              loading="eager"></lazy-svg>
+                    <lazy-svg class="splitscreen" label="Show Split View" href="/images/icons/splitscreen.svg#icon"
+                              loading="eager"></lazy-svg>
+                </litdev-ripple-icon-button>
+            </div>
+            <playground-project sandbox-base-url="https://playground.lit.dev/" id="project"></playground-project>
+            <div id="tabsEditorAndPreview">
+                <div id="tabsAndEditor">
+                    <div id="tabsAndControls">
+                        <playground-tab-bar editable-file-system="" project="project"
+                                            editor="editor"></playground-tab-bar>
+                        <litdev-example-controls></litdev-example-controls>
+                        <litdev-playground-change-guard project="project"></litdev-playground-change-guard>
+                    </div>
+                    <playground-file-editor id="editor" project="project" pragmas="off"
+                                            line-numbers=""></playground-file-editor>
+                </div>
+                <resize-bar id="horizontalResizeBar" target="tabsAndEditor" dimension="width"
+                            property="--tabs-and-editor-width"></resize-bar>
+                <resize-bar id="verticalResizeBar" target="preview" dimension="height"
+                            property="--preview-height"></resize-bar>
+                <playground-preview id="preview" project="project"></playground-preview>
+            </div>
+        </div>
+        <mwc-snackbar id="shareSnackbar" labeltext="URL copied to clipboard"></mwc-snackbar>
+        <litdev-error-notifier siteversion="prod-ff053e8"></litdev-error-notifier>
+    </litdev-playground-page>
+</main>
+<footer>
+    <div id="footerTop">
+        <div id="footerNameAndLogo"><img loading="lazy" id="footerName" src="/images/logo.svg#name" alt=""> <img
+                loading="lazy" fetchpriority="high" id="footerFlame" src="/images/logo.svg#flame" alt=""></div>
+        <div id="footerSocialLinks"><a href="/discord/" target="_blank" rel="noopener" title="Discord"
+                                       aria-label="Discord">
+            <lazy-svg href="/images/social/discord.svg#discord" label="Discord" loading="visible"></lazy-svg>
+        </a><a href="https://twitter.com/buildWithLit" target="_blank" rel="noopener" title="Twitter"
+               aria-label="Twitter">
+            <lazy-svg href="/images/social/twitter.svg#twitter" label="Twitter" loading="visible"></lazy-svg>
+        </a><a href="https://github.com/lit/lit/" target="_blank" rel="noopener" title="GitHub" aria-label="GitHub">
+            <lazy-svg href="/images/social/github.svg#github" label="GitHub" loading="visible"></lazy-svg>
+        </a><a href="/youtube/" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube">
+            <lazy-svg href="/images/social/youtube.svg#youtube" label="YouTube" loading="visible"></lazy-svg>
+        </a><a href="https://stackoverflow.com/questions/tagged/lit+or+lit-html+or+lit-element" target="_blank"
+               rel="noopener" title="Stack Overflow" aria-label="Stack Overflow">
+            <lazy-svg href="/images/social/stackoverflow.svg#stackoverflow" label="Stack Overflow"
+                      loading="visible"></lazy-svg>
+        </a><a href="/community-calendar/" target="_blank" rel="noopener" title="Community Calendar"
+               aria-label="Community Calendar">
+            <lazy-svg href="/images/icons/calendar-month.svg#icon" label="Community Calendar"
+                      loading="visible"></lazy-svg>
+        </a></div>
+    </div>
+    <div id="footerBottom"><p>Copyright Google LLC. Code licensed under <a
+            href="https://spdx.org/licenses/BSD-3-Clause.html">BSD-3-Clause</a>. Documentation licensed under <a
+            href="https://spdx.org/licenses/CC-BY-3.0">CC-BY-3.0</a>.</p></div>
+</footer>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-FTZ6CJP9F3"></script>
+<script>window.dataLayer = window.dataLayer || [];
+
+function gtag() {
+    dataLayer.push(arguments);
+}
+
+gtag("js", new Date);
+gtag("config", "G-FTZ6CJP9F3");</script>
+</body>
+</html>
