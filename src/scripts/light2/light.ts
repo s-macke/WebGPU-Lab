@@ -192,7 +192,7 @@ export class LightPropagation2 extends GPUAbstractRunner {
                 [this.width, this.height, this.textureSrc.depth])
 */
         }
-        return encoder.finish();
+        return GPU.FinishCommandEncoder(encoder)
     }
 
     async Run() {

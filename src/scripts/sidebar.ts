@@ -3,6 +3,7 @@ import {ShowError} from "./ui";
 import {HandleRunner} from "./RunGPURunner";
 import {Features} from "./features/features";
 import {Collatz} from "./collatz/collatz";
+import {Benchmark} from "./benchmark/benchmark";
 import {Texture} from "./webgpu/texture";
 import {GPU} from "./webgpu/gpu";
 import {Render} from "./render/render";
@@ -23,6 +24,11 @@ export async function ShowFeatures() {
 export async function ShowCollatz() {
     await HandleRunner(new Collatz())
 }
+
+export async function ShowBenchmark() {
+    await HandleRunner(new Benchmark())
+}
+
 
 export async function ShowTexture() {
     let texture: Texture
@@ -105,6 +111,11 @@ let toc: TOCEntry[] = [
         title: "Collatz Conjecture",
         elementName: "button_collatz",
         func: ShowCollatz
+    },
+    {
+        title: "Benchmark",
+        elementName: "button_benchmark",
+        func: ShowBenchmark
     },
     {
         title: "Voronoise",

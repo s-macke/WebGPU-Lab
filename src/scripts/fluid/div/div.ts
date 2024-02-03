@@ -79,7 +79,7 @@ export class Div {
             pass.dispatchWorkgroups((this.width-2)/8, (this.height-2)/8);
             pass.end();
         }
-        let command_buffer: GPUCommandBuffer = encoder.finish();
+        let command_buffer: GPUCommandBuffer = GPU.FinishCommandEncoder(encoder)
         return command_buffer;
     }
 

@@ -16,7 +16,7 @@ export class GPU {
     public static mouseCoordinate: Coordinate = {x: 0, y: 0, wheel: 0};
     public static isInitialized: boolean
 
-    public static useTimestamp: boolean
+    public static hasTimestamp: boolean
     public static timestampQuerySet: GPUQuerySet
     public static timestampBuffer: Buffer
 
@@ -40,26 +40,51 @@ export class GPU {
         if (this.adapter == null) {
             throw new Error("Cannot request GPU adapter");
         }
+
         this.adapterInfo = await this.adapter.requestAdapterInfo()
-        console.log("Request Device");
-        this.device = await this.adapter.requestDevice();
-        if (this.device == null) {
-            throw new Error("Cannot get GPU device");
-        }
+
+        await this.RequestDevice()
+
         if (this.adapter.features.has("timestamp-query")) {
             this.CreateTimestampQuery()
         }
     }
 
+    static async RequestDevice() {
+        console.log("Request Device");
+        if (this.adapter.features.has("timestamp-query")) {
+            this.device = await this.adapter.requestDevice({
+                    requiredFeatures: ["timestamp-query"],
+                }
+            );
+        } else {
+            this.device = await this.adapter.requestDevice()
+        }
+        if (this.device == null) {
+            throw new Error("Cannot get GPU device");
+        }
+    }
+
     static CreateTimestampQuery() {
         const entries = 2
-        this.useTimestamp = true
+        this.hasTimestamp = true
         console.log("Create Timestamp Query")
         this.timestampQuerySet = this.device.createQuerySet({
             type: "timestamp",
             count: entries
         });
         this.timestampBuffer = BufferFactory.createQueryBuffer(entries)
+    }
+
+    static async readBuffer(buffer: GPUBuffer): Promise<ArrayBuffer> {
+        const size = buffer.size;
+        const gpuReadBuffer = this.device.createBuffer({size, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ });
+        const copyEncoder = this.device.createCommandEncoder();
+        copyEncoder.copyBufferToBuffer(buffer, 0, gpuReadBuffer, 0, size);
+        const copyCommands = copyEncoder.finish();
+        this.device.queue.submit([copyCommands]);
+        await gpuReadBuffer.mapAsync(GPUMapMode.READ);
+        return gpuReadBuffer.getMappedRange();
     }
 
     static SetCanvas(id: string) {
@@ -241,12 +266,22 @@ export class GPU {
         let encoder =  this.device.createCommandEncoder({
             label: "command_encoder"
         });
-        if (this.useTimestamp) {
-            encoder.writeTimestamp(this.timestampQuerySet, 0);
-        }
-
         return encoder
     }
+
+    static FinishCommandEncoder(encoder: GPUCommandEncoder): GPUCommandBuffer {
+        if (this.hasTimestamp) {
+            encoder.resolveQuerySet(
+                GPU.timestampQuerySet,
+                0,// index of first query to resolve
+                2,//number of queries to resolve
+                GPU.timestampBuffer.buffer,
+                0);// destination offset
+
+        }
+        return encoder.finish()
+    }
+
 }
 
 

@@ -13,6 +13,26 @@ export function ListenToError() {
     });
 }
 
+async function ResetHTML() {
+    document.getElementById("info").innerHTML = ""
+    document.getElementById("info").style.overflowY = ""
+    document.getElementById("textFps").innerHTML = ""
+}
+
+async function SwitchToHTML() {
+    let infoElement = document.getElementById("info")
+    infoElement.style.overflowY = "scroll"
+    document.getElementById("screen").style.visibility = "hidden"
+    document.getElementById("screen").style.width = "0%"
+    document.getElementById("screen").style.height = "0%"
+}
+
+async function SwitchToGraphic() {
+    document.getElementById("screen").style.visibility = "visible"
+    document.getElementById("screen").style.width = "100%"
+    document.getElementById("screen").style.height = "100%"
+}
+
 async function InitRunner(runner: GPURunner) : Promise<boolean> {
     stop_immediately = false;
     try {
@@ -29,13 +49,9 @@ async function InitRunner(runner: GPURunner) : Promise<boolean> {
 }
 
 async function HandleHTML(runner: GPURunner) {
+    await SwitchToHTML()
     let infoElement = document.getElementById("info")
-    infoElement.style.overflowY = "scroll"
-    document.getElementById("screen").style.visibility = "hidden"
-    document.getElementById("screen").style.width = "0%"
-    document.getElementById("screen").style.height = "0%"
-
-    //if (! await InitRunner(runner)) return;
+    infoElement.style.overflowY = ""
 
     try {
         await runner.Run()
@@ -45,15 +61,10 @@ async function HandleHTML(runner: GPURunner) {
         throw e
     }
 
-    infoElement.innerHTML = runner.getHTML()
 }
 
 async function HandleGraphic(runner: GPURunner) {
-    document.getElementById("screen").style.visibility = "visible"
-    document.getElementById("screen").style.width = "100%"
-    document.getElementById("screen").style.height = "100%"
-
-    //if (! await InitRunner(runner)) return;
+    await SwitchToGraphic()
 
     await new Promise(async resolve => {
         requestAnimationFrame(async () => {
@@ -68,15 +79,10 @@ async function HandleGraphic(runner: GPURunner) {
             }
         });
     });
-
 }
 
 async function HandleAnimation(runner: GPURunner) {
-    document.getElementById("screen").style.visibility = "visible"
-    document.getElementById("screen").style.width = "100%"
-    document.getElementById("screen").style.height = "100%"
-
-    //if (! await InitRunner(runner)) return;
+    await SwitchToGraphic()
 
     // never return from this function unless the animation is stopped
     await new Promise(async resolve => {
@@ -93,6 +99,7 @@ async function HandleAnimation(runner: GPURunner) {
             if (stop_immediately) {
                 await GPU.device.queue.onSubmittedWorkDone()
                 await runner.Destroy()
+                document.getElementById("textFps").innerHTML = ""
                 resolve(0)
                 return;
             }
@@ -101,6 +108,33 @@ async function HandleAnimation(runner: GPURunner) {
         requestAnimationFrame(frame)
     })
 }
+
+async function HandleBenchmark(runner: GPURunner) {
+    await SwitchToHTML()
+
+    // never return from this function unless the animation is stopped
+    await new Promise(async resolve => {
+        let loop = async () => {
+            try {
+                await runner.Run()
+            } catch (e) {
+                ShowError("GPU error", e as Error)
+                await runner.Destroy()
+                resolve(0)
+                throw e
+            }
+            if (stop_immediately) {
+                await GPU.device.queue.onSubmittedWorkDone()
+                await runner.Destroy()
+                resolve(0)
+                return;
+            }
+            setTimeout(loop, 0)
+        }
+        setTimeout(loop, 0)
+    })
+}
+
 
 
 let mutex = Promise.resolve();
@@ -113,8 +147,7 @@ export async function HandleRunner(runner: GPURunner) {
 
     // wait for the previous task to stop
     mutex = mutex.then(async () => {
-        document.getElementById("info").innerHTML = ""
-        document.getElementById("info").style.overflowY = ""
+        await ResetHTML()
         ListenToError();
 
         if (! await InitRunner(runner)) return Promise.resolve();
@@ -127,6 +160,8 @@ export async function HandleRunner(runner: GPURunner) {
                 return HandleGraphic(runner)
             case RunnerType.ANIM:
                 return HandleAnimation(runner)
+            case RunnerType.BENCHMARK:
+                return HandleBenchmark(runner)
         }
     })
     await mutex

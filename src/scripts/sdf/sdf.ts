@@ -103,7 +103,7 @@ export class SDF extends GPUAbstractRunner {
             pass.end();
         }
         encoder.copyTextureToTexture({texture: this.textureb.texture}, {texture: this.texturea.texture}, [this.width, this.height, 1]);
-        return encoder.finish();
+        return GPU.FinishCommandEncoder(encoder)
     }
 
     async Run() {

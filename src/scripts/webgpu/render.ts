@@ -80,8 +80,7 @@ export async function RenderTexture(texture: Texture) {
         passEncoder.draw(4, 1, 0, 0);
         passEncoder.end();
 
-
-        GPU.device.queue.submit([commandEncoder.finish()]);
+        GPU.device.queue.submit([GPU.FinishCommandEncoder(commandEncoder)]);
     }
     requestAnimationFrame(render);
 }

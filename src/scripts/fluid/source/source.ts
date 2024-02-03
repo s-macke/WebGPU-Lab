@@ -97,7 +97,7 @@ export class Source {
         encoder.copyTextureToTexture({texture: this.velocitydest.texture}, {texture: this.velocitysrc.texture}, [this.width, this.height, 1]);
         encoder.copyTextureToTexture({texture: this.densitydest.texture}, {texture: this.densitysrc.texture}, [this.width, this.height, 1]);
 
-        let command_buffer: GPUCommandBuffer = encoder.finish();
+        let command_buffer: GPUCommandBuffer = GPU.FinishCommandEncoder(encoder)
         return command_buffer;
     }
 

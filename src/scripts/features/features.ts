@@ -10,15 +10,14 @@ export class Features extends GPUAbstractRunner {
     }
 
     Run(): Promise<void> {
+        let element = document.getElementById("info");
+        element.innerHTML = this.GetFeaturesAsHtml();
+
         return Promise.resolve(undefined);
     }
 
     getType(): RunnerType {
         return RunnerType.HTML
-    }
-
-    getHTML(): string {
-        return this.GetFeaturesAsHtml();
     }
 
     public GetFeaturesAsHtml(): string {

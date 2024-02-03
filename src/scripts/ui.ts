@@ -24,6 +24,7 @@ export function ShowError(message: string, e: Error) {
 
     let infoElement = document.getElementById("info")
     infoElement.innerHTML = ""
+    infoElement.style.overflowY = ""
 
     let errorObject = document.createElement("pre")
 
