@@ -23,12 +23,12 @@ export class Benchmark extends GPUAbstractRunner {
             this.integers[i] = 1000033;
 
             //this.integers[i] = 2000039;
-
+/*
              if (((i+1) % 256) == 0) {
                 //this.integers[i] = 11;
                 this.integers[i] = 2000039;
             }
-
+*/
         }
         //this.integers[100] = 1000003;
         //this.integers[100] = 30;
