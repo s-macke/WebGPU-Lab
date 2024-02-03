@@ -2,7 +2,7 @@
   "name": "webgpu-experiments",
   "version": "0.1.0",
   "dependencies": {
-    "gl-matrix": "^3.2"
+    "chart.js": "^4.4.1"
   },
   "devDependencies": {
     "@webgpu/types": "^0.1",

@@ -1,6 +1,7 @@
 import {GPU} from "../webgpu/gpu";
 import {Buffer} from "../webgpu/buffer";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
+import { Chart } from "frappe-charts"
 
 export class Collatz extends GPUAbstractRunner {
     integers: Uint32Array;
@@ -38,7 +39,6 @@ export class Collatz extends GPUAbstractRunner {
 
         this.compute_pipeline = GPU.device.createComputePipeline({
             layout: "auto",
-            //layout: pipelineLayout,
             compute: shader
         });
         let layout: GPUBindGroupLayout = this.compute_pipeline.getBindGroupLayout(0)
@@ -73,7 +73,7 @@ export class Collatz extends GPUAbstractRunner {
             pass.dispatchWorkgroups(4, 1, 1);
             pass.end();
         }
-        let command_buffer: GPUCommandBuffer = encoder.finish();
+        let command_buffer: GPUCommandBuffer = GPU.FinishCommandEncoder(encoder);
 
         GPU.device.queue.submit([command_buffer]);
         await GPU.device.queue.onSubmittedWorkDone()
@@ -82,15 +82,16 @@ export class Collatz extends GPUAbstractRunner {
         await GPU.CopyBufferToBuffer(this.storageBuffer, this.stagingBuffer, this.integers.buffer.byteLength)
 
         await this.stagingBuffer.buffer.mapAsync(GPUMapMode.READ)
-        this.stopping_time = new Uint32Array(this.stagingBuffer.buffer.getMappedRange());
-        return;
+        this.stopping_time = new Uint32Array(this.stagingBuffer.buffer.getMappedRange())
+        this.writeHTML("info")
     }
 
     override async Destroy() {
         this.storageBuffer.destroy();
     }
 
-    override getHTML(): string {
+    writeHTML(elementId: string): void {
+        let element = document.getElementById(elementId);
         let table = ""
 
         table += "<table class=\"table text-white\">"
@@ -105,6 +106,6 @@ export class Collatz extends GPUAbstractRunner {
         table += "</tbody>"
         table += "</table>"
 
-        return table;
+        element.innerHTML = table;
     }
 }

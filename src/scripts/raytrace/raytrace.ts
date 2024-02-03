@@ -138,7 +138,7 @@ export class Raytrace extends GPUAbstractRunner {
             pass.end()
         }
         encoder.copyTextureToTexture({texture: this.texturedest.texture}, {texture: this.texturesrc.texture}, [this.width, this.height, 1])
-        return encoder.finish()
+        return GPU.FinishCommandEncoder(encoder)
     }
 
     override async Run() {

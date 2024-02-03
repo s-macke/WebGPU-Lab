@@ -188,7 +188,7 @@ export class LightMonteCarloPathTracing extends GPUAbstractRunner {
             {texture: this.textureSrc.texture},
             [this.width, this.height, this.textureSrc.depth])
 
-        return encoder.finish();
+        return GPU.FinishCommandEncoder(encoder)
     }
 
     async Run() {

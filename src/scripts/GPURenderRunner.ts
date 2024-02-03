@@ -11,9 +11,6 @@ export class GPURenderRunner implements GPURunner {
         this.runner = runner
     }
 
-    getHTML(): string {
-        return this.runner.getHTML()
-    }
     getType(): RunnerType {
         return this.runner.getType()
     }

@@ -123,7 +123,7 @@ export class Transport {
             pass.endPass();
         }
         */
-        let command_buffer: GPUCommandBuffer = encoder.finish();
+        let command_buffer: GPUCommandBuffer = GPU.FinishCommandEncoder(encoder)
         return command_buffer;
     }
 

@@ -71,7 +71,7 @@ export class Render {
         passEncoder.setBindGroup(0, this.bind_group);
         passEncoder.draw(4, 1, 0, 0);
         passEncoder.end();
-        return commandEncoder.finish()
+        return GPU.FinishCommandEncoder(commandEncoder)
     }
 
     Render() {
