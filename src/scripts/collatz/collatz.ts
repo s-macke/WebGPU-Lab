@@ -1,8 +1,6 @@
 import {GPU} from "../webgpu/gpu";
 import {Buffer} from "../webgpu/buffer";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
-import { Chart } from "frappe-charts"
-
 export class Collatz extends GPUAbstractRunner {
     integers: Uint32Array;
     stopping_time: Uint32Array;
