@@ -11,3 +11,7 @@ npx esbuild src/scripts/ui.ts --sourcemap --bundle --outfile=build/ui.js
 # updated also package-lock.json
 #npm install
 
+
+#/opt/google/chrome-unstable/chrome --enable-features=Vulkan
+
+

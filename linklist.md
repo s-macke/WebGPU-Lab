@@ -286,3 +286,6 @@ https://www.shadertoy.com/view/DlVcRm
 
 # good description of 2d fluid simulation
 https://andrewkchan.dev/posts/fire.html
+
+# flame fractal looks cool
+https://compute.toys/view/68

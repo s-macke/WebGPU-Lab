@@ -51,7 +51,7 @@ async function InitRunner(runner: GPURunner) : Promise<boolean> {
 async function HandleHTML(runner: GPURunner) {
     await SwitchToHTML()
     let infoElement = document.getElementById("info")
-    infoElement.style.overflowY = ""
+    infoElement.style.overflowY = "scroll"
 
     try {
         await runner.Run()
