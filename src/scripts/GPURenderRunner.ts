@@ -11,7 +11,7 @@ export class GPURenderRunner implements GPURunner {
         this.runner = runner
     }
 
-    async Render() {
+    Render() {
         GPU.device.queue.submit([this.render.getCommandBuffer()])
     }
 

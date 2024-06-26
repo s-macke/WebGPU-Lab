@@ -195,7 +195,7 @@ export class LightMonteCarloPathTracing extends GPUAbstractRunner {
         GPU.device.queue.submit([this.scene.GetCommandBuffer(), this.GetCommandBuffer()]);
     }
 
-    async Render() {
+    Render() {
         GPU.device.queue.submit([this.render.getCommandBuffer()]);
     }
 

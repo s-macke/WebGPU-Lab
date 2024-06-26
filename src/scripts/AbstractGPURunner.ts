@@ -13,7 +13,7 @@ export interface GPURunner {
     getRenderInfo(): {textures: Texture[], fragmentShaderFilenames: string[]};
     getCommandBuffer(): GPUCommandBuffer;
     Run(): Promise<void>;
-    Render(): Promise<void>;
+    Render(): void;
     Init(): Promise<void>;
     Destroy(): Promise<void>;
 }
@@ -24,7 +24,7 @@ export abstract class GPUAbstractRunner implements GPURunner {
     public abstract Init(): Promise<void>
     public abstract Run(): Promise<void>
 
-    Render(): Promise<void> {
+    Render() {
         throw new Error("Method not implemented.");
     }
 

@@ -124,7 +124,7 @@ export class Fluid extends GPUAbstractRunner {
         //await GPU.Render(this.poisson.pressurea);
     }
 
-    async Render() {
+    Render() {
         GPU.device.queue.submit([
             this.render.GetCommandBuffer()
         ])

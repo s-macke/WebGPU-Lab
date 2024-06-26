@@ -33,7 +33,7 @@ async function SwitchToGraphic() {
     document.getElementById("screen").style.height = "100%"
 }
 
-async function InitRunner(runner: GPURunner) : Promise<boolean> {
+async function InitRunner(runner: GPURunner): Promise<boolean> {
     stop_immediately = false;
     try {
         await runner.Init()
@@ -89,7 +89,7 @@ async function HandleAnimation(runner: GPURunner) {
         let frame = async () => {
             try {
                 await runner.Run()
-                await runner.Render()
+                runner.Render()
                 await GPU.device.queue.onSubmittedWorkDone()
             } catch (e) {
                 ShowError("GPU error", e as Error)
@@ -117,7 +117,7 @@ async function HandleAsyncAnimation(runner: GPURunner) {
     // never return from this function unless the animation is stopped
     await new Promise(async resolve => {
         let nIter = 0
-        let queuePartFinished = async() => {
+        let queuePartFinished = async () => {
             if (stop_immediately) {
                 return
             }
@@ -126,12 +126,22 @@ async function HandleAsyncAnimation(runner: GPURunner) {
             GPU.device.queue.onSubmittedWorkDone().then(() => queuePartFinished())
         }
         // fill the queue
-        queuePartFinished().then(r => {})
-        queuePartFinished().then(r => {})
+        queuePartFinished().then(r => {
+        })
+        queuePartFinished().then(r => {
+        })
 
+        let renderFinished = true
         let frame = async () => {
             try {
-                await runner.Render()
+                // don't Render if old render is not yet finished
+                if (renderFinished) {
+                    runner.Render()
+                    renderFinished = false
+                    GPU.device.queue.onSubmittedWorkDone().then(() => {
+                        renderFinished = true
+                    })
+                }
             } catch (e) {
                 ShowError("GPU error", e as Error)
                 await runner.Destroy()
@@ -180,7 +190,6 @@ async function HandleBenchmark(runner: GPURunner) {
 }
 
 
-
 let mutex = Promise.resolve();
 
 export async function HandleRunner(runner: GPURunner) {
@@ -194,7 +203,7 @@ export async function HandleRunner(runner: GPURunner) {
         await ResetHTML()
         ListenToError();
 
-        if (! await InitRunner(runner)) return Promise.resolve();
+        if (!await InitRunner(runner)) return Promise.resolve();
 
         const type = runner.getType()
         switch (type) {
