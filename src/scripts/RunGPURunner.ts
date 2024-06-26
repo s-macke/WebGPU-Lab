@@ -143,6 +143,7 @@ async function HandleAsyncAnimation(runner: GPURunner) {
                     })
                 }
             } catch (e) {
+                await GPU.device.queue.onSubmittedWorkDone()
                 ShowError("GPU error", e as Error)
                 await runner.Destroy()
                 resolve(0)
@@ -150,6 +151,8 @@ async function HandleAsyncAnimation(runner: GPURunner) {
             }
             MeasureIteration(nIter)
             if (stop_immediately) {
+                // make sure, that nothing is in the queue
+                await GPU.device.queue.onSubmittedWorkDone()
                 await GPU.device.queue.onSubmittedWorkDone()
                 await runner.Destroy()
                 document.getElementById("textFps").innerHTML = ""
