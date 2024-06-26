@@ -3,6 +3,7 @@ import {PrepareSidebar, ShowFeatures} from "./sidebar";
 
 let lastframeTime = 0 as number
 let nFrame = 0 as number
+let lastIteration = 0 as number
 
 export function MeasureFrame() {
     if (lastframeTime == 0) {
@@ -18,6 +19,24 @@ export function MeasureFrame() {
         document.getElementById("textFps").innerHTML = fps.toFixed(2) + " fps"
     }
 }
+
+export function MeasureIteration(currentIteration: number) {
+    if (lastframeTime == 0) {
+        lastframeTime = performance.now()
+        nFrame = 0
+        lastIteration = 0
+    }
+    nFrame++
+    if (nFrame >= 20) {
+        let currentFrameTime = performance.now()
+        let fps = (currentIteration - lastIteration) / (currentFrameTime - lastframeTime) * 1000
+        lastframeTime = currentFrameTime
+        lastIteration = currentIteration
+        nFrame = 0
+        document.getElementById("textFps").innerHTML = fps.toFixed(2) + " fps"
+    }
+}
+
 
 export function ShowError(message: string, e: Error) {
     document.getElementById("screen").style.visibility = "hidden"

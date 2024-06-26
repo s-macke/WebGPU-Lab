@@ -9,7 +9,7 @@ struct StagingBuffer {
 @group(0) @binding(2) var<uniform> staging: StagingBuffer;
 
 const PI = 3.14159265359;
-const SAMPLES = 40;
+const SAMPLES = 10;
 const MAXDEPTH = 4;
 
 struct Ray {

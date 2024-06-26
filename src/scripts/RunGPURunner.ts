@@ -1,6 +1,6 @@
 import {GPU} from "./webgpu/gpu";
 import {GPURunner, RunnerType} from "./AbstractGPURunner";
-import {MeasureFrame, ShowError} from "./ui";
+import {MeasureFrame, MeasureIteration, ShowError} from "./ui";
 
 let stop_immediately = true;
 
@@ -89,6 +89,8 @@ async function HandleAnimation(runner: GPURunner) {
         let frame = async () => {
             try {
                 await runner.Run()
+                await runner.Render()
+                await GPU.device.queue.onSubmittedWorkDone()
             } catch (e) {
                 ShowError("GPU error", e as Error)
                 await runner.Destroy()
@@ -108,6 +110,48 @@ async function HandleAnimation(runner: GPURunner) {
         requestAnimationFrame(frame)
     })
 }
+
+async function HandleAsyncAnimation(runner: GPURunner) {
+    await SwitchToGraphic()
+
+    // never return from this function unless the animation is stopped
+    await new Promise(async resolve => {
+        let nIter = 0
+        let queuePartFinished = async() => {
+            if (stop_immediately) {
+                return
+            }
+            await runner.Run()
+            nIter++
+            GPU.device.queue.onSubmittedWorkDone().then(() => queuePartFinished())
+        }
+        // fill the queue
+        queuePartFinished().then(r => {})
+        queuePartFinished().then(r => {})
+
+        let frame = async () => {
+            try {
+                await runner.Render()
+            } catch (e) {
+                ShowError("GPU error", e as Error)
+                await runner.Destroy()
+                resolve(0)
+                throw e
+            }
+            MeasureIteration(nIter)
+            if (stop_immediately) {
+                await GPU.device.queue.onSubmittedWorkDone()
+                await runner.Destroy()
+                document.getElementById("textFps").innerHTML = ""
+                resolve(0)
+                return;
+            }
+            requestAnimationFrame(frame)
+        }
+        requestAnimationFrame(frame)
+    })
+}
+
 
 async function HandleBenchmark(runner: GPURunner) {
     await SwitchToHTML()
@@ -160,6 +204,8 @@ export async function HandleRunner(runner: GPURunner) {
                 return HandleGraphic(runner)
             case RunnerType.ANIM:
                 return HandleAnimation(runner)
+            case RunnerType.ASYNCANIM:
+                return HandleAsyncAnimation(runner)
             case RunnerType.BENCHMARK:
                 return HandleBenchmark(runner)
         }

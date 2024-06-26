@@ -4,7 +4,8 @@ export enum RunnerType {
     HTML = 1,
     GRAPHIC = 2,
     ANIM= 3,
-    BENCHMARK= 4,
+    ASYNCANIM= 4,
+    BENCHMARK= 5,
 }
 
 export interface GPURunner {
@@ -12,6 +13,7 @@ export interface GPURunner {
     getRenderInfo(): {textures: Texture[], fragmentShaderFilenames: string[]};
     getCommandBuffer(): GPUCommandBuffer;
     Run(): Promise<void>;
+    Render(): Promise<void>;
     Init(): Promise<void>;
     Destroy(): Promise<void>;
 }
@@ -21,6 +23,10 @@ export abstract class GPUAbstractRunner implements GPURunner {
     public abstract Destroy(): Promise<void>
     public abstract Init(): Promise<void>
     public abstract Run(): Promise<void>
+
+    Render(): Promise<void> {
+        throw new Error("Method not implemented.");
+    }
 
     getCommandBuffer(): GPUCommandBuffer {
         throw new Error("Method not implemented.");

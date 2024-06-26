@@ -2,7 +2,6 @@ import {GPU} from "../webgpu/gpu";
 import {Texture} from "../webgpu/texture";
 import {Buffer} from "../webgpu/buffer";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
-import {Render} from "../render/render";
 
 export class Diffuse extends GPUAbstractRunner {
     width: number;
@@ -47,7 +46,7 @@ export class Diffuse extends GPUAbstractRunner {
     }
 
     override getType(): RunnerType {
-        return RunnerType.ANIM
+        return RunnerType.ASYNCANIM
     }
 
     override async Destroy() {
@@ -275,7 +274,6 @@ export class Diffuse extends GPUAbstractRunner {
 
     override async Run() {
         GPU.device.queue.submit([this.getCommandBuffer()])
-        await GPU.device.queue.onSubmittedWorkDone()
     }
 
     override getRenderInfo(): { textures: Texture[]; fragmentShaderFilenames: string[] } {

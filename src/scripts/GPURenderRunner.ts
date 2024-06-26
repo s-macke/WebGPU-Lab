@@ -11,6 +11,10 @@ export class GPURenderRunner implements GPURunner {
         this.runner = runner
     }
 
+    async Render() {
+        GPU.device.queue.submit([this.render.getCommandBuffer()])
+    }
+
     getType(): RunnerType {
         return this.runner.getType()
     }
@@ -28,7 +32,7 @@ export class GPURenderRunner implements GPURunner {
     }
 
     async Run() {
-        GPU.device.queue.submit([this.runner.getCommandBuffer(), this.render.getCommandBuffer()])
+        await this.runner.Run()
     }
 
     getCommandBuffer(): GPUCommandBuffer {

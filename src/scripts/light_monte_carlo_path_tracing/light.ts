@@ -37,7 +37,7 @@ export class LightMonteCarloPathTracing extends GPUAbstractRunner {
     }
 
     getType(): RunnerType {
-        return RunnerType.ANIM
+        return RunnerType.ASYNCANIM
     }
 
     async Destroy() {
@@ -192,8 +192,12 @@ export class LightMonteCarloPathTracing extends GPUAbstractRunner {
     }
 
     async Run() {
-        GPU.device.queue.submit([this.scene.GetCommandBuffer(), this.GetCommandBuffer(), this.render.getCommandBuffer()]);
-        await GPU.device.queue.onSubmittedWorkDone();
+        GPU.device.queue.submit([this.scene.GetCommandBuffer(), this.GetCommandBuffer()]);
     }
+
+    async Render() {
+        GPU.device.queue.submit([this.render.getCommandBuffer()]);
+    }
+
 
 }

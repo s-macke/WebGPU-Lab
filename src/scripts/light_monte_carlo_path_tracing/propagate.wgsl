@@ -11,7 +11,7 @@ struct StagingBuffer {
 
 const PI = 3.14159265359;
 
-const SAMPLES = 10;
+const SAMPLES = 2;
 const MAXDEPTH = 700;
 
 var<private> seed: u32 = 0u;

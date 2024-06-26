@@ -46,7 +46,7 @@ export class LightPropagation2 extends GPUAbstractRunner {
     }
 
     getType(): RunnerType {
-        return RunnerType.ANIM
+        return RunnerType.ASYNCANIM
     }
 
     async Destroy() {
@@ -171,7 +171,7 @@ export class LightPropagation2 extends GPUAbstractRunner {
         GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData)
 
         let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();
-        for(let i = 0; i < 80; i++) {
+        for(let i = 0; i < 10; i++) {
             let pass: GPUComputePassEncoder = encoder.beginComputePass();
             pass.setBindGroup(0, this.bind_group_atob);
             pass.setBindGroup(1, this.scene_bind_group);
@@ -196,8 +196,10 @@ export class LightPropagation2 extends GPUAbstractRunner {
     }
 
     async Run() {
-        GPU.device.queue.submit([this.scene.GetCommandBuffer(), this.GetCommandBuffer(), this.render.getCommandBuffer()]);
-        await GPU.device.queue.onSubmittedWorkDone();
+        GPU.device.queue.submit([this.scene.GetCommandBuffer(), this.GetCommandBuffer()]);
     }
 
+    async Render() {
+        GPU.device.queue.submit([this.render.getCommandBuffer()]);
+    }
 }

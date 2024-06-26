@@ -34,7 +34,7 @@ export class Raytrace extends GPUAbstractRunner {
     }
 
     override getType(): RunnerType {
-        return RunnerType.ANIM
+        return RunnerType.ASYNCANIM
     }
 
     override async Destroy() {
@@ -143,6 +143,5 @@ export class Raytrace extends GPUAbstractRunner {
 
     override async Run() {
         GPU.device.queue.submit([this.getCommandBuffer()])
-        await GPU.device.queue.onSubmittedWorkDone()
     }
 }

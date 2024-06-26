@@ -29,7 +29,7 @@ import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
 
 export class Fluid extends GPUAbstractRunner {
     public getType(): RunnerType {
-        return RunnerType.ANIM
+        return RunnerType.ASYNCANIM
     }
     public async Destroy() {
     }
@@ -118,15 +118,19 @@ export class Fluid extends GPUAbstractRunner {
             this.div.GetCommandBuffer(),
             this.poisson.GetCommandBuffer(),
             this.project.GetCommandBuffer(),
-            this.render.GetCommandBuffer()
         ])
-        await GPU.device.queue.onSubmittedWorkDone();
         //await GPU.Render(this.transport.texturea);
         //await GPU.Render(this.transport.texturea);
         //await GPU.Render(this.poisson.pressurea);
     }
 
-    async InitVelocity() {
+    async Render() {
+        GPU.device.queue.submit([
+            this.render.GetCommandBuffer()
+        ])
+    }
+
+        async InitVelocity() {
         let vel = new Uint16Array(this.width * this.height * 4)
 /*
         for (let j = 0; j < this.height; j++)

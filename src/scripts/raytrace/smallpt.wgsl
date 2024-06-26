@@ -10,7 +10,7 @@ struct StagingBuffer {
 
 // Play with the two following values to change quality.
 // You want as many samples as your GPU can bear. :)
-const SAMPLES = 60;
+const SAMPLES = 10;
 const MAXDEPTH = 4;
 
 const PI = 3.14159265359;

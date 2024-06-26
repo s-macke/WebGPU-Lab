@@ -120,6 +120,5 @@ export class LightScene {
 
     async Run() {
         GPU.device.queue.submit([this.GetCommandBuffer()]);
-        await GPU.device.queue.onSubmittedWorkDone()
     }
 }

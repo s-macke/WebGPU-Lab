@@ -24,7 +24,7 @@ export class SDF extends GPUAbstractRunner {
     }
 
     getType(): RunnerType {
-        return RunnerType.ANIM
+        return RunnerType.ASYNCANIM
     }
 
 
