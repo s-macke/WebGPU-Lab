@@ -2,18 +2,15 @@ import {GPU} from "../webgpu/gpu";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
 
 export class Features extends GPUAbstractRunner {
-    Destroy(): Promise<void> {
-        return Promise.resolve(undefined);
-    }
-    Init(): Promise<void> {
-        return Promise.resolve(undefined);
+    async Destroy() {
     }
 
-    Run(): Promise<void> {
+    async Init() {
+    }
+
+    async Run() {
         let element = document.getElementById("info");
         element.innerHTML = this.GetFeaturesAsHtml();
-
-        return Promise.resolve(undefined);
     }
 
     getType(): RunnerType {
@@ -53,14 +50,12 @@ export class Features extends GPUAbstractRunner {
         }
 
         features = GPU.GetWGSLFeatures();
-        if (features != null) {
-            s += "<br><h4>WGSL Features</h4>"
-            if (features.size == 0) {
-                s += "-- none --";
-            }
-            for (let item of features.values()) {
-                s += item + "<br>";
-            }
+        s += "<br><h4>WGSL Features</h4>"
+        if (features.size == 0) {
+            s += "-- none --";
+        }
+        for (let item of features.values()) {
+            s += item + "<br>";
         }
 
         s += "<br><br><h4>Preferred Output Format</h4>" + navigator.gpu.getPreferredCanvasFormat();

@@ -129,6 +129,10 @@ export class GPU {
     }
 
     static GetWGSLFeatures(): ReadonlySet<string> {
+        if (navigator.gpu.wgslLanguageFeatures == null) {
+            const readonly: ReadonlySet<string> = new Set([]);
+            return readonly
+        }
         return navigator.gpu.wgslLanguageFeatures
     }
 
