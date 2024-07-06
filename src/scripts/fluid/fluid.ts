@@ -31,8 +31,6 @@ export class Fluid extends GPUAbstractRunner {
     public getType(): RunnerType {
         return RunnerType.ASYNCANIM
     }
-    public async Destroy() {
-    }
 
     n: number;
     m: number;
@@ -109,6 +107,19 @@ export class Fluid extends GPUAbstractRunner {
         //await GPU.Render(poisson.pressurea);
     }
 
+    public async Destroy() {
+        await this.project.Destroy()
+        await this.poisson.Destroy()
+        await this.div.Destroy()
+        await this.transport.Destroy()
+        await this.advect.Destroy()
+        await this.source.Destroy()
+        this.velocity.destroy()
+        this.density.destroy()
+        this.flags.destroy()
+    }
+
+
     async Run() {
 
         GPU.device.queue.submit([
@@ -141,12 +152,12 @@ export class Fluid extends GPUAbstractRunner {
                 vel[(j * this.width + i) * 4 + 1] = toHalf(x * 0.03);
             }
  */
+
         for (let j = 200; j < this.height-200; j++)
             for (let i = 200; i < this.width-200; i++) {
-                vel[(j * this.width + i) * 4 + 0] = toHalf(0.3);
+                vel[(j * this.width + i) * 4 + 0] = toHalf(0.);
                 vel[(j * this.width + i) * 4 + 1] = toHalf(0.);
             }
-
         this.velocity = await GPU.CreateTextureFromArrayBuffer(this.width, this.height, "rgba16float", vel.buffer);
     }
 
@@ -157,8 +168,10 @@ export class Fluid extends GPUAbstractRunner {
             for (let i = 0; i < this.width; i++) {
                 let x: number = i - 256;
                 let y: number = j - 256;
-                density[(j * this.width + i) * 4 + 0] = toHalf(Math.exp(-(x * x + y * y) * 0.001));
-                density[(j * this.width + i) * 4 + 3] = toHalf(1.0);
+                //density[(j * this.width + i) * 4 + 0] = toHalf(Math.exp(-(x * x + y * y) * 0.001));
+                // density[(j * this.width + i) * 4 + 3] = toHalf(1.0);
+                density[(j * this.width + i) * 4 + 0] = toHalf(0.);
+                density[(j * this.width + i) * 4 + 3] = toHalf(0.);
             }
         this.density = await GPU.CreateTextureFromArrayBuffer(this.width, this.height, "rgba16float", density.buffer);
     }
@@ -167,8 +180,8 @@ export class Fluid extends GPUAbstractRunner {
         let flags = new Uint32Array(this.width * this.height*4);
 
         const F   = 0x0001   // is Fluid
-        const B_u = 0x0002   /* obstacle cells adjacent to fluid cells */
-        const B_d = 0x0004   /* in the respective direction            */
+        const B_u = 0x0002   // obstacle cells adjacent to fluid cells
+        const B_d = 0x0004   // in the respective direction
         const B_l = 0x0008
         const B_r = 0x0010
 
@@ -180,7 +193,7 @@ export class Fluid extends GPUAbstractRunner {
         // is fluid
         for (let j = 1; j < this.height-1; j++)
             for (let i = 1; i < this.width-1; i++) {
-                flags[(j * this.width + i)*4] = 1; // is fluid
+                flags[(j * this.width + i)*4] = F; // is fluid
             }
 
         for (let i = 1; i < this.width - 1; i++) {

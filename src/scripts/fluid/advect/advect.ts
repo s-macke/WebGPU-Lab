@@ -77,6 +77,11 @@ export class Advect {
         });
     }
 
+    public async Destroy() {
+        this.velocitydest.destroy();
+    }
+
+
     GetCommandBuffer(): GPUCommandBuffer {
 
         let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();

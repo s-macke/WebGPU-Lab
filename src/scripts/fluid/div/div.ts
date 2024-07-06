@@ -70,6 +70,11 @@ export class Div {
         });
     }
 
+    public async Destroy() {
+        this.div.destroy();
+    }
+
+
     GetCommandBuffer() : GPUCommandBuffer {
         let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();
         {

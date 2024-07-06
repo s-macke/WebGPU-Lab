@@ -104,6 +104,10 @@ export class Transport {
         });
     }
 
+    public async Destroy() {
+        this.textureb.destroy();
+    }
+
     GetCommandBuffer() : GPUCommandBuffer {
         let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();
         {

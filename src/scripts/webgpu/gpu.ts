@@ -215,6 +215,11 @@ export class GPU {
         return BufferFactory.createFromArrayBuffer(data)
     }
 
+    static CreateStorageBuffer(size: number): Buffer {
+        return BufferFactory.createStorageBuffer(size)
+    }
+
+
     static CreateUniformBuffer(size: number): Buffer {
         return BufferFactory.createUniformBuffer(size);
     }

@@ -27,7 +27,7 @@ export class GPURenderRunner implements GPURunner {
     async Init() {
         await this.runner.Init()
         let renderInfo = this.runner.getRenderInfo()
-        this.render = new Render(renderInfo.textures, ...renderInfo.fragmentShaderFilenames)
+        this.render = new Render(renderInfo.textures,[], ...renderInfo.fragmentShaderFilenames)
         await this.render.Init()
     }
 

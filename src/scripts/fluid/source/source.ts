@@ -1,5 +1,6 @@
 import {GPU} from "../../webgpu/gpu";
 import {Texture} from "../../webgpu/texture";
+import {Buffer} from "../../webgpu/buffer";
 
 export class Source {
     width: number;
@@ -16,6 +17,9 @@ export class Source {
     pipeline_layout: GPUPipelineLayout;
     compute_pipeline: GPUComputePipeline;
 
+    stagingBuffer: Buffer
+    stagingData: Float32Array
+
     constructor(velocity: Texture, density: Texture, flags: Texture) {
         this.velocitysrc = velocity;
         this.densitysrc = density;
@@ -29,6 +33,9 @@ export class Source {
 
         this.velocitydest = GPU.CreateTexture(this.velocitysrc.width, this.velocitysrc.height, this.velocitysrc.format);
         this.densitydest = GPU.CreateTexture(this.densitysrc.width, this.densitysrc.height, this.densitysrc.format);
+
+        this.stagingBuffer = GPU.CreateUniformBuffer(4 * 4) // must be a multiple of 16 bytes
+        this.stagingData = new Float32Array(4)
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{
@@ -51,6 +58,10 @@ export class Source {
                 binding: 4,
                 texture: {sampleType: "sint"},
                 visibility: GPUShaderStage.COMPUTE
+            }, {
+                binding: 5,
+                buffer: {type: "uniform", minBindingSize: 4 * 4},
+                visibility: GPUShaderStage.COMPUTE
             }]
         });
 
@@ -71,6 +82,9 @@ export class Source {
             }, {
                 binding: 4,
                 resource: this.flags.textureView
+            }, {
+                binding: 5,
+                resource: this.stagingBuffer.resource
             }]
         });
 
@@ -84,7 +98,17 @@ export class Source {
         });
     }
 
+    public async Destroy() {
+        this.velocitydest.destroy();
+        this.densitydest.destroy();
+    }
+
     GetCommandBuffer(): GPUCommandBuffer {
+        this.stagingData[0] = GPU.mouseCoordinate.x; // set iMouseX
+        this.stagingData[1] = GPU.mouseCoordinate.y; // set iMouseY
+        this.stagingData[2] = GPU.mouseCoordinate.wheel;
+        this.stagingData[3] += 1.; // increase iFrame
+        GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData)
 
         let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();
         {

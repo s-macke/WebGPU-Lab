@@ -17,6 +17,22 @@ export class BufferFactory {
         return buffer;
     }
 
+    static createStorageBuffer(size: number) : Buffer {
+        let buffer = new Buffer()
+        buffer.size = size;
+        buffer.buffer =
+            GPU.device.createBuffer({
+                usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC,
+                size: size,
+                mappedAtCreation: false
+            });
+        buffer.resource = {
+            buffer: buffer.buffer
+        }
+        return buffer;
+    }
+
+
     static createCopyBuffer(size: number) : Buffer {
         let buffer = new Buffer()
         buffer.size = size;

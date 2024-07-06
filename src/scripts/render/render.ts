@@ -1,6 +1,7 @@
 import {GPU} from "../webgpu/gpu";
 import {Texture} from "../webgpu/texture";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
+import {Buffer} from "../webgpu/buffer";
 
 export class Render extends GPUAbstractRunner {
     bind_group_layout: GPUBindGroupLayout
@@ -8,12 +9,14 @@ export class Render extends GPUAbstractRunner {
     pipeline_layout: GPUPipelineLayout
     pipeline: GPURenderPipeline
     textures: Texture[]
+    buffers: Buffer[]
     fragmentShaderFilenames: string[]
 
-    constructor(textures: Texture[], ...fragmentShaderFilenames: string[]) {
+    constructor(textures: Texture[], buffers: Buffer[], ...fragmentShaderFilenames: string[]) {
         super();
         this.fragmentShaderFilenames = fragmentShaderFilenames;
         this.textures = textures;
+        this.buffers = buffers;
     }
 
     override getType(): RunnerType {
@@ -43,12 +46,13 @@ export class Render extends GPUAbstractRunner {
 
         let layoutEntries: GPUBindGroupLayoutEntry[] = [];
         let bindEntries: GPUBindGroupEntry[] = [];
+        let bindIdx = 0
 
         for (let i = 0; i < this.textures.length; i++) {
 
             if (this.textures[i].depth > 1) {
                 layoutEntries.push({
-                    binding: i,
+                    binding: bindIdx,
                     visibility: GPUShaderStage.FRAGMENT,
                     texture: {
                         sampleType: "unfilterable-float",
@@ -57,7 +61,7 @@ export class Render extends GPUAbstractRunner {
                 })
             } else {
                 layoutEntries.push({
-                    binding: i,
+                    binding: bindIdx,
                     visibility: GPUShaderStage.FRAGMENT,
                     texture: {
                         sampleType: "unfilterable-float"
@@ -66,9 +70,25 @@ export class Render extends GPUAbstractRunner {
             }
 
             bindEntries.push({
-                binding: i,
+                binding: bindIdx,
                 resource: this.textures[i].textureView
             })
+            bindIdx++
+        }
+
+        for (let i = 0; i < this.buffers.length; i++) {
+            layoutEntries.push(
+                {
+                    binding: bindIdx,
+                    visibility: GPUShaderStage.FRAGMENT,
+                    buffer: {type: "storage"},
+                });
+
+            bindEntries.push({
+                binding: bindIdx,
+                resource: this.buffers[i].resource
+            })
+            bindIdx++
         }
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({

@@ -79,6 +79,10 @@ export class Project {
         });
     }
 
+    public async Destroy() {
+        this.velocitydest.destroy();
+    }
+
     GetCommandBuffer() : GPUCommandBuffer {
         let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();
         {

@@ -177,6 +177,11 @@ export class Poisson {
         });
     }
 
+    public async Destroy() {
+        this.pressurea.destroy();
+        this.pressureb.destroy();
+    }
+
     GetCommandBuffer() : GPUCommandBuffer {
         let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();
 

@@ -70,6 +70,7 @@ export class LightPropagation extends GPUAbstractRunner {
         console.log("Create Render")
         this.render = new Render(
             [this.textureDest, this.scene.emitter],
+            [],
             "scripts/light/common.wgsl", "scripts/light/distance.wgsl", "scripts/light/aces-tone-mapping.wgsl")
         await this.render.Init()
 

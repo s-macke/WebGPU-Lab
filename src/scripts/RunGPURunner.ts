@@ -126,10 +126,9 @@ async function HandleAsyncAnimation(runner: GPURunner) {
             GPU.device.queue.onSubmittedWorkDone().then(() => queuePartFinished())
         }
         // fill the queue
-        queuePartFinished().then(r => {
-        })
-        queuePartFinished().then(r => {
-        })
+        const noop = () => {};
+        queuePartFinished().then(noop)
+        queuePartFinished().then(noop)
 
         let renderFinished = true
         let frame = async () => {

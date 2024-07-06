@@ -1,24 +1,33 @@
+/*
+Buffer A (Buffer A, keyboard, RGBA Noise Medium)   (//Stores vars)
+Buffer B (Buffer A, Buffer b, RGBA Noise Medium, CubeMap a) (Temporal ReSTIR)
+Buffer C (Buffer A, Buffer B, RGBA Noise Medium, CubeMap a
+Buffer D (Buffer A, Buffer B, Buffer C, Buffer D)   (contains lightning, Temporal accumulation)
+CubeMap A (Buffer A, Nothing , RGBA Noise Medium, CubeMap A)  (scene storage)
+Image.frag (Buffer A, Buffer C, Buffer D, CubeMap A)
+*/
+
 import {GPU} from "../webgpu/gpu";
-import {Texture} from "../webgpu/texture";
 import {Buffer} from "../webgpu/buffer";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
 import {Render} from "../render/render";
 import {LightScene} from "./scene/scene";
 import {ShowError} from "../ui";
 
-export class LightMonteCarloPathTracing extends GPUAbstractRunner {
+export class LightPropagationBuffer extends GPUAbstractRunner {
     width: number
     height: number
 
     render: Render
     scene: LightScene
 
-    textureDest: Texture
-    textureSrc: Texture
+    state: Buffer
 
     bind_group_layout: GPUBindGroupLayout
-    bind_group_atob: GPUBindGroup
-    bind_group_btoa: GPUBindGroup
+    bind_group: GPUBindGroup
+
+    bind_group_layout_buffer: GPUBindGroupLayout
+    bind_group_buffer: GPUBindGroup
 
     scene_bind_group_layout: GPUBindGroupLayout
     scene_bind_group: GPUBindGroup
@@ -41,15 +50,14 @@ export class LightMonteCarloPathTracing extends GPUAbstractRunner {
     }
 
     async Destroy() {
-        this.textureDest.destroy()
-        this.textureSrc.destroy()
+        this.state.destroy()
     }
 
     async Init() {
         console.log("Create Texture")
 
-        this.textureDest = GPU.CreateStorageTextureArray(this.width, this.height, 3, "rgba32float")
-        this.textureSrc = GPU.CreateStorageTextureArray(this.width, this.height, 3, "rgba32float")
+        this.state = GPU.CreateStorageBuffer(this.width*this.height * (16*5) )
+
 
         this.stagingBuffer = GPU.CreateUniformBuffer(4 * 4) // must be a multiple of 16 bytes
         this.stagingData = new Float32Array(4)
@@ -64,32 +72,17 @@ export class LightMonteCarloPathTracing extends GPUAbstractRunner {
 
         console.log("Create Render")
         this.render = new Render(
-            [this.textureSrc, this.scene.emitter],
-            [],
-            "scripts/light_monte_carlo_path_tracing/aces-tone-mapping.wgsl")
+            [this.scene.emitter],
+            [this.state],
+            "scripts/light_buffer/common.wgsl", "scripts/light_buffer/aces-tone-mapping.wgsl")
         await this.render.Init()
 
-        this.shader = await GPU.CreateShaderFromURL("scripts/light_monte_carlo_path_tracing/propagate.wgsl")
+        this.shader = await GPU.CreateShaderFromURL("scripts/light_buffer/common.wgsl", "scripts/light_buffer/propagate.wgsl")
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
-            entries: [
-                {
+            label: "staging bind group layout",
+            entries: [{
                     binding: 0,
-                    visibility: GPUShaderStage.COMPUTE,
-                    texture: {
-                        sampleType: "unfilterable-float",
-                        viewDimension: "2d-array"
-                    }
-                }, {
-                    binding: 1,
-                    visibility: GPUShaderStage.COMPUTE,
-                    storageTexture: {
-                        access: "write-only",
-                        format: this.textureDest.format,
-                        viewDimension: "2d-array"
-                    }
-                }, {
-                    binding: 2,
                     visibility: GPUShaderStage.COMPUTE,
                     buffer: {
                         type: "uniform"
@@ -97,35 +90,16 @@ export class LightMonteCarloPathTracing extends GPUAbstractRunner {
                 }]
         })
 
-        this.bind_group_atob = GPU.device.createBindGroup({
+        this.bind_group = GPU.device.createBindGroup({
             layout: this.bind_group_layout,
             entries: [{
                 binding: 0,
-                resource: this.textureSrc.textureView
-            }, {
-                binding: 1,
-                resource: this.textureDest.textureView
-            }, {
-                binding: 2,
-                resource: this.stagingBuffer.resource
-            }]
-        })
-
-        this.bind_group_btoa = GPU.device.createBindGroup({
-            layout: this.bind_group_layout,
-            entries: [{
-                binding: 0,
-                resource: this.textureDest.textureView
-            }, {
-                binding: 1,
-                resource: this.textureSrc.textureView
-            }, {
-                binding: 2,
                 resource: this.stagingBuffer.resource
             }]
         })
 
         this.scene_bind_group_layout = GPU.device.createBindGroupLayout({
+            label: "scene bind group layout",
             entries: [
                 {
                     binding: 0,
@@ -145,8 +119,24 @@ export class LightMonteCarloPathTracing extends GPUAbstractRunner {
             }]
         })
 
+        this.bind_group_layout_buffer = GPU.device.createBindGroupLayout({
+            entries: [{
+                binding: 0,
+                visibility: GPUShaderStage.COMPUTE,
+                buffer: { type: "storage" },
+            }]
+        })
+
+        this.bind_group_buffer = GPU.device.createBindGroup({
+            layout: this.bind_group_layout_buffer,
+            entries: [{
+                binding: 0,
+                resource: this.state.resource
+            }]
+        })
+
         this.pipeline_layout = GPU.device.createPipelineLayout({
-            bindGroupLayouts: [this.bind_group_layout, this.scene_bind_group_layout]
+            bindGroupLayouts: [this.bind_group_layout, this.scene_bind_group_layout, this.bind_group_layout_buffer]
         })
 
         this.compute_pipeline = GPU.device.createComputePipeline({
@@ -155,40 +145,23 @@ export class LightMonteCarloPathTracing extends GPUAbstractRunner {
         })
     }
 
-    previousMouseCoordinatex: number = 0
-    previousMouseCoordinatey: number = 0
-    previousMouseWheel: number = 0
-
-
     GetCommandBuffer(): GPUCommandBuffer {
         this.stagingData[0] = GPU.mouseCoordinate.x; // set iMouseX
         this.stagingData[1] = GPU.mouseCoordinate.y; // set iMouseY
         this.stagingData[2] = GPU.mouseCoordinate.wheel;
         this.stagingData[3] += 1.; // increase iFrame
-
-        if (this.previousMouseCoordinatex != GPU.mouseCoordinate.x || this.previousMouseCoordinatey != GPU.mouseCoordinate.y || this.previousMouseWheel != GPU.mouseCoordinate.wheel) {
-            this.stagingData[3] = 0 // reset iFrame
-        }
-        this.previousMouseCoordinatex = GPU.mouseCoordinate.x
-        this.previousMouseCoordinatey = GPU.mouseCoordinate.y
-        this.previousMouseWheel = GPU.mouseCoordinate.wheel
-
         GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData)
 
         let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();
-
-        let pass: GPUComputePassEncoder = encoder.beginComputePass();
-        pass.setBindGroup(0, this.bind_group_atob);
-        pass.setBindGroup(1, this.scene_bind_group);
-        pass.setPipeline(this.compute_pipeline);
-        pass.dispatchWorkgroups(this.width / 8, this.height / 8);
-        pass.end();
-
-        encoder.copyTextureToTexture(
-            {texture: this.textureDest.texture},
-            {texture: this.textureSrc.texture},
-            [this.width, this.height, this.textureSrc.depth])
-
+        for(let i = 0; i < 20; i++) {
+            let pass: GPUComputePassEncoder = encoder.beginComputePass();
+            pass.setBindGroup(0, this.bind_group);
+            pass.setBindGroup(1, this.scene_bind_group);
+            pass.setBindGroup(2, this.bind_group_buffer);
+            pass.setPipeline(this.compute_pipeline);
+            pass.dispatchWorkgroups(this.width / 8, this.height / 8);
+            pass.end();
+        }
         return GPU.FinishCommandEncoder(encoder)
     }
 
@@ -199,6 +172,4 @@ export class LightMonteCarloPathTracing extends GPUAbstractRunner {
     Render() {
         GPU.device.queue.submit([this.render.getCommandBuffer()]);
     }
-
-
 }
