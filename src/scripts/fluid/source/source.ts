@@ -115,7 +115,7 @@ export class Source {
             let pass: GPUComputePassEncoder = encoder.beginComputePass();
             pass.setBindGroup(0, this.bind_group_a2b);
             pass.setPipeline(this.compute_pipeline);
-            pass.dispatchWorkgroups((this.width)/2, (this.height)/2);
+            pass.dispatchWorkgroups((this.width)/8, (this.height)/8);
             pass.end();
         }
         encoder.copyTextureToTexture({texture: this.velocitydest.texture}, {texture: this.velocitysrc.texture}, [this.width, this.height, 1]);

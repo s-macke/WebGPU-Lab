@@ -1,12 +1,5 @@
-struct StagingBuffer {
-    iMouse: vec2f,
-    wheel: f32,
-    iFrame: f32
-};
-
 @group(0) @binding(0) var img_input : texture_2d_array<f32>;
 @group(0) @binding(1) var img_output : texture_storage_2d_array<rgba16float, write>;
-@group(0) @binding(2) var<uniform> staging: StagingBuffer;
 @group(1) @binding(0) var scene : texture_2d_array<f32>;
 
 struct ColorCH {
@@ -75,7 +68,9 @@ fn retrieveConstants(pn: vec2i, F: ptr<function, ColorCH>,  E: ptr<function, Col
 
 fn lpv_kernel(p: vec2i, out: ptr<function, ColorCH>) {
     let Em = textureLoad(scene, p, 0, 0).xyz; // emitted rgb light as circular harmonics
-    let translucency = textureLoad(scene, p, 1, 0).w;
+    let colorTexture = textureLoad(scene, p, 1, 0);
+    let translucency = colorTexture.a;
+    let color = colorTexture.rgb;
 
 /*
     let d: i32 = 1;
@@ -122,18 +117,19 @@ float sa1 = solid_angle(vec2(1.5, -0.5),vec2(1.5,0.5)); // ~53.13°, projecting 
     propagate(-dn1.yx,        sa2, F, E, out);
     propagate(-dn0.yx,        sa2, F, E, out);
 
-    (*out).r.z = (*out).r.z + Em.r;
-    (*out).g.z = (*out).g.z + Em.g;
-    (*out).b.z = (*out).b.z + Em.b;
-
     //var absorbed = ColorCH((*out).r * 1.-, (*out).g, (*out).b);
     let absorbedr = (*out).r.z * (1.-translucency);
     let absorbedg = (*out).g.z * (1.-translucency);
     let absorbedb = (*out).b.z * (1.-translucency);
 
-    (*out).r.z = (*out).r.z * (translucency) + absorbedr*0.8;
-    (*out).g.z = (*out).g.z * (translucency);
-    (*out).b.z = (*out).b.z * (translucency);
+    (*out).r.z = (*out).r.z * translucency + absorbedr*color.r;
+    (*out).g.z = (*out).g.z * translucency + absorbedg*color.g;
+    (*out).b.z = (*out).b.z * translucency + absorbedb*color.b;
+
+    (*out).r.z = (*out).r.z + Em.r;
+    (*out).g.z = (*out).g.z + Em.g;
+    (*out).b.z = (*out).b.z + Em.b;
+
 }
 
 @compute @workgroup_size(8, 8)

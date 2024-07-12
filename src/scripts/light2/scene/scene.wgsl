@@ -40,22 +40,22 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
 
     let d = sphere(uv - mouse_pos, (-mouse_wheel*0.005+0.05));
     if (d < 0) {
-        ch.r += 1.*CH_Basis.z;
-        ch.g += 1.*CH_Basis.z;
-        ch.b += 1.*CH_Basis.z;
+        ch.r += CH_Basis.z;
+        ch.g += CH_Basis.z;
+        ch.b += CH_Basis.z;
     }
 
     var translucency = f32(1.);
 
     let dT = textureLoad(sdf, p, 0).x/256.0;
     if (dT < -0.05) {
-        translucency = 0.6;
+        translucency = 0.4;
     }
 
     if (d < -0.02) {
-        translucency = 0.1;
+        translucency = 0.05;
     }
 
     textureStore(scene, p, 0, vec4f(ch, 0.));  // emissive circular harmonics for rgb.
-    textureStore(scene, p, 1, vec4f(0., 0., 0., translucency));  // absorption
+    textureStore(scene, p, 1, vec4f(0.9, 0., 0., translucency));  // absorption
 }

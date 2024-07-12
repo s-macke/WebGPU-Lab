@@ -1,6 +1,7 @@
 struct StagingBuffer {
-    iMouse: vec2f,
-    wheel: f32,
+    samples: f32,
+    unused1: f32,
+    unused2: f32,
     iFrame: f32
 };
 
@@ -49,16 +50,18 @@ fn radiance(_p: vec2f) -> vec3<f32> {
        if ((pi.x < 0) || (pi.x > dims.x-1) || (pi.y < 0) || (pi.y >= dims.y-1)) {
            break;
        }
-       let Em = textureLoad(scene, pi, 0, 0).rgb;
+       let Em = textureLoad(scene, pi, 0, 0).rgb * 0.3;
        acc += att * Em;
        let translucency = textureLoad(scene, pi, 1, 0).a;
        if (translucency < rand()) {
+       /*
            if (rand() > 0.8) {
                break;
            }
+           */
            let phi = 2. * PI * rand();
            d = vec2f(cos(phi), sin(phi));
-           att.r *= 1.0;
+           att.r *= 0.9;
            att.g *= 0.;
            att.b *= 0.;
 
@@ -76,7 +79,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     InitRandom(p, i32(staging.iFrame), staging.iFrame*0.1);
 
     var color = vec3f(0.);
-    for(var i: i32 = 0; i<SAMPLES; i++) {
+    for(var i: i32 = 0; i<i32(staging.samples); i++) {
         color = color + radiance(p);
     }
     color = mix(previousColor, color / f32(SAMPLES), 1. / (staging.iFrame + 1.));

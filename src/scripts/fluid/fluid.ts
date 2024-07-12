@@ -9,6 +9,9 @@ import {Div} from "./div/div";
 import {Project} from "./project/project";
 import {Source} from "./source/source";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
+import {LightScene} from "./scene/scene";
+import {LightPropagation} from "../modules/light/propagation/light";
+import {MonteCarloPathTracing} from "../modules/light/monte_carlo_path_tracing/light";
 
 // Staggered Grid
 /*
@@ -43,7 +46,9 @@ export class Fluid extends GPUAbstractRunner {
     render: Render;
     poisson: Poisson;
     div: Div;
-    project: Project
+    project: Project;
+    scene: LightScene;
+    light: LightPropagation;
 
     velocity: Texture;
     density: Texture;
@@ -80,6 +85,15 @@ export class Fluid extends GPUAbstractRunner {
         this.project = new Project(this.poisson.pressurea, this.velocity, this.flags);
         await this.project.Init();
 
+        this.scene = new LightScene(this.density)
+        await this.scene.Init()
+/*
+        this.light = new LightPropagation(this.scene.emitter)
+ */
+        this.light = new MonteCarloPathTracing(this.scene.emitter, 20)
+        await this.light.Init()
+
+
         this.render = new Render(this.density);
         //this.render = new Render(this.div.div);
         //this.render = new Render(this.velocity);
@@ -108,6 +122,8 @@ export class Fluid extends GPUAbstractRunner {
     }
 
     public async Destroy() {
+        await this.light.Destroy()
+        await this.scene.Destroy()
         await this.project.Destroy()
         await this.poisson.Destroy()
         await this.div.Destroy()
@@ -121,7 +137,7 @@ export class Fluid extends GPUAbstractRunner {
 
 
     async Run() {
-
+        this.light.Reset()
         GPU.device.queue.submit([
             this.source.GetCommandBuffer(),
             this.transport.GetCommandBuffer(),
@@ -129,6 +145,8 @@ export class Fluid extends GPUAbstractRunner {
             this.div.GetCommandBuffer(),
             this.poisson.GetCommandBuffer(),
             this.project.GetCommandBuffer(),
+            this.scene.GetCommandBuffer(),
+            //this.light.GetCommandBuffer(),
         ])
         //await GPU.Render(this.transport.texturea);
         //await GPU.Render(this.transport.texturea);
@@ -136,13 +154,15 @@ export class Fluid extends GPUAbstractRunner {
     }
 
     Render() {
+        //this.light.Render()
+
         GPU.device.queue.submit([
             this.render.GetCommandBuffer()
         ])
     }
 
         async InitVelocity() {
-        let vel = new Uint16Array(this.width * this.height * 4)
+            let vel = new Uint16Array(this.width * this.height * 4)
 /*
         for (let j = 0; j < this.height; j++)
             for (let i = 0; i < this.width; i++) {

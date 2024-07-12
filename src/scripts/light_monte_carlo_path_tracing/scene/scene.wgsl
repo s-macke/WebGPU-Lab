@@ -60,5 +60,5 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     }
 
     textureStore(scene, p, 0, vec4f(ch, 0.));  // emissive circular harmonics for rgb.
-    textureStore(scene, p, 1, vec4f(0., 0., 0., translucency));  // absorption
+    textureStore(scene, p, 1, vec4f(0.9, 0., 0., translucency));  // absorption
 }
