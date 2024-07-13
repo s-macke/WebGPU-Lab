@@ -12,7 +12,6 @@ struct StagingBuffer {
 
 const PI = 3.14159265359;
 
-const SAMPLES = 2;
 const MAXDEPTH = 700;
 
 var<private> seed: u32 = 0u;
@@ -50,9 +49,12 @@ fn radiance(_p: vec2f) -> vec3<f32> {
        if ((pi.x < 0) || (pi.x > dims.x-1) || (pi.y < 0) || (pi.y >= dims.y-1)) {
            break;
        }
-       let Em = textureLoad(scene, pi, 0, 0).rgb * 0.3;
+       let Em = textureLoad(scene, pi, 0, 0).rgb;
        acc += att * Em;
-       let translucency = textureLoad(scene, pi, 1, 0).a;
+       let colorTexture = textureLoad(scene, pi, 1, 0);
+       let translucency = colorTexture.a;
+       let color = colorTexture.rgb;
+
        if (translucency < rand()) {
        /*
            if (rand() > 0.8) {
@@ -61,10 +63,9 @@ fn radiance(_p: vec2f) -> vec3<f32> {
            */
            let phi = 2. * PI * rand();
            d = vec2f(cos(phi), sin(phi));
-           att.r *= 0.9;
-           att.g *= 0.;
-           att.b *= 0.;
-
+           att.r *= color.r;
+           att.g *= color.g;
+           att.b *= color.b;
        }
        p = p + d;
    }
@@ -82,7 +83,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     for(var i: i32 = 0; i<i32(staging.samples); i++) {
         color = color + radiance(p);
     }
-    color = mix(previousColor, color / f32(SAMPLES), 1. / (staging.iFrame + 1.));
+    color = mix(previousColor, color / f32(staging.samples), 1. / (staging.iFrame + 1.));
 
     textureStore(img_output, vec2i(global_id.xy), 0, vec4<f32>(color, 1.0));
 }
