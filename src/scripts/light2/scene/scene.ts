@@ -38,7 +38,7 @@ export class LightScene {
     async Init() {
         console.log("Init Scene")
         let shader = await GPU.CreateShaderFromURL(
-            "scripts/modules/propagation/common.wgsl",
+            "scripts/modules/light/propagation/common.wgsl",
             "scripts/light2/scene/scene.wgsl")
 
         // 0: color emitter circular harmonics, z-component
