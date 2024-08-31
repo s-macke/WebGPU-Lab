@@ -38,7 +38,7 @@ export class LightScene {
     async Init() {
         console.log("Init Scene")
         let shader = await GPU.CreateShaderFromURL(
-            "scripts/light2/common.wgsl",
+            "scripts/modules/propagation/common.wgsl",
             "scripts/light2/scene/scene.wgsl")
 
         // 0: color emitter circular harmonics, z-component
@@ -64,10 +64,9 @@ export class LightScene {
             ShowError("Creation of SDF failed", e as Error)
             throw e
         }
-        //this.textureSignedDistance = await GPU.createTextureFromTexture(this.sdf.texturea, "rgba16float")
-        //this.textureSignedDistance = this.sdf.texturea
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
+            label: "Scene",
             entries: [{
                 binding: 0,
                 storageTexture: {
@@ -92,6 +91,7 @@ export class LightScene {
         });
 
         this.bind_group = GPU.device.createBindGroup({
+            label: "Scene",
             layout: this.bind_group_layout,
             entries: [{
                 binding: 0,
