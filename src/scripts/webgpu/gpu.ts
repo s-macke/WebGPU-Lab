@@ -41,7 +41,7 @@ export class GPU {
             throw new Error("Cannot request GPU adapter");
         }
 
-        this.adapterInfo = await this.adapter.requestAdapterInfo()
+        this.adapterInfo = this.adapter.info
 
         await this.RequestDevice()
 
