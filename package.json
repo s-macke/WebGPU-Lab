@@ -2,12 +2,14 @@
   "name": "webgpu-experiments",
   "version": "0.1.0",
   "dependencies": {
-    "chart.js": "^4.4.1"
+    "chart.js": "^4.4",
+    "preact": "^10.24",
+    "preact-dom": "^1.0"
   },
   "devDependencies": {
     "@webgpu/types": "^0.1",
     "copyfiles": "^2.4",
-    "esbuild": "^0.23",
+    "esbuild": "^0.24",
     "typescript": "^5"
   },
   "scripts": {

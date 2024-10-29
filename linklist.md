@@ -57,10 +57,10 @@ https://github.com/amandaghassaei/FluidSimulation
 # Particle hydrodynamics
 https://www.shadertoy.com/view/ldy3D1
 
-particle tracking
+# particle tracking
 https://www.shadertoy.com/view/4lVfzh
 
-smoothed particle hydrodynamics
+# smoothed particle hydrodynamics
 https://www.shadertoy.com/view/4sKGDK
 
 fluid with vorticity confinement
@@ -289,3 +289,22 @@ https://andrewkchan.dev/posts/fire.html
 
 # flame fractal looks cool
 https://compute.toys/view/68
+
+# wave path tracing (not sure how it works)
+https://www.shadertoy.com/view/flBXzd
+https://www.shadertoy.com/view/flSXRt
+
+# nice design
+https://www.shadertoy.com/view/4csyzH
+
+
+# Voxel Cone Tracing. Very fast 
+https://www.shadertoy.com/view/WdlyWs
+
+# radiance cascades
+https://news.ycombinator.com/item?id=41406281
+https://www.shadertoy.com/view/4ctXD8
+
+https://jason.today/rc
+https://github.com/Sohojoe/radiance-cascades-godot
+

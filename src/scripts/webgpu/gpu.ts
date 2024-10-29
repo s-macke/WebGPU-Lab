@@ -67,6 +67,9 @@ export class GPU {
 
     static CreateTimestampQuery() {
         const entries = 2
+        if (typeof this.device.createQuerySet !== "function") {
+            return
+        }
         this.hasTimestamp = true
         console.log("Create Timestamp Query")
         this.timestampQuerySet = this.device.createQuerySet({
