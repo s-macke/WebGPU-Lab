@@ -220,6 +220,8 @@ export async function HandleRunner(runner: GPURunner) {
             case RunnerType.BENCHMARK:
                 return HandleBenchmark(runner)
         }
+    }).catch(e => {
+        console.error("Error during HandleRunner", e)
     })
     await mutex
 }
