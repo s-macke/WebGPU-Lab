@@ -9,7 +9,6 @@ type Coordinate = { x: number, y: number, wheel: number };
 
 export class GPU {
     private static adapter: GPUAdapter;
-    private static adapterInfo: GPUAdapterInfo;
     static device: GPUDevice;
     private static gpuContext: GPUCanvasContext;
     public static viewport: Rect = {width: 0, height: 0};
@@ -40,8 +39,6 @@ export class GPU {
         if (this.adapter == null) {
             throw new Error("Cannot request GPU adapter");
         }
-
-        this.adapterInfo = this.adapter.info
 
         await this.RequestDevice()
 
@@ -124,11 +121,15 @@ export class GPU {
     }
 
     static GetAdapterInfo(): GPUAdapterInfo {
-        return this.adapterInfo
+        return this.adapter.info
     }
 
     static GetAdapterFeatures(): ReadonlySet<string> {
         return this.adapter.features
+    }
+
+    static GetAdapterLimits(): GPUSupportedLimits {
+        return this.adapter.limits
     }
 
     static GetWGSLFeatures(): ReadonlySet<string> {
@@ -222,7 +223,6 @@ export class GPU {
         return BufferFactory.createStorageBuffer(size)
     }
 
-
     static CreateUniformBuffer(size: number): Buffer {
         return BufferFactory.createUniformBuffer(size);
     }
@@ -245,6 +245,7 @@ export class GPU {
     }
 
     static async CompileShader(code: string, label: string = null): Promise<GPUProgrammableStage> {
+        let beforeCompilation = Date.now();
         let module: GPUShaderModule = this.device.createShaderModule({
             label: label,
             code: code
@@ -252,6 +253,9 @@ export class GPU {
 
         // check for errors during compilation
         let info = await module.getCompilationInfo()
+        let afterCompilation = Date.now();
+        let dt = afterCompilation - beforeCompilation;
+        console.log("Shader '" + label + "' compilation time: " + dt + " ms");
         const containsErrors: boolean = info.messages.filter((message) => {
             return message.type === "error"
         }).length > 0
