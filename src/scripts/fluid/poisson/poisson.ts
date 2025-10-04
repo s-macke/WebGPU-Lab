@@ -228,8 +228,8 @@ export class Poisson {
                 scalecenter[(j * this.width + i) * 4 + 3] = 0;
             }
 
-        this.scaleedges = await GPU.CreateTextureFromArrayBuffer(this.width, this.height, "rgba8unorm", scaleedges);
-        this.scalecenter = await GPU.CreateTextureFromArrayBuffer(this.width, this.height, "rgba8unorm", scalecenter);
+        this.scaleedges = await GPU.CreateTextureFromArrayBuffer(this.width, this.height, "rgba8unorm", scaleedges.buffer);
+        this.scalecenter = await GPU.CreateTextureFromArrayBuffer(this.width, this.height, "rgba8unorm", scalecenter.buffer);
     }
 
 

@@ -151,7 +151,7 @@ export class LightPropagation extends GPUAbstractRunner {
         this.stagingData[1] = GPU.mouseCoordinate.y; // set iMouseY
         this.stagingData[2] = GPU.mouseCoordinate.wheel;
         this.stagingData[3] += 1.; // increase iFrame
-        GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData)
+        GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData.buffer)
 
         let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();
         for(let i = 0; i < 10; i++) {

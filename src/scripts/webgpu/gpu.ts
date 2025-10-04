@@ -134,8 +134,7 @@ export class GPU {
 
     static GetWGSLFeatures(): ReadonlySet<string> {
         if (navigator.gpu.wgslLanguageFeatures == null) {
-            const readonly: ReadonlySet<string> = new Set([]);
-            return readonly
+            return new Set([])
         }
         return navigator.gpu.wgslLanguageFeatures
     }
@@ -215,7 +214,7 @@ export class GPU {
         });
     }
 
-    static CreateStorageBufferFromArrayBuffer(data: ArrayBuffer): Buffer {
+    static CreateStorageBufferFromArrayBuffer(data: ArrayBufferLike): Buffer {
         return BufferFactory.createFromArrayBuffer(data)
     }
 

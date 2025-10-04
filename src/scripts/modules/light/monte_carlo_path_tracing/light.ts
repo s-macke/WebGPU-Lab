@@ -167,7 +167,7 @@ export class MonteCarloPathTracing extends GPUAbstractRunner {
         this.previousMouseCoordinatey = GPU.mouseCoordinate.y
         this.previousMouseWheel = GPU.mouseCoordinate.wheel
 
-        GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData)
+        GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData.buffer)
 
         let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder();
 

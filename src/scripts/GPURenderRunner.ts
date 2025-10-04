@@ -1,9 +1,9 @@
-import {GPURunner, RunnerType} from "./AbstractGPURunner";
+import {GPUAbstractRunner, GPURunner, RunnerType} from "./AbstractGPURunner";
 import {Render} from "./render/render";
 import {Texture} from "./webgpu/texture";
 import {GPU} from "./webgpu/gpu";
 
-export class GPURenderRunner implements GPURunner {
+export class GPURenderRunner implements GPUAbstractRunner {
     runner: GPURunner
     render: Render
 

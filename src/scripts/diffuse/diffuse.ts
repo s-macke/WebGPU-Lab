@@ -258,7 +258,7 @@ export class Diffuse extends GPUAbstractRunner {
         this.previousMouseCoordinatex = GPU.mouseCoordinate.x
         this.previousMouseCoordinatey = GPU.mouseCoordinate.y
 
-        GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData)
+        GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData.buffer)
         let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder()
         {
             let pass: GPUComputePassEncoder = encoder.beginComputePass()

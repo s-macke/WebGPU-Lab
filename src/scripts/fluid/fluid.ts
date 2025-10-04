@@ -230,6 +230,6 @@ export class Fluid extends GPUAbstractRunner {
             flags[(j * this.width + i)] |= B_r;
         }
 
-        this.flags = await GPU.CreateTextureFromArrayBuffer(this.width, this.height, "r32sint", flags);
+        this.flags = await GPU.CreateTextureFromArrayBuffer(this.width, this.height, "r32sint", flags.buffer);
     }
 }

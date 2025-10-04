@@ -49,7 +49,7 @@ export class BufferFactory {
     }
 
 
-    static createFromArrayBuffer(data: ArrayBuffer) : Buffer {
+    static createFromArrayBuffer(data: ArrayBufferLike) : Buffer {
         console.log("create Buffer from array buffer of size " + data.byteLength);
         let buffer = new Buffer()
         buffer.size = data.byteLength;

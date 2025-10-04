@@ -127,7 +127,7 @@ export class Raytrace extends GPUAbstractRunner {
         this.previousMouseCoordinatex = GPU.mouseCoordinate.x
         this.previousMouseCoordinatey = GPU.mouseCoordinate.y
 
-        GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData)
+        GPU.device.queue.writeBuffer(this.stagingBuffer.buffer, 0, this.stagingData.buffer)
         let encoder: GPUCommandEncoder = GPU.CreateCommandEncoder()
         //let uploadbuffer: GPUBuffer = this.stagingBuffer.updateBufferData(0, this.stagingData, encoder) // TODO: must be destoryed
         {

@@ -3,3 +3,5 @@
 /node_modules/**/*
 /backup/**/*
 .idea
+
+run_browser.sh

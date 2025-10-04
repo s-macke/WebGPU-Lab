@@ -63,8 +63,6 @@ export class LightScene {
             ShowError("Creation of SDF failed", e as Error)
             throw e
         }
-        //this.textureSignedDistance = await GPU.createTextureFromTexture(this.sdf.texturea, "rgba16float")
-        //this.textureSignedDistance = this.sdf.texturea
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{
