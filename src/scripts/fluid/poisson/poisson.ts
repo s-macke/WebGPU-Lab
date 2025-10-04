@@ -28,7 +28,7 @@ export class Poisson {
     async Init() {
         let shader = await GPU.CreateShaderFromURL("scripts/fluid/poisson/jacobi.wgsl")
 
-        await this.InitScaler();
+        //await this.InitScaler();
         this.pressurea = GPU.CreateTexture(this.width, this.height, "r32float");
         this.pressureb = GPU.CreateTexture(this.width, this.height, "r32float");
 

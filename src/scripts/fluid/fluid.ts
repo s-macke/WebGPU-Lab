@@ -145,7 +145,8 @@ export class Fluid extends GPUAbstractRunner {
             this.div.GetCommandBuffer(),
             this.poisson.GetCommandBuffer(),
             this.project.GetCommandBuffer(),
-            this.scene.GetCommandBuffer(),
+
+            //this.scene.GetCommandBuffer(),
             //this.light.GetCommandBuffer(),
         ])
         //await GPU.Render(this.transport.texturea);
@@ -197,7 +198,7 @@ export class Fluid extends GPUAbstractRunner {
     }
 
     async InitCell() {
-        let flags = new Uint32Array(this.width * this.height*4);
+        let flags = new Int32Array(this.width * this.height);
 
         const F   = 0x0001   // is Fluid
         const B_u = 0x0002   // obstacle cells adjacent to fluid cells
@@ -207,27 +208,27 @@ export class Fluid extends GPUAbstractRunner {
 
         for (let j = 0; j < this.height; j++)
             for (let i = 0; i < this.width; i++) {
-                flags[(j * this.width + i)*4] = 0;
+                flags[j * this.width + i] = 0;
             }
 
         // is fluid
         for (let j = 1; j < this.height-1; j++)
             for (let i = 1; i < this.width-1; i++) {
-                flags[(j * this.width + i)*4] = F; // is fluid
+                flags[j * this.width + i] = F; // is fluid
             }
 
         for (let i = 1; i < this.width - 1; i++) {
             let j = 1;
-            flags[(j * this.width + i)] |= B_d;
+            flags[j * this.width + i] |= B_d;
             j = this.height - 2;
-            flags[(j * this.width + i)] |= B_u;
+            flags[j * this.width + i] |= B_u;
         }
 
         for (let j = 1; j < this.height - 1; j++) {
             let i = 1;
-            flags[(j * this.width + i)] |= B_l;
+            flags[j * this.width + i] |= B_l;
             i = this.width - 2;
-            flags[(j * this.width + i)] |= B_r;
+            flags[j * this.width + i] |= B_r;
         }
 
         this.flags = await GPU.CreateTextureFromArrayBuffer(this.width, this.height, "r32sint", flags.buffer);
