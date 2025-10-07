@@ -2,6 +2,8 @@ import {GPU} from "../webgpu/gpu";
 import {Texture} from "../webgpu/texture";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
 import {Buffer} from "../webgpu/buffer";
+import renderFragmentShader from './render.frag.wgsl';
+import renderVertexShader from './render.vert.wgsl';
 
 export class Render extends GPUAbstractRunner {
     bind_group_layout: GPUBindGroupLayout
@@ -10,11 +12,11 @@ export class Render extends GPUAbstractRunner {
     pipeline: GPURenderPipeline
     textures: Texture[]
     buffers: Buffer[]
-    fragmentShaderFilenames: string[]
+    fragmentShader: string = null
 
-    constructor(textures: Texture[], buffers: Buffer[], ...fragmentShaderFilenames: string[]) {
+    constructor(textures: Texture[], buffers: Buffer[], fragmentShader: string = null) {
         super();
-        this.fragmentShaderFilenames = fragmentShaderFilenames;
+        this.fragmentShader = fragmentShader;
         this.textures = textures;
         this.buffers = buffers;
     }
@@ -30,16 +32,16 @@ export class Render extends GPUAbstractRunner {
         let vertShader: GPUProgrammableStage
         let fragShader: GPUProgrammableStage
 
-        if (this.fragmentShaderFilenames.length !== 0) {
+        if (this.fragmentShader !== null) {
             let result = await Promise.all([
-                GPU.CreateShaderFromURL("scripts/render/render.vert.wgsl"),
-                GPU.CreateShaderFromURL(...this.fragmentShaderFilenames)])
+                GPU.CompileShader(renderVertexShader),
+                GPU.CompileShader(this.fragmentShader)])
             vertShader = result[0];
             fragShader = result[1];
         } else {
             let result = await Promise.all([
-                GPU.CreateShaderFromURL("scripts/render/render.vert.wgsl"),
-                GPU.CreateShaderFromURL("scripts/render/render.frag.wgsl")])
+                GPU.CompileShader(renderVertexShader),
+                GPU.CompileShader(renderFragmentShader)])
             vertShader = result[0];
             fragShader = result[1];
         }

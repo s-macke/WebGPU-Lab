@@ -4,6 +4,7 @@ import {Buffer} from "../../webgpu/buffer";
 import {Raytrace} from "../../raytrace/raytrace";
 import {ShowError} from "../../ui";
 import {SDF} from "../../sdf/sdf";
+import SceneShader from "./scene.wgsl"
 
 export class LightScene {
     width: number
@@ -29,7 +30,7 @@ export class LightScene {
     }
 
     async Init() {
-        let shader = await GPU.CreateShaderFromURL("scripts/fluid/scene/scene.wgsl")
+        let shader = await GPU.CompileShader(SceneShader)
 
         // 0: color emitter circular harmonics, z-component
         // 1: normal vector of the surface

@@ -16,21 +16,23 @@ export function ListenToError() {
 async function ResetHTML() {
     document.getElementById("info").innerHTML = ""
     document.getElementById("info").style.overflowY = ""
+    document.getElementById("init").style.display = "none"
     document.getElementById("textFps").innerHTML = ""
 }
 
 async function SwitchToHTML() {
     let infoElement = document.getElementById("info")
     infoElement.style.overflowY = "scroll"
-    document.getElementById("screen").style.visibility = "hidden"
-    document.getElementById("screen").style.width = "0%"
-    document.getElementById("screen").style.height = "0%"
+    document.getElementById("init").style.display = "none"
+    document.getElementById("screen").style.display = "none"
 }
 
 async function SwitchToGraphic() {
-    document.getElementById("screen").style.visibility = "visible"
-    document.getElementById("screen").style.width = "100%"
-    document.getElementById("screen").style.height = "100%"
+    document.getElementById("init").style.display = "none"
+    let screen = document.getElementById("screen") as HTMLCanvasElement
+    screen.style.display = "block"
+    //let ctx = screen.getContext("2d")
+    //ctx.fillText("Initializing...", 10, 10)
 }
 
 async function InitRunner(runner: GPURunner): Promise<boolean> {

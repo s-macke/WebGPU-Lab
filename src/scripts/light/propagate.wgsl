@@ -1,3 +1,6 @@
+#include "common.wgsl"
+#include "distance.wgsl"
+
 struct StagingBuffer {
     iMouse: vec2f,
     wheel: f32,

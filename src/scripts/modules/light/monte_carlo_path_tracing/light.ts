@@ -3,6 +3,8 @@ import {Texture} from "../../../webgpu/texture";
 import {Buffer} from "../../../webgpu/buffer";
 import {GPUAbstractRunner, RunnerType} from "../../../AbstractGPURunner";
 import {Render} from "../../../render/render";
+import ToneMappingShader from './aces-tone-mapping.wgsl';
+import PropagateShader from "./propagate.wgsl";
 
 export class MonteCarloPathTracing extends GPUAbstractRunner {
     width: number
@@ -60,10 +62,10 @@ export class MonteCarloPathTracing extends GPUAbstractRunner {
         this.render = new Render(
             [this.textureSrc, this.scene],
             [],
-            "scripts/modules/light/monte_carlo_path_tracing/aces-tone-mapping.wgsl")
+            ToneMappingShader)
         await this.render.Init()
 
-        this.shader = await GPU.CreateShaderFromURL("scripts/modules/light/monte_carlo_path_tracing/propagate.wgsl")
+        this.shader = await GPU.CompileShader(PropagateShader)
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [

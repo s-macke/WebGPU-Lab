@@ -90,8 +90,8 @@ export class Fluid extends GPUAbstractRunner {
 /*
         this.light = new LightPropagation(this.scene.emitter)
  */
-        this.light = new MonteCarloPathTracing(this.scene.emitter, 20)
-        await this.light.Init()
+        //this.light = new MonteCarloPathTracing(this.scene.emitter, 20)
+        //await this.light.Init()
 
 
         this.render = new Render(this.density);
@@ -137,7 +137,7 @@ export class Fluid extends GPUAbstractRunner {
 
 
     async Run() {
-        this.light.Reset()
+        //this.light.Reset()
         GPU.device.queue.submit([
             this.source.GetCommandBuffer(),
             this.transport.GetCommandBuffer(),

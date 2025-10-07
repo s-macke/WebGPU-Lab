@@ -4,6 +4,8 @@ import {Buffer} from "../../webgpu/buffer";
 import {Raytrace} from "../../raytrace/raytrace";
 import {ShowError} from "../../ui";
 import {SDF} from "../../sdf/sdf";
+import SceneShader from "./scene.wgsl"
+import FBMShader from "../../raytrace/fbm.wgsl"
 
 export class LightScene {
     width: number
@@ -37,15 +39,13 @@ export class LightScene {
 
     async Init() {
         console.log("Init Scene")
-        let shader = await GPU.CreateShaderFromURL(
-            "scripts/modules/light/propagation/common.wgsl",
-            "scripts/light2/scene/scene.wgsl")
+        let shader = await GPU.CompileShader(SceneShader)
 
         // 0: color emitter circular harmonics, z-component
         // 1: normal vector of the surface
         this.emitter = GPU.CreateStorageTextureArray(this.width, this.height, 2,  "rgba8unorm")
 
-        this.raytrace = new Raytrace("fbm.wgsl")
+        this.raytrace = new Raytrace(FBMShader)
         try {
             await this.raytrace.Init()
             await this.raytrace.Run()

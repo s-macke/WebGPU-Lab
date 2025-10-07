@@ -1,5 +1,6 @@
 import {GPU} from "../../webgpu/gpu";
 import {Texture} from "../../webgpu/texture";
+import TransportShader from "./transport.wgsl"
 
 export class Transport {
     width: number;
@@ -23,7 +24,7 @@ export class Transport {
     }
 
     async Init() {
-        let shader = await GPU.CreateShaderFromURL("scripts/fluid/transport/transport.wgsl");
+        let shader = await GPU.CompileShader(TransportShader);
 
         this.textureb = GPU.CreateTexture(this.texturea.width, this.texturea.height, this.texturea.format);
 

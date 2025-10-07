@@ -14,6 +14,8 @@ import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
 import {Render} from "../render/render";
 import {LightScene} from "./scene/scene";
 import {ShowError} from "../ui";
+import ToneMappingShader from "./aces-tone-mapping.wgsl"
+import PropagateShader from "./propagate.wgsl"
 
 export class LightPropagation extends GPUAbstractRunner {
     width: number
@@ -71,10 +73,10 @@ export class LightPropagation extends GPUAbstractRunner {
         this.render = new Render(
             [this.textureDest, this.scene.emitter],
             [],
-            "scripts/light/common.wgsl", "scripts/light/distance.wgsl", "scripts/light/aces-tone-mapping.wgsl")
+            ToneMappingShader)
         await this.render.Init()
 
-        this.shader = await GPU.CreateShaderFromURL("scripts/light/common.wgsl", "scripts/light/distance.wgsl", "scripts/light/propagate.wgsl")
+        this.shader = await GPU.CompileShader(PropagateShader)
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [

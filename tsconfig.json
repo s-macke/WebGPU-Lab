@@ -1,21 +1,22 @@
 {
   "compilerOptions": {
-    "module": "esNext",
-    "target": "es6",
+    "module": "ESNext",
+    "target": "ES2023",
     "sourceMap": true,
     "outDir": "build/src/scripts",
     "moduleResolution": "node",
     "esModuleInterop": true,
-
     // more strict tests for the typescript code
     "strict": true,
     "strictNullChecks": false,
     "noImplicitAny": false,
-    "typeRoots": [ "./node_modules/@webgpu/types", "./node_modules/@types"],
+    "types": [
+      "@webgpu/types",
+      "vite-plugin-glsl/ext"
+    ],
     "lib": [
-      "es2017",
-      "esnext.bigint",
-      "dom"
+      "ES2023",
+      "DOM"
     ]
   },
   "include": [

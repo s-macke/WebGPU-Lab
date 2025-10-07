@@ -1,6 +1,7 @@
 import {GPU} from "../../webgpu/gpu";
 import {Texture} from "../../webgpu/texture";
 import {toHalf} from "../../webgpu/utils";
+import PoissonShader from "./jacobi.wgsl"
 
 export class Poisson {
     width: number;
@@ -26,7 +27,7 @@ export class Poisson {
     }
 
     async Init() {
-        let shader = await GPU.CreateShaderFromURL("scripts/fluid/poisson/jacobi.wgsl")
+        let shader = await GPU.CompileShader(PoissonShader)
 
         //await this.InitScaler();
         this.pressurea = GPU.CreateTexture(this.width, this.height, "r32float");

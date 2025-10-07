@@ -2,6 +2,8 @@ import {GPU} from "../../../webgpu/gpu";
 import {Texture} from "../../../webgpu/texture";
 import {GPUAbstractRunner, RunnerType} from "../../../AbstractGPURunner";
 import {Render} from "../../../render/render";
+import ToneMappingShader from "./aces-tone-mapping.wgsl"
+import PropagateShader from "./propagate.wgsl"
 
 export class LightPropagation extends GPUAbstractRunner {
     width: number
@@ -46,13 +48,13 @@ export class LightPropagation extends GPUAbstractRunner {
         this.textureSrc = GPU.CreateStorageTextureArray(this.width, this.height, 3, "rgba16float")
 
         console.log("Create Shader")
-        this.shader = await GPU.CreateShaderFromURL("scripts/modules/light/propagation/common.wgsl", "scripts/modules/light/propagation/propagate.wgsl")
+        this.shader = await GPU.CompileShader(PropagateShader)
 
         console.log("Create Render")
         this.render = new Render(
             [this.textureSrc, this.scene],
             [],
-            "scripts/modules/light/propagation/common.wgsl", "scripts/modules/light/propagation/aces-tone-mapping.wgsl")
+            ToneMappingShader)
         await this.render.Init()
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({

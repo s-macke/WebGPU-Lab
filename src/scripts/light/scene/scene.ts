@@ -1,6 +1,7 @@
 import {GPU} from "../../webgpu/gpu";
 import {Texture} from "../../webgpu/texture";
 import {Buffer} from "../../webgpu/buffer";
+import SceneShader from "./scene.wgsl"
 
 export class LightScene {
     width: number
@@ -33,7 +34,7 @@ export class LightScene {
 
     async Init() {
         console.log("Init Scene")
-        let shader = await GPU.CreateShaderFromURL("scripts/light/common.wgsl", "scripts/light/distance.wgsl", "scripts/light/scene/scene.wgsl")
+        let shader = await GPU.CompileShader(SceneShader)
 
         // 0: color red emitter circular harmonics
         // 1: color green emitter circular harmonics

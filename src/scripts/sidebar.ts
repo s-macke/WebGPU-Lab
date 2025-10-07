@@ -18,6 +18,15 @@ import {SDF} from "./sdf/sdf";
 import {LightMonteCarloPathTracing} from "./light_monte_carlo_path_tracing/light";
 import {LightPropagationBuffer} from "./light_buffer/light";
 
+import VoronoiFragmentShader from './raytrace/voronoise.wgsl';
+import CloudFragmentShader from './raytrace/cloud.wgsl';
+import SmallPTFragmentShader from './raytrace/smallpt.wgsl';
+import SmallPTToneMappingFragmentShader from './raytrace/smallpt-tone-mapping.wgsl';
+import FBMFragmentShader from './raytrace/fbm.wgsl';
+import VoronoiseFBMFragmentShader from './raytrace/voronoise_fbm.wgsl';
+import LightFragmentShader from './raytrace/light.wgsl';
+
+
 export async function ShowFeatures() {
     await HandleRunner(new Features())
 }
@@ -33,13 +42,13 @@ export async function ShowBenchmark() {
 
 export async function ShowTexture() {
     let texture: Texture
-    texture = await GPU.createTextureFromImage("scripts/render/Lenna.png")
+    texture = await GPU.createTextureFromImage("images/Lenna.png")
     await HandleRunner(new Render([texture], []))
     texture.destroy()
 }
 
-export async function ShowRaytrace(filename: string, fragmentShaderFilename: string = null) {
-    let raytrace = new Raytrace(filename, fragmentShaderFilename)
+export async function ShowRaytrace(filename: string, fragmentShader: string = null) {
+    let raytrace = new Raytrace(filename, fragmentShader)
     await HandleRunner(new GPURenderRunner(raytrace))
 }
 
@@ -76,7 +85,7 @@ async function RunOnce(runner: GPURunner) {
 }
 
 export async function ShowSDF() {
-    let raytrace = new Raytrace("fbm.wgsl")
+    let raytrace = new Raytrace(FBMFragmentShader)
     await RunOnce(raytrace)
 
     let sdf = new SDF(raytrace.texturedest)
@@ -106,12 +115,12 @@ let toc: TOCEntry[] = [
     {
         title: "Global Illumination",
         elementName: "button_gi",
-        func: () => ShowRaytrace("smallpt.wgsl", "smallpt-tone-mapping.wgsl")
+        func: () => ShowRaytrace(SmallPTFragmentShader, SmallPTToneMappingFragmentShader)
     },
     {
         title: "Protean Clouds",
         elementName: "button_clouds",
-        func: () => ShowRaytrace("cloud.wgsl")
+        func: () => ShowRaytrace(CloudFragmentShader)
     },
     {
         title: "Collatz Conjecture",
@@ -126,17 +135,17 @@ let toc: TOCEntry[] = [
     {
         title: "Voronoise",
         elementName: "button_voronoise",
-        func: () => ShowRaytrace("voronoise.wgsl")
+        func: () => ShowRaytrace(VoronoiFragmentShader)
     },
     {
         title: "FBM",
         elementName: "button_fbm",
-        func: () => ShowRaytrace("voronoise_fbm.wgsl")
+        func: () => ShowRaytrace(VoronoiseFBMFragmentShader)
     },
     {
         title: "2D Light",
         elementName: "button_2dlight",
-        func: () => ShowRaytrace("light.wgsl")
+        func: () => ShowRaytrace(LightFragmentShader)
     },
     {
         title: "2D Light Propagation",

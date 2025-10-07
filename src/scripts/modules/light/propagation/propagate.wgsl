@@ -1,3 +1,5 @@
+#include "common.wgsl"
+
 @group(0) @binding(0) var img_input : texture_2d_array<f32>;
 @group(0) @binding(1) var img_output : texture_storage_2d_array<rgba16float, write>;
 @group(1) @binding(0) var scene : texture_2d_array<f32>;

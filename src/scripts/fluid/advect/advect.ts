@@ -1,6 +1,7 @@
 import {GPU} from "../../webgpu/gpu";
 import {Texture} from "../../webgpu/texture";
 import {toHalf} from "../../webgpu/utils";
+import AdvectShader from "./advect.wgsl"
 
 export class Advect {
     width: number;
@@ -23,7 +24,7 @@ export class Advect {
     }
 
     async Init() {
-        let shader = await GPU.CreateShaderFromURL("scripts/fluid/advect/advect.wgsl")
+        let shader = await GPU.CompileShader(AdvectShader)
 
         this.velocitydest = GPU.CreateTexture(this.velocitysrc.width, this.velocitysrc.height, this.velocitysrc.format);
 

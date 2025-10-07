@@ -1,3 +1,5 @@
+#include "../../modules/light/propagation/common.wgsl"
+
 struct StagingBuffer {
     iMouse: vec2f,
     wheel: f32,

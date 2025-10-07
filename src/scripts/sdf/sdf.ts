@@ -1,6 +1,8 @@
 import {GPU} from "../webgpu/gpu";
 import {Texture} from "../webgpu/texture";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
+import SDFShader from './sdf.wgsl';
+
 
 export class SDF extends GPUAbstractRunner {
     width: number;
@@ -27,14 +29,13 @@ export class SDF extends GPUAbstractRunner {
         return RunnerType.ASYNCANIM
     }
 
-
     async Destroy() {
         this.texturea.destroy()
         this.textureb.destroy()
     }
 
     async Init() {
-        let shader: GPUProgrammableStage = await GPU.CreateShaderFromURL("scripts/sdf/sdf.wgsl")
+        let shader: GPUProgrammableStage = await GPU.CompileShader(SDFShader)
 
         this.texturea = GPU.CreateStorageTexture(this.width, this.height, "rg32float")
         this.textureb = GPU.CreateStorageTexture(this.width, this.height, "rg32float")
@@ -110,10 +111,10 @@ export class SDF extends GPUAbstractRunner {
         GPU.device.queue.submit([this.getCommandBuffer()]);
         await GPU.device.queue.onSubmittedWorkDone();
     }
-    override getRenderInfo(): { textures: Texture[]; fragmentShaderFilenames: string[] } {
+    override getRenderInfo(): { textures: Texture[]; fragmentShader: string } {
         return {
             textures: [this.render_output],
-            fragmentShaderFilenames: []
+            fragmentShader: null
         }
     }
 }

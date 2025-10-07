@@ -2,6 +2,9 @@ import {GPU} from "../webgpu/gpu";
 import {Texture} from "../webgpu/texture";
 import {Buffer} from "../webgpu/buffer";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
+import DiffuseShader from './diffuse.wgsl';
+import ToneMappingShader from './aces-tone-mapping.wgsl';
+
 
 export class Diffuse extends GPUAbstractRunner {
     width: number;
@@ -158,7 +161,7 @@ export class Diffuse extends GPUAbstractRunner {
         this.stagingBuffer = GPU.CreateUniformBuffer(4 * 4) // must be a multiple of 16 bytes
         this.stagingData = new Float32Array(4)
 
-        this.shader = await GPU.CreateShaderFromURL("scripts/diffuse/diffuse.wgsl")
+        this.shader = await GPU.CompileShader(DiffuseShader)
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{
@@ -276,10 +279,10 @@ export class Diffuse extends GPUAbstractRunner {
         GPU.device.queue.submit([this.getCommandBuffer()])
     }
 
-    override getRenderInfo(): { textures: Texture[]; fragmentShaderFilenames: string[] } {
+    override getRenderInfo(): { textures: Texture[]; fragmentShader: string } {
         return {
             textures: [this.texturedest],
-            fragmentShaderFilenames: ["scripts/diffuse/aces-tone-mapping.wgsl"]
+            fragmentShader: ToneMappingShader
         }
     }
 

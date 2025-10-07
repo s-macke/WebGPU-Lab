@@ -1,5 +1,7 @@
 import {GPU} from "../../webgpu/gpu";
 import {Texture} from "../../webgpu/texture";
+import RenderVertexShader from "./render.vert.wgsl"
+import RenderFragmentShader from "./render.frag.wgsl"
 
 export class Render {
     bind_group_layout: GPUBindGroupLayout;
@@ -13,8 +15,8 @@ export class Render {
     }
 
     async Init() {
-        let vertShader = await GPU.CreateShaderFromURL("scripts/fluid/render/render.vert.wgsl")
-        let fragShader = await GPU.CreateShaderFromURL("scripts/fluid/render/render.frag.wgsl")
+        let vertShader = await GPU.CompileShader(RenderVertexShader)
+        let fragShader = await GPU.CompileShader(RenderFragmentShader)
         let sampler = GPU.CreateSampler();
 
 

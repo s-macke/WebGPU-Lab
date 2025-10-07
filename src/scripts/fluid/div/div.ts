@@ -1,6 +1,7 @@
 import {GPU} from "../../webgpu/gpu";
 import {Texture} from "../../webgpu/texture";
 import {toHalf} from "../../webgpu/utils";
+import DivShader from "./div.wgsl"
 
 export class Div {
     width: number;
@@ -24,7 +25,7 @@ export class Div {
 
     async Init() {
         console.log("Init div");
-        let shader = await GPU.CreateShaderFromURL("scripts/fluid/div/div.wgsl")
+        let shader = await GPU.CompileShader(DivShader)
         this.div = GPU.CreateTexture(this.velocity.width, this.velocity.height, "r32float");
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({

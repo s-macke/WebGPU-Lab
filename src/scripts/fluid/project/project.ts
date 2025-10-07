@@ -1,6 +1,7 @@
 import {GPU} from "../../webgpu/gpu";
 import {Texture} from "../../webgpu/texture";
 import {toHalf} from "../../webgpu/utils";
+import ProjectShader from "./project.wgsl"
 
 export class Project {
     width: number;
@@ -26,7 +27,7 @@ export class Project {
 
     async Init() {
         console.log("Init project");
-        let shader = await GPU.CreateShaderFromURL("scripts/fluid/project/project.wgsl")
+        let shader = await GPU.CompileShader(ProjectShader)
         this.velocitydest = GPU.CreateStorageTexture(this.velocity.width, this.velocity.height, this.velocity.format);
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({

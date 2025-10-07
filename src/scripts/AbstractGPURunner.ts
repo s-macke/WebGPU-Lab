@@ -10,7 +10,7 @@ export enum RunnerType {
 
 export interface GPURunner {
     getType(): RunnerType;
-    getRenderInfo(): {textures: Texture[], fragmentShaderFilenames: string[]};
+    getRenderInfo(): {textures: Texture[], fragmentShader: string};
     getCommandBuffer(): GPUCommandBuffer;
     Run(): Promise<void>;
     Render(): void;
@@ -32,7 +32,7 @@ export abstract class GPUAbstractRunner implements GPURunner {
         throw new Error("Method not implemented.");
     }
 
-    getRenderInfo(): { textures: Texture[]; fragmentShaderFilenames: string[] } {
+    getRenderInfo(): { textures: Texture[]; fragmentShader: string } {
         throw new Error("Method not implemented.");
     }
 }

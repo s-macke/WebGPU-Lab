@@ -1,5 +1,5 @@
 # Ignore built ts files
-/build/**/*
+/dist/**/*
 /node_modules/**/*
 /backup/**/*
 .idea

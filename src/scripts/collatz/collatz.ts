@@ -1,6 +1,9 @@
 import {GPU} from "../webgpu/gpu";
 import {Buffer} from "../webgpu/buffer";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
+import CollatzShader from './collatz.wgsl';
+
+
 export class Collatz extends GPUAbstractRunner {
     integers: Uint32Array;
     stopping_time: Uint32Array;
@@ -28,7 +31,7 @@ export class Collatz extends GPUAbstractRunner {
     override async Init(): Promise<void> {
         console.log("Collatz");
 
-        let shader: GPUProgrammableStage = await GPU.CreateShaderFromURL("scripts/collatz/collatz.wgsl");
+        let shader: GPUProgrammableStage = await GPU.CompileShader(CollatzShader);
 
         this.stagingBuffer = GPU.CreateBufferCopy(this.integers.buffer.byteLength);
         this.storageBuffer = GPU.CreateStorageBufferFromArrayBuffer(this.integers.buffer);

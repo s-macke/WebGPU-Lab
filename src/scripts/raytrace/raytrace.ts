@@ -4,6 +4,7 @@ import {Buffer} from "../webgpu/buffer";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
 import {Render} from "../render/render";
 
+
 export class Raytrace extends GPUAbstractRunner {
     width: number
     height: number
@@ -20,17 +21,17 @@ export class Raytrace extends GPUAbstractRunner {
     stagingBuffer: Buffer
     stagingData: Float32Array
 
-    filename: string
-    fragmentShaderFilename: string
+    fragmentShader1: string
+    fragmentShader2: string
 
     startTime: number
 
-    constructor(filename: string, fragmentShaderFilename: string = null) {
+    constructor(fragmentShader1: string, fragmentShader2: string = null) {
         super();
-        this.filename = filename
+        this.fragmentShader1 = fragmentShader1
+        this.fragmentShader2 = fragmentShader2
         this.width = GPU.viewport.width
         this.height = GPU.viewport.height
-        this.fragmentShaderFilename = fragmentShaderFilename
     }
 
     override getType(): RunnerType {
@@ -50,7 +51,7 @@ export class Raytrace extends GPUAbstractRunner {
         this.stagingBuffer = GPU.CreateUniformBuffer(4*3 + 4) // must be a multiple of 16 bytes
         this.stagingData = new Float32Array(4)
 
-        this.shader = await GPU.CreateShaderFromURL("scripts/raytrace/" + this.filename)
+        this.shader = await GPU.CompileShader(this.fragmentShader1)
 
         this.bind_group_layout = GPU.device.createBindGroupLayout({
             entries: [{
@@ -99,16 +100,16 @@ export class Raytrace extends GPUAbstractRunner {
         this.startTime = new Date().getTime();
     }
 
-    override getRenderInfo(): { textures: Texture[]; fragmentShaderFilenames: string[] } {
-        if (this.fragmentShaderFilename == null) {
+    override getRenderInfo(): { textures: Texture[]; fragmentShader: string } {
+        if (this.fragmentShader2 == null) {
             return {
                 textures: [this.texturedest],
-                fragmentShaderFilenames: []
+                fragmentShader: null
             }
         }
         return {
             textures: [this.texturedest],
-            fragmentShaderFilenames: ["scripts/raytrace/" + this.fragmentShaderFilename]
+            fragmentShader: this.fragmentShader2
         }
     }
 

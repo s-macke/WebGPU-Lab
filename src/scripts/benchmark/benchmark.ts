@@ -2,6 +2,7 @@ import {GPU} from "../webgpu/gpu";
 import {Buffer} from "../webgpu/buffer";
 import {GPUAbstractRunner, RunnerType} from "../AbstractGPURunner";
 import Chart from 'chart.js/auto';
+import IsPrimeShader from './isPrime.wgsl';
 
 
 export class Benchmark extends GPUAbstractRunner {
@@ -44,7 +45,7 @@ export class Benchmark extends GPUAbstractRunner {
         }
         console.log("Benchmark");
 
-        let shader: GPUProgrammableStage = await GPU.CreateShaderFromURL("scripts/benchmark/isPrime.wgsl");
+        let shader: GPUProgrammableStage = await GPU.CompileShader(IsPrimeShader);
 
         this.storageBufferSrc = GPU.CreateStorageBufferFromArrayBuffer(this.integers.buffer);
         this.storageBufferDest = GPU.CreateStorageBufferFromArrayBuffer(this.integers.buffer);

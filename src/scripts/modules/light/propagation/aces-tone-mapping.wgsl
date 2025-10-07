@@ -1,3 +1,5 @@
+#include "common.wgsl"
+
 // ACES tonemapper
 fn ACES(x: vec3f) -> vec3f {
     const a: f32 = 2.51;

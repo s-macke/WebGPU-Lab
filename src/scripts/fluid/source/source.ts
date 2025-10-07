@@ -1,6 +1,7 @@
 import {GPU} from "../../webgpu/gpu";
 import {Texture} from "../../webgpu/texture";
 import {Buffer} from "../../webgpu/buffer";
+import SourceShader from "./source.wgsl"
 
 export class Source {
     width: number;
@@ -29,7 +30,7 @@ export class Source {
     }
 
     async Init() {
-        let shader = await GPU.CreateShaderFromURL("scripts/fluid/source/source.wgsl")
+        let shader = await GPU.CompileShader(SourceShader)
 
         this.velocitydest = GPU.CreateTexture(this.velocitysrc.width, this.velocitysrc.height, this.velocitysrc.format);
         this.densitydest = GPU.CreateTexture(this.densitysrc.width, this.densitysrc.height, this.densitysrc.format);
