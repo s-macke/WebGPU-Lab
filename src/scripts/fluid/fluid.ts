@@ -122,7 +122,7 @@ export class Fluid extends GPUAbstractRunner {
     }
 
     public async Destroy() {
-        await this.light.Destroy()
+        //await this.light.Destroy()
         await this.scene.Destroy()
         await this.project.Destroy()
         await this.poisson.Destroy()
