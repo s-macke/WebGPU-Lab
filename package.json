@@ -9,8 +9,8 @@
     "@webgpu/types": "^0.1",
     "copyfiles": "^2.4",
     "typescript": "^5",
-    "vite": "^7.1",
-    "vite-plugin-glsl": "^1.5.4"
+    "vite": "^7",
+    "vite-plugin-glsl": "^1.5"
   },
   "scripts": {
     "dev": "vite",
